@@ -5,7 +5,13 @@ import styles from "../styles/Sort.module.css";
 
 let lstMember = new Array();
 
-const Sort = ({ ogList }: { ogList: ListItem[] }) => {
+const Sort = ({
+  ogList,
+  setStartSort,
+}: {
+  ogList: ListItem[];
+  setStartSort: Function;
+}) => {
   const [showResults, setShowResults] = useState<boolean>(false);
   const ref = useRef<HTMLTableElement>(null);
 
@@ -300,7 +306,11 @@ const Sort = ({ ogList }: { ogList: ListItem[] }) => {
 
     for (let i = 0; i < ogList.length; i++) {
       resultsItems.push(
-        <ResultsItem key={i} ranking={ranking} item={ogList[lstMember[0][i]].value} />
+        <ResultsItem
+          key={i}
+          ranking={ranking}
+          item={ogList[lstMember[0][i]].value}
+        />
       );
 
       if (i < ogList.length - 1) {
@@ -339,43 +349,9 @@ const Sort = ({ ogList }: { ogList: ListItem[] }) => {
     );
   };
 
-  /* const exportToPng = () => {
-    domtoimage
-      .toJpeg(document.getElementById("ResultsTable") as HTMLElement, {
-        quality: 0.95,
-      })
-      .then(function (dataUrl: string) {
-        var link = document.createElement("a");
-        link.download = `{misorter-results-${new Date(
-          Date.now()
-        ).toLocaleString()}.jpeg}`;
-        link.href = dataUrl;
-        link.click();
-      });
-  }; */
-
-  /* const exportToPng = useCallback(() => {
-    if (ref.current === null) {
-      return;
-    }
-
-    toPng(ref.current, { cacheBust: true })
-      .then((dataUrl) => {
-        const link = document.createElement("a");
-        link.download = `misorter-results-${new Date(
-          Date.now()
-        ).toLocaleString()}.png`;
-        link.href = dataUrl;
-        link.click();
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, [ref]); */
-
   const exportToPng = () => {
     html2canvas(document.getElementById("ResultsTable") as HTMLElement).then(
-      canvas => {
+      (canvas) => {
         let link = document.createElement("a");
         link.download = `misorter-results-${new Date(
           Date.now()
@@ -389,6 +365,13 @@ const Sort = ({ ogList }: { ogList: ListItem[] }) => {
   return (
     <>
       <div className={styles.container}>
+        <button
+          className={styles.back}
+          type="button"
+          onClick={() => setStartSort(false)}
+        >
+          ← Back
+        </button>
         <div id="battleNumber" className={styles.gridHeader}>
           Battle #1
           <br />

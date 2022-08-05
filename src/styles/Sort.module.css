@@ -1,3 +1,20 @@
+.back {
+  color: #2253a3;
+  border: transparent;
+  background-color: transparent;
+  cursor: pointer;
+  grid-area: back;
+  font-weight: 600;
+  font-size: 1.2rem;
+  transition: font-size 0.1s;
+}
+
+.back:hover {
+  font-weight: 700;
+  font-size: 1.3rem;
+  transform: font-size 0.1s;
+}
+
 .leftField,
 .rightField,
 .both,
@@ -65,7 +82,7 @@
   grid-template-columns: 200px 120px 120px 200px;
   grid-template-rows: auto;
   grid-template-areas:
-    ". header header ."
+    "back header header ."
     "leftField both both rightField"
     "leftField noOpinion noOpinion rightField";
 }

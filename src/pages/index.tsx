@@ -63,7 +63,7 @@ const Home: NextPage = () => {
         <p className={styles.description}>{tip}</p>
 
         {startSort ? (
-          <Sort ogList={list} />
+          <Sort ogList={list} setStartSort={setStartSort} />
         ) : (
           <Setup {...{ list, setList, newItem, setNewItem, setStartSort }} />
         )}
