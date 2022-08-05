@@ -9,10 +9,15 @@ import styles from "../styles/Home.module.css";
 const tip =
   "hitting 'no opinion' or 'I like both' frequently will negatively affect your results.";
 
+export type ListItem = {
+  id: string;
+  value: string;
+}
+
 const Home: NextPage = () => {
   const [editTitle, setEditTitle] = useState<boolean>(true);
   const [title, setTitle] = useState<string>("misorter");
-  const [list, setList] = useState<string[]>([]);
+  const [list, setList] = useState<ListItem[]>([]);
   const [newItem, setNewItem] = useState<string>("");
   const [startSort, setStartSort] = useState<boolean>(false);
 

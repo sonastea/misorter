@@ -1,10 +1,11 @@
 import html2canvas from "html2canvas";
 import { useEffect, useRef, useState } from "react";
+import { ListItem } from "src/pages";
 import styles from "../styles/Sort.module.css";
 
 let lstMember = new Array();
 
-const Sort = ({ ogList }: { ogList: string[] }) => {
+const Sort = ({ ogList }: { ogList: ListItem[] }) => {
   const [showResults, setShowResults] = useState<boolean>(false);
   const ref = useRef<HTMLTableElement>(null);
 
@@ -273,7 +274,7 @@ const Sort = ({ ogList }: { ogList: string[] }) => {
   }
 
   function toNameFace(n: any) {
-    let str = ogList[n];
+    let str = ogList[n].value;
     return str;
   }
 
@@ -299,7 +300,7 @@ const Sort = ({ ogList }: { ogList: string[] }) => {
 
     for (let i = 0; i < ogList.length; i++) {
       resultsItems.push(
-        <ResultsItem key={i} ranking={ranking} item={ogList[lstMember[0][i]]} />
+        <ResultsItem key={i} ranking={ranking} item={ogList[lstMember[0][i]].value} />
       );
 
       if (i < ogList.length - 1) {

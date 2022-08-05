@@ -1,7 +1,9 @@
+import { ListItem } from "src/pages";
+import { v4 as uuidv4 } from "uuid";
 import styles from "../styles/Home.module.css";
 
 interface SetupProps {
-  list: string[];
+  list: ListItem[];
   setList: Function;
   newItem: string;
   setNewItem: Function;
@@ -26,7 +28,7 @@ const Setup = ({
     }
 
     setStartSort(true);
-  }
+  };
 
   return (
     <>
@@ -43,16 +45,19 @@ const Setup = ({
             if (e.code === "Enter") {
               e.preventDefault();
               e.stopPropagation();
-              setList((prev: any) => [newItem, ...prev]);
+              setList((prev: any) => [
+                { id: uuidv4(), value: newItem },
+                ...prev,
+              ]);
               setNewItem("");
             }
           }}
         />
         {list &&
-          list.map((item: string, index) => {
+          list.map((item: ListItem) => {
             return (
-              <li className={styles.item} key={index}>
-                <p>{item}</p>
+              <li className={styles.item} key={item.id}>
+                <p>{item.value}</p>
                 <svg
                   className={styles.removeItem}
                   style={{ width: "1.75em", height: "1.75em" }}
@@ -62,7 +67,7 @@ const Setup = ({
                       styles.removing
                     );
                     setTimeout(() => {
-                      setList(list.filter((l: any) => l.id !== index));
+                      setList(list.filter((it) => it !== item));
                     }, 200);
                   }}
                 >
