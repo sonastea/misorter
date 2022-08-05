@@ -1,0 +1,134 @@
+.leftField,
+.rightField,
+.both,
+.noOpinion {
+  cursor: pointer;
+  border: gray;
+  border-style: solid;
+  border-width: thin;
+  padding: 1.4rem 1.4rem;
+  font-size: 1.5rem;
+}
+
+.leftField:hover,
+.rightField:hover,
+.both:hover,
+.noOpinion:hover {
+  background-color: hsl(0, 0%, 96%);
+}
+
+.gridHeader {
+  grid-area: header;
+  padding: 1.1rem 1.33rem;
+}
+
+.leftField {
+  grid-area: leftField;
+  overflow: hidden;
+  display: grid;
+  align-items: center;
+  justify-content: center;
+  word-break: break-all;
+}
+
+.rightField {
+  grid-area: rightField;
+  overflow: hidden;
+  display: grid;
+  align-items: center;
+  justify-content: center;
+  word-break: break-all;
+}
+
+.both,
+.noOpinion {
+  overflow: hidden;
+  display: grid;
+  align-items: center;
+  justify-content: center;
+  word-break: break-all;
+}
+
+.both {
+  grid-area: both;
+}
+
+.noOpinion {
+  grid-area: noOpinion;
+}
+
+.container {
+  text-align: center;
+  display: grid;
+
+  grid-gap: 0.75rem;
+  grid-template-columns: 200px 120px 120px 200px;
+  grid-template-rows: auto;
+  grid-template-areas:
+    ". header header ."
+    "leftField both both rightField"
+    "leftField noOpinion noOpinion rightField";
+}
+
+.resultsTable {
+  min-width: 400px;
+  max-width: 600px;
+  font-size: 1.1rem;
+  line-height: 120%;
+  margin: 2rem;
+  border: 1px solid #000;
+  border-collapse: collapse;
+  text-align: center;
+}
+
+.resultsHeader {
+  color: #ffffff;
+  background-color: #ff5fa2;
+  text-align: center;
+}
+
+.itemRow {
+  border: 1px solid hsl(0, 0%, 29%);
+  text-align: center;
+}
+
+.leftItemRow {
+  border-right: 1px solid hsl(0, 0%, 29%);
+  text-align: center;
+  padding-right: 5px;
+}
+
+.rightItemRow {
+  word-break: break-all;
+  padding-left: 5px;
+}
+
+.export {
+  color: #ff5fa2;
+  border-color: #ff5fa2;
+  background-color: transparent;
+  display: inline-block;
+  border-style: solid;
+  border-radius: 0.55rem;
+  cursor: pointer;
+  font-size: 1.4rem;
+  font-weight: bold;
+  user-select: none;
+  vertical-align: bottom;
+  position: relative;
+  border-style: solid;
+  overflow: hidden;
+  padding: 0.55rem;
+  transition: color 0.15s ease-in, background-color 0.15s ease-in;
+}
+
+.export:hover {
+  color: white;
+  background-color: #ff5fa2;
+  transition: transform 0.15s;
+}
+
+#leftField,
+#rightField {
+  margin: auto;
+}

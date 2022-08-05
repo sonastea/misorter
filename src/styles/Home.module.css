@@ -1,0 +1,188 @@
+.container {
+  padding: 0 1rem;
+}
+
+.main {
+  padding: 2rem 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.title {
+  color: hsl(0, 0%, 13%);
+  font-size: 2.5rem;
+  margin: 0;
+  line-height: 1.5;
+  cursor: text;
+}
+
+.title a:hover,
+.title a:focus,
+.title a:active {
+  text-decoration: underline;
+}
+
+.title,
+.editTitle,
+.description {
+  text-align: center;
+}
+
+.editTitle {
+  font-size: 2.5rem;
+  margin: 0;
+  border-radius: 0.65rem;
+  outline: none;
+}
+
+.description {
+  color: hsl(0, 0%, 29%);
+  margin: 1rem 0;
+  line-height: 1.5;
+  font-size: 1.1rem;
+}
+
+.listTable {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  width: 80%;
+  margin: 0 4rem;
+  justify-content: center;
+  justify-items: center;
+}
+
+.listInput {
+  border-radius: 0.65rem;
+  font-size: 1rem;
+  margin: 0.5rem;
+  padding: 0.75rem;
+  width: 95%;
+  border: transparent;
+  border-style: solid;
+  border-width: thin;
+  place-self: center;
+}
+
+.listInput:hover {
+  border-radius: 0.65rem;
+  border: hsl(0, 0%, 22%);
+  border-style: solid;
+  border-width: thin;
+  outline: none;
+}
+
+.listInput:focus {
+  border: hsl(0, 0%, 22%);
+  border-style: solid;
+  border-width: thin;
+  outline: transparent;
+}
+
+.item {
+  display: flex;
+  margin: 0.2rem;
+  padding: 0.75rem;
+  list-style: none;
+  text-align: left;
+  text-decoration: none;
+  border: 1px solid #b3b3b3;
+  border-radius: 1.3rem;
+  transition: color 0.15s ease, border-color 0.15s ease, all 0.15s ease-in-out;
+  box-shadow: rgba(0, 0, 0, 0.15) 1.45px 1.25px 1.85px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.item:hover,
+.item:focus,
+.item:active {
+  border-color: hsl(0, 0%, 12%);
+  transform: scale(1.05);
+}
+
+.item p {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 1.20rem;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+.removing {
+  opacity: 0;
+  transition: opacity 150ms ease-out;
+}
+
+.removeItem {
+  /* flex-basis: 20%; */
+  color: hsl(0, 0%, 21%);
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  z-index: 9;
+}
+
+.removeItem:hover {
+  color: hsl(0, 72%, 50%);
+  transform: scale(1.20);
+}
+
+.listButtons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 0.5rem;
+  width: 100%;
+  gap: 1rem;
+}
+
+.start {
+  color: #ff5fa2;
+  border-color: #ff5fa2;
+  background-color: transparent;
+  display: inline-block;
+  border-style: solid;
+  border-radius: 0.55rem;
+  cursor: pointer;
+  font-size: 1.4rem;
+  font-weight: bold;
+  user-select: none;
+  vertical-align: bottom;
+  position: relative;
+  border-style: solid;
+  overflow: hidden;
+  padding: 0.55rem;
+  transition: color 0.15s ease-in, background-color 0.15s ease-in;
+}
+
+.start:hover {
+  color: white;
+  background-color: #ff5fa2;
+  transition: transform 0.15s;
+}
+
+.reset {
+  color: hsl(0, 0%, 22%);
+  background-color: transparent;
+  border-color: transparent;
+  border-style: solid;
+  display: inline-block;
+  border-radius: 0.55rem;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1.4rem;
+  user-select: none;
+  vertical-align: bottom;
+  position: relative;
+  overflow: hidden;
+  transition: background-color 0.15s ease-in, color 0.3s;
+  padding: 0.55rem;
+}
+
+.reset:hover {
+  color: hsl(0, 0%, 0%);
+  background-color: hsl(0, 0%, 88%);
+  transition: transform 0.15s;
+}
