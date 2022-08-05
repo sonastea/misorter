@@ -1,5 +1,6 @@
 .container {
-  padding: 0 1rem;
+  position: relative;
+  min-height: 100%;
 }
 
 .main {
@@ -8,10 +9,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding-bottom: 11rem;
 }
 
 .title {
-  color: hsl(0, 0%, 13%);
+  color: hsl(0, 0%, 12%);
   font-size: 2.5rem;
   margin: 0;
   line-height: 1.5;
@@ -38,7 +40,7 @@
 }
 
 .description {
-  color: hsl(0, 0%, 29%);
+  color: hsl(0, 0%, 12%);
   margin: 1rem 0;
   line-height: 1.5;
   font-size: 1.1rem;
@@ -48,8 +50,9 @@
   display: flex;
   flex-wrap: wrap;
   flex-direction: column;
-  width: 80%;
-  margin: 0 4rem;
+  width: 50vw;
+  padding: 0;
+  margin: 1rem 0;
   justify-content: center;
   justify-items: center;
 }
@@ -94,6 +97,7 @@
   box-shadow: rgba(0, 0, 0, 0.15) 1.45px 1.25px 1.85px;
   width: 100%;
   overflow: hidden;
+  border: 1px solid #000;
 }
 
 .item:hover,
@@ -106,7 +110,7 @@
 .item p {
   flex-basis: 100%;
   margin: 0;
-  font-size: 1.20rem;
+  font-size: 1.2rem;
   line-height: 1.5;
   overflow-x: hidden;
 }
@@ -126,7 +130,7 @@
 
 .removeItem:hover {
   color: hsl(0, 72%, 50%);
-  transform: scale(1.20);
+  transform: scale(1.2);
 }
 
 .listButtons {

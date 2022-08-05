@@ -1,6 +1,7 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import { useState } from "react";
+import Footer from "src/components/Footer";
 import Setup from "src/components/Setup";
 import Sort from "src/components/Sort";
 import styles from "../styles/Home.module.css";
@@ -11,13 +12,7 @@ const tip =
 const Home: NextPage = () => {
   const [editTitle, setEditTitle] = useState<boolean>(true);
   const [title, setTitle] = useState<string>("misorter");
-  const [list, setList] = useState<string[]>([
-    "optionaaaaaaaaaaaaaaaaaaaa1",
-    "optionaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa2",
-    "option3",
-    "option4",
-    "option5",
-  ]);
+  const [list, setList] = useState<string[]>([]);
   const [newItem, setNewItem] = useState<string>("");
   const [startSort, setStartSort] = useState<boolean>(false);
 
@@ -68,6 +63,7 @@ const Home: NextPage = () => {
           <Setup {...{ list, setList, newItem, setNewItem, setStartSort }} />
         )}
       </main>
+      <Footer />
     </div>
   );
 };

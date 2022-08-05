@@ -6,11 +6,23 @@ body {
 }
 
 a {
-  color: inherit;
+  color: #6fc5c2;
   text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
 }
 
 * {
   box-sizing: border-box;
 }
 
+footer {
+  color: hsl(0, 0%, 12%);
+  position: absolute;
+  bottom: 0;
+  text-align: center;
+  width: 100vw;
+  padding: 1rem 0;
+}
