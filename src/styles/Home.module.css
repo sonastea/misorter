@@ -190,3 +190,9 @@
   background-color: hsl(0, 0%, 88%);
   transition: transform 0.15s;
 }
+
+@media (max-width: 600px) {
+  .listTable {
+    width: 90vw;
+  }
+}
