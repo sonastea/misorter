@@ -20,11 +20,11 @@
 .both,
 .noOpinion {
   cursor: pointer;
-  border: gray;
+  border: hsl(0, 0%, 29%);
   border-style: solid;
   border-width: thin;
-  padding: 1.4rem 1.4rem;
-  font-size: 1.5rem;
+  padding: 1.3rem 1.3rem;
+  font-size: 1.45rem;
 }
 
 .leftField:hover,
@@ -77,14 +77,13 @@
 .container {
   text-align: center;
   display: grid;
-
   grid-gap: 0.75rem;
-  grid-template-columns: 200px 120px 120px 200px;
+  grid-template-columns: 100px 100px 120px 120px 100px 100px;
   grid-template-rows: auto;
   grid-template-areas:
-    "back header header ."
-    "leftField both both rightField"
-    "leftField noOpinion noOpinion rightField";
+    "back back header header . ."
+    "leftField leftField both both rightField rightField"
+    "leftField leftField noOpinion noOpinion rightField rightField";
 }
 
 .resultsTable {
@@ -148,4 +147,28 @@
 #leftField,
 #rightField {
   margin: auto;
+}
+
+@media (max-width: 600px) {
+  .container {
+    margin: 0.5rem;
+    grid-gap: 0.5rem;
+    grid-template-columns: 1fr 1fr 45px 45px 1fr 1fr;
+    grid-template-areas:
+      "back back header header . ."
+      "leftField leftField both both rightField rightField"
+      "leftField leftField noOpinion noOpinion rightField rightField";
+  }
+
+  .leftField,
+  .rightField,
+  .both,
+  .noOpinion {
+    cursor: pointer;
+    border: hsl(0, 0%, 29%);
+    border-style: solid;
+    border-width: thin;
+    padding: 1.2rem 1.2rem;
+    font-size: 1.15rem;
+  }
 }
