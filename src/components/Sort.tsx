@@ -4,6 +4,17 @@ import { ListItem } from "src/pages";
 import styles from "../styles/Sort.module.css";
 
 let lstMember = new Array();
+let parent = new Array();
+let equal = new Array();
+let rec = new Array();
+
+let cmp1: number, cmp2: number;
+let head1: number, head2: number;
+let nrec: number;
+let numQuestion: number;
+let totalSize: number;
+let finishSize: number;
+let finishFlag: number;
 
 const Sort = ({
   ogList,
@@ -17,19 +28,6 @@ const Sort = ({
 
   // Thanks to biasorter.tumblr.com for the code
   // https://biasorter.tumblr.com/
-  //
-  let parent = new Array();
-  let equal = new Array();
-  let rec = new Array();
-
-  let cmp1: number, cmp2: number;
-  let head1: number, head2: number;
-  let nrec: number;
-  let numQuestion: number;
-  let totalSize: number;
-  let finishSize: number;
-  let finishFlag: number;
-
   function initList() {
     let n = 0;
     let mid;
