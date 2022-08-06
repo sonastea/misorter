@@ -99,6 +99,7 @@
   box-shadow: rgba(0, 0, 0, 0.15) 1.45px 1.25px 1.85px;
   width: 100%;
   overflow: hidden;
+  word-break: break-word;
   border: 1px solid #000;
 }
 
