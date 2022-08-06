@@ -68,8 +68,8 @@
   margin: 0.75rem;
   padding: 0.75rem;
   width: 100%;
-  border: transparent;
-  border-style: solid;
+  border: none;
+  border-style: none;
   border-width: thin;
   place-self: center;
   background-color: hsl(0, 0%, 95%);
@@ -77,21 +77,20 @@
 }
 
 .inputButton {
+  border: none;
   color: hsl(0, 0%, 95%);
   background-color: #ff5fa2;
-  border-left: 1px solid;
-  background-clip: padding-box;
   border-top-right-radius: 0.65rem;
   border-bottom-right-radius: 0.65rem;
-  font-size: 1rem;
+  outline: outset;
+  outline-color: transparent;
+  outline-width: 1px;
   margin: 0.75rem;
-  padding: 0.71rem;
-  border: transparent;
-  border-style: solid;
-  border-width: thin;
+  padding: 0.75rem;
   position: absolute;
   top: 0;
   right: 0;
+  bottom: 0;
 }
 
 .inputButton:hover {
@@ -105,18 +104,19 @@
 }
 
 .listInput:hover {
-  border-radius: 0.65rem;
-  border: hsl(0, 0%, 22%);
-  border-style: solid;
-  border-width: thin;
-  outline: none;
+  border: none;
+  border-style: none;
+  outline: outset;
+  outline-color: hsl(0, 0%, 22%);
+  outline-width: 1px;
 }
 
 .listInput:focus {
-  border: hsl(0, 0%, 22%);
-  border-style: solid;
-  border-width: thin;
-  outline: transparent;
+  border: none;
+  border-style: none;
+  outline: outset;
+  outline-color: hsl(0, 0%, 22%);
+  outline-width: 1px;
 }
 
 .item {
