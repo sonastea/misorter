@@ -23,6 +23,6 @@ footer {
   position: absolute;
   bottom: 0;
   text-align: center;
-  width: 100vw;
+  width: 100%;
   padding: 1rem 0;
 }
