@@ -282,6 +282,7 @@ html[data-theme="dark"] .start {
 }
 
 html[data-theme="dark"] .start:hover {
+  color: #1d1d1d;
   border-color: #e65692;
   background-color: #e65692;
 }
@@ -296,4 +297,21 @@ html[data-theme="dark"] .description {
 
 html[data-theme="dark"] .reset:hover {
   color: hsl(0, 0%, 88%);
+}
+
+@supports (-webkit-touch-callout: none) {
+  html[data-theme="dark"] .listInput {
+    border: 1px solid hsl(0, 0%, 88%);
+    color: white;
+    background-color: transparent;
+    outline: none !important;
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+  }
+
+  html[data-theme="dark"] .listInput:focus {
+    color: white;
+    background-color: transparent;
+    border: 1px solid hsl(0, 0%, 88%);
+    outline: none !important;
+  }
 }
