@@ -324,7 +324,7 @@ const Sort = ({
     return (
       <>
         <table id="ResultsTable" className={styles.resultsTable} ref={ref}>
-          <tbody>
+          <tbody className={styles.resultsHeaderContainer}>
             <tr>
               <td className={styles.resultsHeader}>rank</td>
               <td className={styles.resultsHeader}>options</td>
@@ -347,6 +347,13 @@ const Sort = ({
     );
   };
 
+  const goBackConfirmation = () => {
+    if (confirm("Are you sure you want to go back?") === true) {
+      setStartSort(false);
+    }
+    return;
+  };
+
   const exportToPng = () => {
     html2canvas(document.getElementById("ResultsTable") as HTMLElement).then(
       (canvas) => {
@@ -366,7 +373,7 @@ const Sort = ({
         <button
           className={styles.back}
           type="button"
-          onClick={() => setStartSort(false)}
+          onClick={() => goBackConfirmation()}
         >
           ← Back
         </button>

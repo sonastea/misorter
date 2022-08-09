@@ -5,14 +5,14 @@
   cursor: pointer;
   grid-area: back;
   font-weight: 600;
-  font-size: 1.2rem;
+  font-size: 1.0rem;
   transition: font-size 0.1s;
 }
 
 .back:hover {
+  color: #3864ac;
   font-weight: 700;
-  font-size: 1.3rem;
-  transform: font-size 0.1s;
+  transition: color 0.1s;
 }
 
 .leftField,
@@ -23,8 +23,8 @@
   border: hsl(0, 0%, 29%);
   border-style: solid;
   border-width: thin;
-  padding: 1.3rem 1.3rem;
-  font-size: 1.45rem;
+  padding: 1.2rem 0;
+  font-size: 1.25rem;
 }
 
 .leftField:hover,
@@ -63,7 +63,7 @@
   display: grid;
   align-items: center;
   justify-content: center;
-  word-break: break-word;
+  word-break: normal;
 }
 
 .both {
@@ -77,8 +77,8 @@
 .container {
   text-align: center;
   display: grid;
-  grid-gap: 0.75rem;
-  grid-template-columns: 100px 100px 120px 120px 100px 100px;
+  grid-gap: 0.25rem;
+  grid-template-columns: 120px 120px 80px 80px 120px 120px;
   grid-template-rows: auto;
   grid-template-areas:
     "back back header header . ."
@@ -95,6 +95,12 @@
   border: 1px solid #000;
   border-collapse: collapse;
   text-align: center;
+}
+
+.resultsHeaderContainer {
+  border-top: 1px solid hsl(0, 0%, 29%);
+  border-right: 1px solid hsl(0, 0%, 29%);
+  border-left: 1px solid hsl(0, 0%, 29%);
 }
 
 .resultsHeader {
@@ -115,7 +121,6 @@
 }
 
 .rightItemRow {
-  word-break: break-word;
   padding-left: 5px;
 }
 
@@ -149,15 +154,62 @@
   margin: auto;
 }
 
+html[data-theme="dark"] .back {
+  color: #467dd7;
+  transition: color 0.15s ease-in-out;
+}
+
+html[data-theme="dark"] .back:hover {
+  color: #6b97df;
+  font-weight: 700;
+  transition: transform 0.15s;
+}
+
+html[data-theme="dark"] .leftField:hover {
+  background: hsl(0, 0%, 12%);
+}
+
+html[data-theme="dark"] .rightField:hover {
+  background: hsl(0, 0%, 12%);
+}
+
+html[data-theme="dark"] .both:hover {
+  background: hsl(0, 0%, 12%);
+}
+
+html[data-theme="dark"] .noOpinion:hover {
+  background: hsl(0, 0%, 12%);
+}
+
+html[data-theme="dark"] .export {
+  color: #2a2a2a;
+  background-color: #ff5fa2;
+}
+
+html[data-theme="dark"] .export:hover {
+  color: #1d1d1d;
+  border-color: #e65692;
+  background-color: #e65692;
+}
+
+html[data-theme="dark"] .resultsHeader {
+  color: #2a2a2a;
+}
+
 @media (max-width: 600px) {
   .container {
     margin: 0.5rem;
     grid-gap: 0.5rem;
-    grid-template-columns: 1fr 1fr 45px 45px 1fr 1fr;
+    grid-template-columns: 1fr 1fr 40px 40px 1fr 1fr;
     grid-template-areas:
       "back back header header . ."
       "leftField leftField both both rightField rightField"
       "leftField leftField noOpinion noOpinion rightField rightField";
+  }
+
+  .gridHeader {
+    font-size: 0.75rem;
+    padding: 0.5rem 0;
   }
 
   .leftField,
@@ -168,7 +220,7 @@
     border: hsl(0, 0%, 29%);
     border-style: solid;
     border-width: thin;
-    padding: 1.2rem 1.2rem;
-    font-size: 1.15rem;
+    padding: 0.5rem;
+    font-size: 1rem;
   }
 }
