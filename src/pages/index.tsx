@@ -4,6 +4,7 @@ import { useState } from "react";
 import Footer from "src/components/Footer";
 import Setup from "src/components/Setup";
 import Sort from "src/components/Sort";
+import ThemeToggle from "src/components/ThemeToggle";
 import styles from "../styles/Home.module.css";
 
 const tip =
@@ -12,7 +13,7 @@ const tip =
 export type ListItem = {
   id: string;
   value: string;
-}
+};
 
 const Home: NextPage = () => {
   const [editTitle, setEditTitle] = useState<boolean>(true);
@@ -32,6 +33,7 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
+      <ThemeToggle />
       <main className={styles.main}>
         {editTitle ? (
           <h1

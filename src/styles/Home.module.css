@@ -94,7 +94,7 @@
 }
 
 .inputButton:hover {
-  background-color: #E65692;
+  background-color: #e65692;
   cursor: pointer;
 }
 
@@ -227,7 +227,73 @@
 }
 
 @media (max-width: 600px) {
+  .title {
+    font-size: 1.75rem;
+  }
+
   .listTable {
     width: 90vw;
   }
+}
+
+html[data-theme="dark"] .listInput {
+  color: white;
+  background-color: transparent;
+  outline: outset;
+  outline-color: hsl(0, 0%, 88%);
+  outline-width: 1px;
+  box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+}
+
+html[data-theme="dark"] .listInput:hover {
+  outline: outset;
+  outline-width: 1px;
+}
+
+html[data-theme="dark"] .inputButton {
+  color: #2a2a2a;
+}
+
+html[data-theme="dark"] .item {
+  color: hsl(0, 0%, 88%);
+  border: 1px solid hsl(0, 0%, 64%);
+  border-radius: 1.3rem;
+}
+
+html[data-theme="dark"] .removeItem {
+  color: hsl(0, 0%, 88%);
+}
+
+html[data-theme="dark"] .removeItem:hover {
+  color: hsl(0, 72%, 40%);
+}
+
+html[data-theme="dark"] .reset {
+  color: hsl(0, 0%, 88%);
+}
+
+html[data-theme="dark"] .reset:hover {
+  background: hsl(0, 0%, 12%);
+}
+
+html[data-theme="dark"] .start {
+  color: #2a2a2a;
+  background-color: #ff5fa2;
+}
+
+html[data-theme="dark"] .start:hover {
+  border-color: #e65692;
+  background-color: #e65692;
+}
+
+html[data-theme="dark"] .title {
+  color: hsl(0, 0%, 100%);
+}
+
+html[data-theme="dark"] .description {
+  color: hsl(0, 0%, 88%);
+}
+
+html[data-theme="dark"] .reset:hover {
+  color: hsl(0, 0%, 88%);
 }

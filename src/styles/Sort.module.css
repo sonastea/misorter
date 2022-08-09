@@ -149,6 +149,17 @@
   margin: auto;
 }
 
+html[data-theme="dark"] .back {
+  color: #467dd7;
+}
+
+html[data-theme="dark"] .leftField:hover,
+.rightField:hover,
+.both:hover,
+.noOpinion:hover {
+  background-color: hsl(0, 0%, 12%);
+}
+
 @media (max-width: 600px) {
   .container {
     margin: 0.5rem;

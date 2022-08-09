@@ -26,3 +26,47 @@ footer {
   width: 100%;
   padding: 1rem 0;
 }
+
+.themeToggle {
+  font-size: 1.5rem;
+  padding: 0.5rem 1rem;
+  position: absolute;
+  right: 0;
+  background: var(--color-bg-toggle);
+  width: var(--toggle-width);
+  border: none;
+  cursor: pointer;
+  transition: background 0.25s ease-in-out;
+}
+
+.themeTogglePic {
+  display: flex;
+  border-radius: 50%;
+}
+
+.themeTogglePic:hover {
+  background-color: hsl(0, 0%, 88%);
+}
+
+html[data-theme="dark"] .themeTogglePic:hover {
+  background-color: #2a2a2a;
+}
+
+html[data-theme="light"] {
+  background: white;
+}
+
+html[data-theme="dark"] {
+  color: hsl(0, 0%, 88%);
+  background: #121212;
+}
+
+html[data-theme="dark"] footer {
+  color: hsl(0, 0%, 88%);
+}
+
+@media (max-width: 600px) {
+  .themeToggle {
+    padding: 0.25rem 0.5rem;
+  }
+}
