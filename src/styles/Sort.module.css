@@ -90,7 +90,7 @@
 
 .resultsTable {
   color: var(--color-text-primary);
-  background: var(--color-bg-primary);
+  background: var(--color-bg-secondary);
   min-width: 400px;
   max-width: 600px;
   font-size: 1.1rem;
@@ -186,7 +186,7 @@ html[data-theme="dark"] .noOpinion:hover {
 }
 
 html[data-theme="dark"] .export {
-  color: #2a2a2a;
+  color: var(--color-bg-secondary);
   background-color: #ff5fa2;
 }
 
@@ -197,7 +197,7 @@ html[data-theme="dark"] .export:hover {
 }
 
 html[data-theme="dark"] .resultsHeader {
-  color: #2a2a2a;
+  color: var(--color-bg-secondary);
 }
 
 @media (max-width: 600px) {

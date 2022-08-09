@@ -251,7 +251,7 @@ html[data-theme="dark"] .listInput:hover {
 }
 
 html[data-theme="dark"] .inputButton {
-  color: #2a2a2a;
+  color: var(--color-bg-secondary);
 }
 
 html[data-theme="dark"] .item {
@@ -277,7 +277,7 @@ html[data-theme="dark"] .reset:hover {
 }
 
 html[data-theme="dark"] .start {
-  color: #2a2a2a;
+  color: var(--color-bg-secondary);
   background-color: #ff5fa2;
 }
 
