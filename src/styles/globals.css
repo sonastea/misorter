@@ -45,11 +45,11 @@ footer {
 }
 
 .themeTogglePic:hover {
-  background-color: hsl(0, 0%, 88%);
+  background: hsl(0, 0%, 88%);
 }
 
 html[data-theme="dark"] .themeTogglePic:hover {
-  background-color: #2a2a2a;
+  background: #2a2a2a;
 }
 
 html[data-theme="light"] {
@@ -68,5 +68,15 @@ html[data-theme="dark"] footer {
 @media (max-width: 600px) {
   .themeToggle {
     padding: 0.25rem 0.5rem;
+  }
+}
+
+@supports (-webkit-touch-callout: none) {
+  .themeToggle {
+    background: none !important;
+  }
+
+  .themeTogglePic {
+    background: none !important;
   }
 }

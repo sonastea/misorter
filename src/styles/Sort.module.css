@@ -45,7 +45,7 @@
   display: grid;
   align-items: center;
   justify-content: center;
-  word-break: normal;
+  word-break: break-word;
 }
 
 .rightField {
@@ -54,7 +54,7 @@
   display: grid;
   align-items: center;
   justify-content: center;
-  word-break: normal;
+  word-break: break-word;
 }
 
 .both,
@@ -78,7 +78,7 @@
   text-align: center;
   display: grid;
   grid-gap: 0.25rem;
-  grid-template-columns: 100px 100px 120px 120px 100px 100px;
+  grid-template-columns: 120px 120px 80px 80px 120px 120px;
   grid-template-rows: auto;
   grid-template-areas:
     "back back header header . ."
@@ -200,7 +200,7 @@ html[data-theme="dark"] .resultsHeader {
   .container {
     margin: 0.5rem;
     grid-gap: 0.5rem;
-    grid-template-columns: 1fr 1fr 35px 35px 1fr 1fr;
+    grid-template-columns: 1fr 1fr 40px 40px 1fr 1fr;
     grid-template-areas:
       "back back header header . ."
       "leftField leftField both both rightField rightField"
