@@ -237,7 +237,7 @@
 }
 
 html[data-theme="dark"] .listInput {
-  color: white;
+  color: var(--color-text-primary);
   background-color: transparent;
   outline: outset;
   outline-color: hsl(0, 0%, 88%);
@@ -255,13 +255,13 @@ html[data-theme="dark"] .inputButton {
 }
 
 html[data-theme="dark"] .item {
-  color: hsl(0, 0%, 88%);
+  color: var(--color-text-primary);
   border: 1px solid hsl(0, 0%, 64%);
   border-radius: 1.3rem;
 }
 
 html[data-theme="dark"] .removeItem {
-  color: hsl(0, 0%, 88%);
+  color: var(--color-text-primary);
 }
 
 html[data-theme="dark"] .removeItem:hover {
@@ -269,7 +269,7 @@ html[data-theme="dark"] .removeItem:hover {
 }
 
 html[data-theme="dark"] .reset {
-  color: hsl(0, 0%, 88%);
+  color: var(--color-text-primary);
 }
 
 html[data-theme="dark"] .reset:hover {
@@ -292,11 +292,11 @@ html[data-theme="dark"] .title {
 }
 
 html[data-theme="dark"] .description {
-  color: hsl(0, 0%, 88%);
+  color: var(--color-text-primary);
 }
 
 html[data-theme="dark"] .reset:hover {
-  color: hsl(0, 0%, 88%);
+  color: var(--color-text-primary);
 }
 
 @supports (-webkit-touch-callout: none) {

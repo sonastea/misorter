@@ -324,8 +324,8 @@ const Sort = ({
     return (
       <>
         <table id="ResultsTable" className={styles.resultsTable} ref={ref}>
-          <tbody className={styles.resultsHeaderContainer}>
-            <tr>
+          <tbody>
+            <tr className={styles.resultsHeaderContainer}>
               <td className={styles.resultsHeader}>rank</td>
               <td className={styles.resultsHeader}>options</td>
             </tr>

@@ -19,6 +19,7 @@
 .rightField,
 .both,
 .noOpinion {
+  color: var(--color-text-primary);
   cursor: pointer;
   border: hsl(0, 0%, 29%);
   border-style: solid;
@@ -35,6 +36,7 @@
 }
 
 .gridHeader {
+  color: var(--color-text-primary);
   grid-area: header;
   padding: 1.1rem 1.33rem;
 }
@@ -87,6 +89,8 @@
 }
 
 .resultsTable {
+  color: var(--color-text-primary);
+  background: var(--color-bg-primary);
   min-width: 400px;
   max-width: 600px;
   font-size: 1.1rem;
@@ -98,6 +102,7 @@
 }
 
 .resultsHeaderContainer {
+  background: #ff5fa2;
   border-top: 1px solid hsl(0, 0%, 29%);
   border-right: 1px solid hsl(0, 0%, 29%);
   border-left: 1px solid hsl(0, 0%, 29%);
@@ -105,7 +110,6 @@
 
 .resultsHeader {
   color: #ffffff;
-  background-color: #ff5fa2;
   text-align: center;
 }
 

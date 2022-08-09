@@ -3,6 +3,7 @@ body {
   padding: 0;
   margin: 0;
   font-family: "Merriweather Sans", sans-serif;
+  background: var(--color-bg-primary);
 }
 
 a {
@@ -53,12 +54,12 @@ html[data-theme="dark"] .themeTogglePic:hover {
 }
 
 html[data-theme="light"] {
-  background: white;
+  --color-bg-primary: white;
 }
 
 html[data-theme="dark"] {
-  color: hsl(0, 0%, 88%);
-  background: #121212;
+  --color-text-primary: hsl(0, 0%, 92%);
+  --color-bg-primary: #121212;
 }
 
 html[data-theme="dark"] footer {
