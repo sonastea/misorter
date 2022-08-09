@@ -46,7 +46,7 @@ footer {
 }
 
 .themeTogglePic:hover {
-  background: hsl(0, 0%, 88%);
+  background: var(--color-bg-icon);
 }
 
 html[data-theme="dark"] .themeTogglePic:hover {
@@ -54,13 +54,17 @@ html[data-theme="dark"] .themeTogglePic:hover {
 }
 
 html[data-theme="light"] {
-  --color-bg-primary: white;
+  --color-bg-primary: #ffffff;
+  --color-bg-icon: #e6e6e6;
 }
 
 html[data-theme="dark"] {
-  --color-text-primary: hsl(0, 0%, 92%);
+  --color-text-primary: hsl(0, 0%, 95%);
   --color-bg-primary: #121212;
-  --color-bg-secondary: #2a2a2a;
+  --color-bg-secondary: #202020;
+  --color-bg-tertiary: #313131;
+  --md-shadow-dp1: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+    0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
 }
 
 html[data-theme="dark"] footer {

@@ -20,6 +20,7 @@
 .both,
 .noOpinion {
   color: var(--color-text-primary);
+  background: var(--color-bg-secondary);
   cursor: pointer;
   border: hsl(0, 0%, 29%);
   border-style: solid;
@@ -102,7 +103,7 @@
 }
 
 .resultsHeaderContainer {
-  background: #ff5fa2;
+  background: #ff7fb5;
   border-top: 1px solid hsl(0, 0%, 29%);
   border-right: 1px solid hsl(0, 0%, 29%);
   border-left: 1px solid hsl(0, 0%, 29%);
@@ -130,7 +131,7 @@
 
 .export {
   color: #ff5fa2;
-  border-color: #ff5fa2;
+  border-color: #ff7fb5;
   background-color: transparent;
   display: inline-block;
   border-style: solid;
@@ -156,48 +157,6 @@
 #leftField,
 #rightField {
   margin: auto;
-}
-
-html[data-theme="dark"] .back {
-  color: #467dd7;
-  transition: color 0.15s ease-in-out;
-}
-
-html[data-theme="dark"] .back:hover {
-  color: #6b97df;
-  font-weight: 700;
-  transition: transform 0.15s;
-}
-
-html[data-theme="dark"] .leftField:hover {
-  background: hsl(0, 0%, 12%);
-}
-
-html[data-theme="dark"] .rightField:hover {
-  background: hsl(0, 0%, 12%);
-}
-
-html[data-theme="dark"] .both:hover {
-  background: hsl(0, 0%, 12%);
-}
-
-html[data-theme="dark"] .noOpinion:hover {
-  background: hsl(0, 0%, 12%);
-}
-
-html[data-theme="dark"] .export {
-  color: var(--color-bg-secondary);
-  background-color: #ff5fa2;
-}
-
-html[data-theme="dark"] .export:hover {
-  color: #1d1d1d;
-  border-color: #e65692;
-  background-color: #e65692;
-}
-
-html[data-theme="dark"] .resultsHeader {
-  color: var(--color-bg-secondary);
 }
 
 @media (max-width: 600px) {
@@ -227,4 +186,66 @@ html[data-theme="dark"] .resultsHeader {
     padding: 0.5rem;
     font-size: 1rem;
   }
+}
+
+html[data-theme="dark"] .leftField {
+  border: var(--color-bg-secondary);
+  box-shadow: var(--md-shadow-dp1);
+}
+
+html[data-theme="dark"] .rightField {
+  border: var(--color-bg-secondary);
+  box-shadow: var(--md-shadow-dp1);
+}
+
+html[data-theme="dark"] .both {
+  border: var(--color-bg-secondary);
+  box-shadow: var(--md-shadow-dp1);
+}
+
+html[data-theme="dark"] .noOpinion {
+  border: var(--color-bg-secondary);
+  box-shadow: var(--md-shadow-dp1);
+}
+
+html[data-theme="dark"] .back {
+  color: #80b7ff;
+  transition: color 0.15s ease-in-out;
+}
+
+html[data-theme="dark"] .back:hover {
+  color: #56a0ff;
+  font-weight: 700;
+  transform: color 0.15s;
+}
+
+html[data-theme="dark"] .leftField:hover {
+  background: var(--color-bg-tertiary);
+}
+
+html[data-theme="dark"] .rightField:hover {
+  background: var(--color-bg-tertiary);
+}
+
+html[data-theme="dark"] .both:hover {
+  background: var(--color-bg-tertiary);
+}
+
+html[data-theme="dark"] .noOpinion:hover {
+  background: var(--color-bg-tertiary);
+}
+
+html[data-theme="dark"] .export {
+  color: var(--color-bg-secondary);
+  background-color: #ff7fb5;
+}
+
+html[data-theme="dark"] .export:hover {
+  color: #1d1d1d;
+  border-color: #e65692;
+  background-color: #e65692;
+}
+
+html[data-theme="dark"] .resultsHeader {
+  color: var(--color-bg-primary);
 }

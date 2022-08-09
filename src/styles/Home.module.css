@@ -238,26 +238,46 @@
 
 html[data-theme="dark"] .listInput {
   color: var(--color-text-primary);
-  background-color: transparent;
-  outline: outset;
-  outline-color: hsl(0, 0%, 88%);
-  outline-width: 1px;
-  box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+  background-color: var(--color-bg-secondary);
+  box-shadow: var(--md-shadow-dp1);
 }
 
 html[data-theme="dark"] .listInput:hover {
   outline: outset;
+  outline-color: var(--color-text-primary);
+  outline-width: 1px;
+}
+
+html[data-theme="dark"] .listInput:focus {
+  outline: outset;
+  outline-color: var(--color-text-primary);
   outline-width: 1px;
 }
 
 html[data-theme="dark"] .inputButton {
   color: var(--color-bg-secondary);
+  background: #ff7fb5;
+}
+
+html[data-theme="dark"] .inputButton:hover {
+  color: var(--color-bg-secondary);
+  background: #e65692;
 }
 
 html[data-theme="dark"] .item {
   color: var(--color-text-primary);
-  border: 1px solid hsl(0, 0%, 64%);
+  background: var(--color-bg-secondary);
+  border: transparent;
   border-radius: 1.3rem;
+  box-shadow: var(--md-shadow-dp1);
+}
+
+html[data-theme="dark"] .item:hover {
+  color: var(--color-text-primary);
+  background: var(--color-bg-tertiary);
+  border: transparent;
+  border-radius: 1.3rem;
+  box-shadow: var(--md-shadow-dp1);
 }
 
 html[data-theme="dark"] .removeItem {
@@ -278,13 +298,14 @@ html[data-theme="dark"] .reset:hover {
 
 html[data-theme="dark"] .start {
   color: var(--color-bg-secondary);
-  background-color: #ff5fa2;
+  border: #ff7fb5;
+  background: #ff7fb5;
 }
 
 html[data-theme="dark"] .start:hover {
   color: #1d1d1d;
   border-color: #e65692;
-  background-color: #e65692;
+  background: #e65692;
 }
 
 html[data-theme="dark"] .title {
