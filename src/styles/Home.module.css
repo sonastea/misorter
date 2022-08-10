@@ -62,7 +62,7 @@
   display: inline-flex;
 }
 
-.listInput {
+html[data-theme="light"] .listInput {
   border-radius: 0.65rem;
   font-size: 1rem;
   margin: 0.75rem;
@@ -107,7 +107,7 @@
   border: none;
   border-style: none;
   outline: outset;
-  outline-color: hsl(0, 0%, 22%);
+  outline-color: var(--color-text-secondary);
   outline-width: 1px;
 }
 
@@ -115,7 +115,7 @@
   border: none;
   border-style: none;
   outline: outset;
-  outline-color: hsl(0, 0%, 22%);
+  outline-color: var(--color-text-secondary);
   outline-width: 1px;
 }
 
@@ -203,7 +203,7 @@
 }
 
 .reset {
-  color: hsl(0, 0%, 22%);
+  color: var(--color-text-primary);
   background-color: transparent;
   border-color: transparent;
   border-style: solid;
@@ -237,6 +237,15 @@
 }
 
 html[data-theme="dark"] .listInput {
+  border-radius: 0.65rem;
+  font-size: 1rem;
+  margin: 0.75rem;
+  padding: 0.75rem;
+  width: 100%;
+  border: none;
+  border-style: none;
+  border-width: thin;
+  place-self: center;
   color: var(--color-text-primary);
   background-color: var(--color-bg-secondary);
   box-shadow: var(--md-shadow-dp1);
@@ -323,6 +332,29 @@ html[data-theme="dark"] .reset:hover {
 /* target safari browser */
 @media not all and (min-resolution: 0.001dpcm) {
   @supports (-webkit-appearance: none) {
+    html[data-theme="light"] .listInput {
+      border: 1px solid transparent;
+      color: var(--color-text-primary);
+      background: var(--color-bg-secondary);
+      outline: none !important;
+      box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px,
+        rgba(0, 0, 0, 0.24) 0px 1px 2px;
+    }
+
+    html[data-theme="light"] .listInput:hover {
+      border: 1px solid var(--color-text-primary);
+      outline: none !important;
+      box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px,
+        rgba(0, 0, 0, 0.24) 0px 1px 2px;
+    }
+
+    html[data-theme="light"] .listInput:focus {
+      border: 1px solid var(--color-text-primary);
+      outline: none !important;
+      box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px,
+        rgba(0, 0, 0, 0.24) 0px 1px 2px;
+    }
+
     html[data-theme="dark"] .listInput {
       border: 1px solid transparent;
       color: white;
@@ -350,14 +382,22 @@ html[data-theme="dark"] .reset:hover {
 
 @supports (-webkit-touch-callout: none) {
   html[data-theme="light"] .listInput {
-    border: 1px solid hsl(0, 0%, 22%);
+    border: 1px solid var(--color-text-primary);
     border-width: thin;
     background-color: hsl(0, 0%, 95%);
     box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px 0px;
     outline: none !important;
   }
 
-  html[data-theme="light"] .listInput:hover, .listInput:focus {
+  html[data-theme="light"] .listInput:hover {
+    border: none;
+    border-style: none;
+    outline: none !important;
+  }
+
+  html[data-theme="light"] .listInput:focus {
+    border: none;
+    border-style: none;
     outline: none !important;
   }
 
