@@ -27,6 +27,7 @@
   border-width: thin;
   padding: 1.2rem 0;
   font-size: 1.25rem;
+  box-shadow: var(--md-shadow-dp1);
 }
 
 .leftField:hover,

@@ -349,12 +349,31 @@ html[data-theme="dark"] .reset:hover {
 }
 
 @supports (-webkit-touch-callout: none) {
+  html[data-theme="light"] .listInput {
+    border: 1px solid hsl(0, 0%, 22%);
+    border-width: thin;
+    background-color: hsl(0, 0%, 95%);
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px 0px;
+    outline: none !important;
+  }
+
+  html[data-theme="light"] .listInput:hover, .listInput:focus {
+    outline: none !important;
+  }
+
   html[data-theme="dark"] .listInput {
     border: 1px solid hsl(0, 0%, 88%);
     color: white;
     background-color: transparent;
     outline: none !important;
     box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+  }
+
+  html[data-theme="dark"] .listInput:hover {
+    color: white;
+    background-color: transparent;
+    border: 1px solid hsl(0, 0%, 88%);
+    outline: none !important;
   }
 
   html[data-theme="dark"] .listInput:focus {
