@@ -37,37 +37,38 @@ const Setup = ({
 
   return (
     <>
+      <div className={styles.inputContainer}>
+        <input
+          className={styles.listInput}
+          type="text"
+          placeholder="Add an item to the list"
+          value={newItem}
+          onChange={(e: any) => {
+            setNewItem(e.target.value);
+          }}
+          onKeyDown={(e: any) => {
+            if (e.code === "Enter") {
+              e.preventDefault();
+              e.stopPropagation();
+              addItemToList();
+            }
+          }}
+        />
+        <button
+          aria-label="Add item to the list"
+          className={styles.inputButton}
+          onClick={() => addItemToList()}
+          type="button"
+        >
+          <svg className={styles.inputButtonIcon} viewBox="0 0 24 24">
+            <path
+              fill="currentColor"
+              d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"
+            />
+          </svg>
+        </button>
+      </div>
       <ul className={styles.listTable}>
-        <div className={styles.inputContainer}>
-          <input
-            className={styles.listInput}
-            type="text"
-            placeholder="Add an item to the list"
-            value={newItem}
-            onChange={(e: any) => {
-              setNewItem(e.target.value);
-            }}
-            onKeyDown={(e: any) => {
-              if (e.code === "Enter") {
-                e.preventDefault();
-                e.stopPropagation();
-                addItemToList();
-              }
-            }}
-          />
-          <button
-            className={styles.inputButton}
-            onClick={() => addItemToList()}
-            type="button"
-          >
-            <svg className={styles.inputButtonIcon} viewBox="0 0 24 24">
-              <path
-                fill="currentColor"
-                d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"
-              />
-            </svg>
-          </button>
-        </div>
         {list &&
           list.map((item: ListItem) => {
             return (

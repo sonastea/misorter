@@ -60,6 +60,7 @@
 .inputContainer {
   position: relative;
   display: inline-flex;
+  width: 50vw;
 }
 
 html[data-theme="light"] .listInput {
@@ -231,7 +232,8 @@ html[data-theme="light"] .listInput {
     font-size: 1.75rem;
   }
 
-  .listTable {
+  .listTable,
+  .inputContainer {
     width: 90vw;
   }
 }
