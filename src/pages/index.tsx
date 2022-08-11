@@ -7,6 +7,10 @@ import Sort from "src/components/Sort";
 import ThemeToggle from "src/components/ThemeToggle";
 import styles from "../styles/Home.module.css";
 
+const metaTitle = "misorter";
+const metaDescription =
+  "Sort list of items to create a ranking based on the results.";
+
 const tip =
   "hitting 'no opinion' or 'I like both' frequently will negatively affect your results.";
 
@@ -25,11 +29,17 @@ const Home: NextPage = () => {
   return (
     <div className={styles.container}>
       <Head>
-        <title>misorter</title>
+        <title>{metaTitle}</title>
+        <meta charSet="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content={metaDescription} />
         <meta
-          name="Sort and create a rank your favorites in a list"
-          content="misorter"
+          name="keywords"
+          content="sort, list, kpop, rank, ranking, tournament, sorter"
         />
+        <meta name="twitter:creator" content="@teadroplets" />
+        <meta name="og:title" content={metaTitle} />
+        <meta name="og:description" content={metaDescription} />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
