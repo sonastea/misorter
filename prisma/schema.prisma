@@ -23,4 +23,6 @@ model Item {
   createdAt    DateTime @default(now())
   list         Listing  @relation("ListingItems", fields: [listingLabel], references: [label], onDelete: Cascade)
   listingLabel String
+
+  @@index([listingLabel])
 }
