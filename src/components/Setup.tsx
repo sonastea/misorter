@@ -1,10 +1,13 @@
+import { useRouter } from "next/router";
 import { ListItem } from "src/pages";
+import { trpc } from "src/utils/trpc";
 import { v4 as uuidv4 } from "uuid";
 import styles from "../styles/Home.module.css";
 
 interface SetupProps {
   list: ListItem[];
   setList: Function;
+  setGetListOnce: Function;
   newItem: string;
   setNewItem: Function;
   setStartSort: Function;
@@ -13,21 +16,36 @@ interface SetupProps {
 const Setup = ({
   list,
   setList,
+  setGetListOnce,
   newItem,
   setNewItem,
   setStartSort,
 }: SetupProps) => {
-  const resetList = () => {
-    setList([]);
-  };
+  const router = useRouter();
 
-  const checkList = () => {
+  const createList = trpc.useMutation(["listing.create"], {
+    onSuccess: (data) => {
+      router.push(`/?list=${data.label}`, undefined, { shallow: true });
+    },
+  });
+
+  const checkList = async () => {
     if (list.length < 2) {
       alert("Not enough items in the list");
       return;
     }
 
+    const sanitizedList = list.map((item) => {
+      return { value: item.value };
+    });
+
+    createList.mutate({ items: sanitizedList });
     setStartSort(true);
+    setGetListOnce(true);
+  };
+
+  const resetList = () => {
+    setList([]);
   };
 
   const addItemToList = () => {
