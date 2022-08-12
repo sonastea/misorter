@@ -1,5 +1,6 @@
 import html2canvas from "html2canvas";
 import { useEffect, useRef, useState } from "react";
+import { toast } from "react-toastify";
 import { ListItem } from "src/pages";
 import styles from "../styles/Sort.module.css";
 
@@ -27,7 +28,14 @@ const Sort = ({
   const ref = useRef<HTMLTableElement>(null);
 
   const copyLinkToClipboard = async () => {
-    await navigator.clipboard.writeText(window.location.href);
+    await navigator.clipboard.writeText(window.location.href).then(
+      () => {
+        toast("Successfully copied.");
+      },
+      () => {
+        toast("Unable to copy link.");
+      }
+    );
   };
 
   // Thanks to biasorter.tumblr.com for the code

@@ -2,6 +2,7 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import "react-toastify/dist/ReactToastify.min.css";
 import Footer from "src/components/Footer";
 import ListItemsSkeletonLoader from "src/components/ListItemsSkeletonLoader";
 import Setup from "src/components/Setup";

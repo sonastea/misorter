@@ -1,10 +1,24 @@
 import { AppRouter } from "@router/index";
 import { withTRPC } from "@trpc/next";
 import type { AppProps } from "next/app";
+import { ToastContainer } from "react-toastify";
 import "../styles/globals.css";
 
 function MyApp({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />;
+  return (
+    <>
+      <ToastContainer
+        position="top-right"
+        autoClose={1000}
+        hideProgressBar={true}
+        closeOnClick
+        theme="dark"
+        draggable
+        toastClassName="toastBody"
+      />
+      <Component {...pageProps} />
+    </>
+  );
 }
 
 function getBaseUrl() {
