@@ -1,8 +1,27 @@
-import '../styles/globals.css'
-import type { AppProps } from 'next/app'
+import { AppRouter } from "@router/index";
+import { withTRPC } from "@trpc/next";
+import type { AppProps } from "next/app";
+import "../styles/globals.css";
 
 function MyApp({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />
+  return <Component {...pageProps} />;
 }
 
-export default MyApp
+function getBaseUrl() {
+  if (typeof window === "undefined") return ""; // Browser should use current path
+  if (process.env.NEXT_PUBLIC_VERCEL_URL)
+    return `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`; // SSR should use vercel url
+
+  return `http://${window.location.hostname}:${process.env.PORT ?? 3000}`; // dev SSR should use localhost
+}
+
+export default withTRPC<AppRouter>({
+  config({ ctx }) {
+    const url = `${getBaseUrl()}/api/trpc`;
+
+    return {
+      url,
+    };
+  },
+  ssr: false,
+})(MyApp);

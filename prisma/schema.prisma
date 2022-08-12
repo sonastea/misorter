@@ -1,0 +1,26 @@
+datasource db {
+  provider             = "mysql"
+  url                  = env("DATABASE_URL")
+  referentialIntegrity = "prisma"
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["referentialIntegrity"]
+}
+
+model Listing {
+  id        Int      @id @default(autoincrement())
+  label     String   @unique @db.Char(16)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  items     Item[]   @relation("ListingItems")
+}
+
+model Item {
+  id           Int      @id @default(autoincrement())
+  value        String   @db.Text
+  createdAt    DateTime @default(now())
+  list         Listing  @relation("ListingItems", fields: [listingLabel], references: [label], onDelete: Cascade)
+  listingLabel String
+}
