@@ -32,10 +32,11 @@ const Setup = ({
       router.push(`/?list=${data.label}`, undefined, { shallow: true });
       setGetListOnce(true);
       setStartSort(true);
+      toast("Successfully created link to list.");
     },
     onError: () => {
       setStartSort(true);
-      toast("Unable to create list.");
+      toast("Unable to create link to list.");
     },
   });
 
