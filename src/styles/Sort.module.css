@@ -5,11 +5,33 @@
   cursor: pointer;
   grid-area: back;
   font-weight: 600;
-  font-size: 1.0rem;
+  font-size: 1rem;
   transition: font-size 0.1s;
 }
 
 .back:hover {
+  color: #3864ac;
+  font-weight: 700;
+  transition: color 0.1s;
+}
+
+.shareContainer {
+  color: #2253a3;
+  border: transparent;
+  background-color: transparent;
+  grid-area: share;
+  font-size: 0.5rem;
+}
+
+.share {
+  color: #2253a3;
+  height: 1.35rem;
+  width: 1.35rem;
+  cursor: pointer;
+  transition: font-size 0.1s;
+}
+
+.share:hover {
   color: #3864ac;
   font-weight: 700;
   transition: color 0.1s;
@@ -85,7 +107,7 @@
   grid-template-columns: 120px 120px 80px 80px 120px 120px;
   grid-template-rows: auto;
   grid-template-areas:
-    "back back header header . ."
+    "back back header header share share"
     "leftField leftField both both rightField rightField"
     "leftField leftField noOpinion noOpinion rightField rightField";
 }
@@ -132,7 +154,7 @@
 
 .export {
   color: #ff5fa2;
-  border-color: #ff7fb5;
+  border-color: #ff5fa2;
   background-color: transparent;
   display: inline-block;
   border-style: solid;
@@ -166,7 +188,7 @@
     grid-gap: 0.5rem;
     grid-template-columns: 1fr 1fr 40px 40px 1fr 1fr;
     grid-template-areas:
-      "back back header header . ."
+      "back back header header share share"
       "leftField leftField both both rightField rightField"
       "leftField leftField noOpinion noOpinion rightField rightField";
   }
@@ -215,6 +237,17 @@ html[data-theme="dark"] .back {
 }
 
 html[data-theme="dark"] .back:hover {
+  color: #56a0ff;
+  font-weight: 700;
+  transform: color 0.15s;
+}
+
+html[data-theme="dark"] .share {
+  color: #80b7ff;
+  transition: color 0.15s ease-in-out;
+}
+
+html[data-theme="dark"] .share:hover {
   color: #56a0ff;
   font-weight: 700;
   transform: color 0.15s;

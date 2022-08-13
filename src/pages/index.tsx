@@ -1,10 +1,15 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import { useState } from "react";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import "react-toastify/dist/ReactToastify.min.css";
 import Footer from "src/components/Footer";
+import ListItemsSkeletonLoader from "src/components/ListItemsSkeletonLoader";
 import Setup from "src/components/Setup";
 import Sort from "src/components/Sort";
 import ThemeToggle from "src/components/ThemeToggle";
+import { trpc } from "src/utils/trpc";
+import { v4 as uuidv4 } from "uuid";
 import styles from "../styles/Home.module.css";
 
 const metaTitle = "misorter";
@@ -25,6 +30,35 @@ const Home: NextPage = () => {
   const [list, setList] = useState<ListItem[]>([]);
   const [newItem, setNewItem] = useState<string>("");
   const [startSort, setStartSort] = useState<boolean>(false);
+  const [getListOnce, setGetListOnce] = useState<boolean>(false);
+
+  const router = useRouter();
+  const listLabel = router.query["list"];
+
+  const { data, isLoading, refetch } = trpc.useQuery(
+    ["listing.get", { label: listLabel as string }],
+    {
+      refetchOnMount: false,
+      refetchInterval: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
+      enabled: false,
+    }
+  );
+
+  useEffect(() => {
+    if (listLabel && !getListOnce) {
+      refetch();
+      setGetListOnce(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [listLabel]);
+
+  useEffect(() => {
+    data?.items.map((item) => {
+      setList((prev: any) => [{ id: uuidv4(), value: item.value }, ...prev]);
+    });
+  }, [data?.items]);
 
   return (
     <div className={styles.container}>
@@ -74,10 +108,22 @@ const Home: NextPage = () => {
         )}
         <p className={styles.description}>{tip}</p>
 
+        {isLoading && <ListItemsSkeletonLoader />}
+
         {startSort ? (
           <Sort ogList={list} setStartSort={setStartSort} />
         ) : (
-          <Setup {...{ list, setList, newItem, setNewItem, setStartSort }} />
+          <Setup
+            {...{
+              list,
+              setList,
+              getListOnce,
+              setGetListOnce,
+              newItem,
+              setNewItem,
+              setStartSort,
+            }}
+          />
         )}
       </main>
       <Footer />

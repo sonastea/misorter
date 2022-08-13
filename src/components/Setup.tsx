@@ -1,10 +1,16 @@
+import Image from "next/image";
+import { useRouter } from "next/router";
+import { toast } from "react-toastify";
 import { ListItem } from "src/pages";
+import { trpc } from "src/utils/trpc";
 import { v4 as uuidv4 } from "uuid";
 import styles from "../styles/Home.module.css";
 
 interface SetupProps {
   list: ListItem[];
   setList: Function;
+  getListOnce: boolean;
+  setGetListOnce: Function;
   newItem: string;
   setNewItem: Function;
   setStartSort: Function;
@@ -13,61 +19,89 @@ interface SetupProps {
 const Setup = ({
   list,
   setList,
+  getListOnce,
+  setGetListOnce,
   newItem,
   setNewItem,
   setStartSort,
 }: SetupProps) => {
-  const resetList = () => {
-    setList([]);
-  };
+  const router = useRouter();
 
-  const checkList = () => {
+  const createList = trpc.useMutation(["listing.create"], {
+    onSuccess: (data) => {
+      router.push(`/?list=${data.label}`, undefined, { shallow: true });
+      setGetListOnce(true);
+      setStartSort(true);
+    },
+    onError: () => {
+      setStartSort(true);
+      toast("Unable to create list.");
+    },
+  });
+
+  const checkList = async () => {
     if (list.length < 2) {
-      alert("Not enough items in the list");
+      toast("Not enough items in the list.");
       return;
     }
 
-    setStartSort(true);
+    const sanitizedList = list.map((item) => {
+      return { value: item.value };
+    });
+
+    // don't create a Listing if we've already fetched one
+    if (!getListOnce) {
+      createList.mutate({ items: sanitizedList });
+    }
+  };
+
+  const resetList = () => {
+    setList([]);
   };
 
   const addItemToList = () => {
     setList((prev: any) => [{ id: uuidv4(), value: newItem }, ...prev]);
     setNewItem("");
+    // try resetting getListOnce assuming new items considers it a different list
+    setGetListOnce(false);
   };
+
+  const creatingList = createList.isLoading;
 
   return (
     <>
+      <div className={styles.inputContainer}>
+        <input
+          className={styles.listInput}
+          type="text"
+          placeholder="Add an item to the list"
+          value={newItem}
+          onChange={(e: any) => {
+            setNewItem(e.target.value);
+          }}
+          onKeyDown={(e: any) => {
+            if (e.code === "Enter") {
+              e.preventDefault();
+              e.stopPropagation();
+              addItemToList();
+            }
+          }}
+        />
+        <button
+          aria-label="Add item to the list"
+          className={styles.inputButton}
+          onClick={() => addItemToList()}
+          type="button"
+        >
+          <svg className={styles.inputButtonIcon} viewBox="0 0 24 24">
+            <path
+              fill="currentColor"
+              d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"
+            />
+          </svg>
+        </button>
+      </div>
       <ul className={styles.listTable}>
-        <div className={styles.inputContainer}>
-          <input
-            className={styles.listInput}
-            type="text"
-            placeholder="Add an item to the list"
-            value={newItem}
-            onChange={(e: any) => {
-              setNewItem(e.target.value);
-            }}
-            onKeyDown={(e: any) => {
-              if (e.code === "Enter") {
-                e.preventDefault();
-                e.stopPropagation();
-                addItemToList();
-              }
-            }}
-          />
-          <button
-            className={styles.inputButton}
-            onClick={() => addItemToList()}
-            type="button"
-          >
-            <svg className={styles.inputButtonIcon} viewBox="0 0 24 24">
-              <path
-                fill="currentColor"
-                d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"
-              />
-            </svg>
-          </button>
-        </div>
         {list &&
           list.map((item: ListItem) => {
             return (
@@ -100,7 +134,16 @@ const Setup = ({
           Reset
         </button>
         <button className={styles.start} onClick={checkList}>
-          Start
+          {creatingList ? (
+            <Image
+              src="/images/oval.svg"
+              height={24}
+              width={24}
+              alt="Loading"
+            />
+          ) : (
+            "Start"
+          )}
         </button>
       </div>
     </>
