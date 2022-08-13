@@ -396,10 +396,10 @@ const Sort = ({
           0% sorted.
         </div>
         <button
-          aria-label="Share a direct link to this list"
+          aria-label="Share a direct link of this list"
           className={styles.shareContainer}
           type="button"
-          title="Share a direct link to this list"
+          title="Share a direct link of this list"
         >
           <svg
             className={styles.share}

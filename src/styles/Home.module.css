@@ -182,7 +182,9 @@ html[data-theme="light"] .listInput {
   color: #ff5fa2;
   border-color: #ff5fa2;
   background-color: transparent;
-  display: inline-block;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   border-style: solid;
   border-radius: 0.55rem;
   cursor: pointer;
@@ -194,6 +196,7 @@ html[data-theme="light"] .listInput {
   border-style: solid;
   overflow: hidden;
   padding: 0.55rem;
+  width: 4.5rem;
   transition: color 0.15s ease-in, background-color 0.15s ease-in;
 }
 

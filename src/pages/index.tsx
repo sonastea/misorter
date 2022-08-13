@@ -117,6 +117,7 @@ const Home: NextPage = () => {
             {...{
               list,
               setList,
+              getListOnce,
               setGetListOnce,
               newItem,
               setNewItem,

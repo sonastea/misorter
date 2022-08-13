@@ -1,4 +1,6 @@
+import Image from "next/image";
 import { useRouter } from "next/router";
+import { toast } from "react-toastify";
 import { ListItem } from "src/pages";
 import { trpc } from "src/utils/trpc";
 import { v4 as uuidv4 } from "uuid";
@@ -7,6 +9,7 @@ import styles from "../styles/Home.module.css";
 interface SetupProps {
   list: ListItem[];
   setList: Function;
+  getListOnce: boolean;
   setGetListOnce: Function;
   newItem: string;
   setNewItem: Function;
@@ -16,6 +19,7 @@ interface SetupProps {
 const Setup = ({
   list,
   setList,
+  getListOnce,
   setGetListOnce,
   newItem,
   setNewItem,
@@ -26,12 +30,18 @@ const Setup = ({
   const createList = trpc.useMutation(["listing.create"], {
     onSuccess: (data) => {
       router.push(`/?list=${data.label}`, undefined, { shallow: true });
+      setGetListOnce(true);
+      setStartSort(true);
+    },
+    onError: () => {
+      setStartSort(true);
+      toast("Unable to create list.");
     },
   });
 
   const checkList = async () => {
     if (list.length < 2) {
-      alert("Not enough items in the list");
+      toast("Not enough items in the list.");
       return;
     }
 
@@ -39,9 +49,10 @@ const Setup = ({
       return { value: item.value };
     });
 
-    createList.mutate({ items: sanitizedList });
-    setStartSort(true);
-    setGetListOnce(true);
+    // don't create a Listing if we've already fetched one
+    if (!getListOnce) {
+      createList.mutate({ items: sanitizedList });
+    }
   };
 
   const resetList = () => {
@@ -51,7 +62,11 @@ const Setup = ({
   const addItemToList = () => {
     setList((prev: any) => [{ id: uuidv4(), value: newItem }, ...prev]);
     setNewItem("");
+    // try resetting getListOnce assuming new items considers it a different list
+    setGetListOnce(false);
   };
+
+  const creatingList = createList.isLoading;
 
   return (
     <>
@@ -119,7 +134,16 @@ const Setup = ({
           Reset
         </button>
         <button className={styles.start} onClick={checkList}>
-          Start
+          {creatingList ? (
+            <Image
+              src="/images/oval.svg"
+              height={24}
+              width={24}
+              alt="Loading"
+            />
+          ) : (
+            "Start"
+          )}
         </button>
       </div>
     </>
