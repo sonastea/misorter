@@ -1,5 +1,6 @@
 import { prisma } from "@db/client";
 import * as trpc from "@trpc/server";
+import Redis from "ioredis";
 import { customAlphabet } from "nanoid";
 import { z } from "zod";
 
@@ -8,6 +9,8 @@ const nanoid = customAlphabet(
   16
 );
 
+const redis = new Redis(process.env.REDIS_URL as string);
+
 export const listingRouter = trpc
   .router()
   .query("get", {
@@ -15,16 +18,24 @@ export const listingRouter = trpc
       label: z.string(),
     }),
     async resolve({ input }) {
-      const list = await prisma.listing.findUnique({
-        where: { label: input.label },
-        select: {
-          label: true,
-          items: {
+      let list: any;
+      await redis.get(input.label).then(async (result) => {
+        if (result != null) {
+          list = JSON.parse(result);
+        } else {
+          list = await prisma.listing.findUnique({
+            where: { label: input.label },
             select: {
-              value: true,
+              label: true,
+              items: {
+                select: {
+                  value: true,
+                },
+              },
             },
-          },
-        },
+          });
+          redis.set(input.label, JSON.stringify(list));
+        }
       });
 
       return list;
