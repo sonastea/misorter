@@ -55,7 +55,7 @@ const Home: NextPage = () => {
   }, [listLabel]);
 
   useEffect(() => {
-    data?.items.map((item) => {
+    data?.items.map((item: { value: string }) => {
       setList((prev: any) => [{ id: uuidv4(), value: item.value }, ...prev]);
     });
   }, [data?.items]);
