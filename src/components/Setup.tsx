@@ -54,7 +54,6 @@ const Setup = ({
     if (!getListOnce) {
       createList.mutate({ items: sanitizedList });
     } else {
-      console.log(getListOnce);
       // start sort if we've fetched a listing
       setStartSort(true);
     }
