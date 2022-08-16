@@ -110,9 +110,7 @@ const Home: NextPage = () => {
 
         {isLoading && <ListItemsSkeletonLoader />}
 
-        {startSort ? (
-          <Sort ogList={list} setStartSort={setStartSort} />
-        ) : (
+        {!isLoading && !startSort && (
           <Setup
             {...{
               list,
@@ -125,6 +123,9 @@ const Home: NextPage = () => {
             }}
           />
         )}
+
+        {startSort && <Sort ogList={list} setStartSort={setStartSort} />}
+
       </main>
       <Footer />
     </div>
