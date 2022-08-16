@@ -271,11 +271,13 @@ html[data-theme="dark"] .noOpinion:hover {
 
 html[data-theme="dark"] .export {
   color: var(--color-bg-secondary);
+  border-color: #ff7fb5;
   background-color: #ff7fb5;
+  transition: border-color 0.15s ease-in, background-color 0.15s ease-in;
 }
 
 html[data-theme="dark"] .export:hover {
-  color: #1d1d1d;
+  color: var(--color-bg-secondary);
   border-color: #e65692;
   background-color: #e65692;
 }
