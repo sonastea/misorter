@@ -10,6 +10,7 @@ const nanoid = customAlphabet(
 );
 
 const redis = new Redis(process.env.REDIS_URL as string);
+const RedisExpireTime: number = 7 * (60 * 24); // expire time in days from seconds
 
 export const listingRouter = trpc
   .router()
@@ -35,6 +36,7 @@ export const listingRouter = trpc
             },
           });
           redis.set(input.label, JSON.stringify(list));
+          redis.expire(input.label, RedisExpireTime);
         }
       });
 
