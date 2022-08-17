@@ -12,6 +12,7 @@ generator client {
 model Listing {
   id        Int      @id @default(autoincrement())
   label     String   @unique @db.Char(16)
+  title     String   @default("misorter") @db.Text
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   items     Item[]   @relation("ListingItems")

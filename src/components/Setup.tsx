@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from "uuid";
 import styles from "../styles/Home.module.css";
 
 interface SetupProps {
+  title: string;
   list: ListItem[];
   setList: Function;
   getListOnce: boolean;
@@ -17,6 +18,7 @@ interface SetupProps {
 }
 
 const Setup = ({
+  title,
   list,
   setList,
   getListOnce,
@@ -52,7 +54,7 @@ const Setup = ({
 
     // don't create a Listing if we've already fetched one
     if (!getListOnce) {
-      createList.mutate({ items: sanitizedList });
+      createList.mutate({ title: title, items: sanitizedList });
     } else {
       // start sort if we've fetched a listing
       setStartSort(true);

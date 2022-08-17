@@ -153,8 +153,8 @@
 }
 
 .export {
-  color: #ff5fa2;
-  border-color: #ff5fa2;
+  color: var(--color-text-once);
+  border-color: var(--color-text-once);
   background-color: transparent;
   display: inline-block;
   border-style: solid;
@@ -173,7 +173,7 @@
 
 .export:hover {
   color: white;
-  background-color: #ff5fa2;
+  background-color: var(--color-text-once);
   transition: transform 0.15s;
 }
 

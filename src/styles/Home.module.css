@@ -4,7 +4,7 @@
 }
 
 .main {
-  padding: 2rem 0;
+  padding: 3rem 0 2rem 0;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -12,9 +12,36 @@
   padding-bottom: 31rem;
 }
 
+.titleContainer {
+  padding: 0 0.35rem;
+  position: relative;
+  text-align: center;
+  max-width: 75%;
+}
+
+.titleContainer:hover .editTitleButton {
+  border-radius: 0.65rem;
+  color: var(--color-text-once);
+}
+
+.editTitleButton {
+  color: var(--color-bg-primary);
+  height: 1.75rem;
+  width: 1.75rem;
+  position: absolute;
+  top: 0;
+  right: 0;
+  translate: 100%;
+  cursor: pointer;
+}
+
+.titleContainer:hover > .editTitleButton:hover {
+  background: var(--color-bg-secondary);
+}
+
 .title {
   color: hsl(0, 0%, 12%);
-  font-size: 2.5rem;
+  font-size: 2.25rem;
   margin: 0;
   line-height: 1.5;
   cursor: text;
@@ -33,10 +60,16 @@
 }
 
 .editTitle {
-  font-size: 2.5rem;
+  font-size: 2.25rem;
   margin: 0;
+  border: none;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
   border-radius: 0.65rem;
+  min-width: 75%;
+  max-width: 75%;
   outline: none;
+  resize: none;
 }
 
 .description {
@@ -80,7 +113,7 @@ html[data-theme="light"] .listInput {
 .inputButton {
   border: none;
   color: hsl(0, 0%, 95%);
-  background-color: #ff5fa2;
+  background-color: var(--color-text-once);
   border-top-right-radius: 0.65rem;
   border-bottom-right-radius: 0.65rem;
   outline: outset;
@@ -179,8 +212,8 @@ html[data-theme="light"] .listInput {
 }
 
 .start {
-  color: #ff5fa2;
-  border-color: #ff5fa2;
+  color: var(--color-text-once);
+  border-color: var(--color-text-once);
   background-color: transparent;
   display: flex;
   justify-content: center;
@@ -202,7 +235,7 @@ html[data-theme="light"] .listInput {
 
 .start:hover {
   color: white;
-  background-color: #ff5fa2;
+  background-color: var(--color-text-once);
   transition: transform 0.15s;
 }
 
@@ -231,8 +264,21 @@ html[data-theme="light"] .listInput {
 }
 
 @media (max-width: 600px) {
+  .editTitleButton {
+    height: 1rem;
+    width: 1rem;
+  }
+
+  .editTitle {
+    font-size: 1.25rem;
+  }
+
   .title {
-    font-size: 1.75rem;
+    font-size: 1.25rem;
+  }
+
+  .description {
+    font-size: 0.65rem;
   }
 
   .listTable,

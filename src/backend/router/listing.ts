@@ -28,14 +28,15 @@ export const listingRouter = trpc
             where: { label: input.label },
             select: {
               label: true,
+              title: true,
               items: {
-                select: {
-                  value: true,
-                },
+                orderBy: { id: "asc" },
+                select: { value: true },
               },
             },
           });
-          redis.set(input.label, JSON.stringify(list));
+          await redis.set(input.label, JSON.stringify(list));
+          console.log(list);
           redis.expire(input.label, RedisExpireTime);
         }
       });
@@ -45,6 +46,7 @@ export const listingRouter = trpc
   })
   .mutation("create", {
     input: z.object({
+      title: z.string(),
       items: z.array(
         z.object({
           value: z.string(),
@@ -56,16 +58,41 @@ export const listingRouter = trpc
       const list = await prisma.listing.create({
         data: {
           label: newLabel,
-          items: {
-            create: input.items,
-          },
+          title: input.title,
+          items: { create: input.items },
         },
         select: {
           label: true,
-          items: true,
+          title: true,
+          items: {
+            orderBy: { id: "asc" },
+            select: { value: true },
+          },
         },
       });
 
       return list;
+    },
+  })
+  .mutation("update-title", {
+    input: z.object({
+      label: z.string(),
+      title: z.string(),
+    }),
+    async resolve({ input }) {
+      const updatedList = await prisma.listing.update({
+        where: { label: input.label },
+        data: { title: input.title },
+        select: {
+          label: true,
+          title: true,
+          items: {
+            select: { value: true },
+          },
+        },
+      });
+      await redis.set(input.label, JSON.stringify(updatedList));
+
+      return updatedList;
     },
   });

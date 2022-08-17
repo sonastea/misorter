@@ -4,6 +4,8 @@ body {
   margin: 0;
   font-family: "Merriweather Sans", sans-serif;
   background: var(--color-bg-primary);
+
+  --color-text-once: #ff5fa2;
 }
 
 .pulse {
