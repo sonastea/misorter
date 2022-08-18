@@ -20,6 +20,11 @@ export const listingRouter = trpc
     }),
     async resolve({ input }) {
       let list: any;
+      await prisma.listing.update({
+        where: { label: input.label },
+        data: { updatedAt: new Date() },
+      });
+
       await redis.get(input.label).then(async (result) => {
         if (result != null) {
           list = JSON.parse(result);
@@ -36,7 +41,6 @@ export const listingRouter = trpc
             },
           });
           await redis.set(input.label, JSON.stringify(list));
-          console.log(list);
           redis.expire(input.label, RedisExpireTime);
         }
       });

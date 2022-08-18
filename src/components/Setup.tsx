@@ -112,7 +112,21 @@ const Setup = ({
           list.map((item: ListItem) => {
             return (
               <li className={styles.item} key={item.id}>
-                <p>{item.value}</p>
+                <p
+                  contentEditable="true"
+                  suppressContentEditableWarning={true}
+                  onKeyDown={(e: any) => {
+                    if (e.code === "Enter" || e.code === "Escape") {
+                      e.preventDefault();
+                      e.target.blur();
+                    }
+                    item.value = e.target.textContent;
+                    // editting a list field indicates a new item
+                    setGetListOnce(false);
+                  }}
+                >
+                  {item.value}
+                </p>
                 <svg
                   className={styles.removeItem}
                   style={{ width: "1.75em", height: "1.75em" }}

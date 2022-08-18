@@ -183,6 +183,7 @@ html[data-theme="light"] .listInput {
   font-size: 1.2rem;
   line-height: 1.5;
   overflow-x: hidden;
+  outline: none;
 }
 
 .removing {
