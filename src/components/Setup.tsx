@@ -34,17 +34,17 @@ const Setup = ({
       router.push(`/?list=${data.label}`, undefined, { shallow: true });
       setGetListOnce(true);
       setStartSort(true);
-      toast("Successfully created link to list.");
+      toast.success("Successfully created link to list.");
     },
     onError: () => {
       setStartSort(true);
-      toast("Unable to create link to list.");
+      toast.error("Unable to create link to list.");
     },
   });
 
   const checkList = async () => {
     if (list.length < 2) {
-      toast("Not enough items in the list.");
+      toast.warn("Not enough items in the list.");
       return;
     }
 

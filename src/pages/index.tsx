@@ -53,10 +53,10 @@ const Home: NextPage = () => {
 
   const updateTitle = trpc.useMutation(["listing.update-title"], {
     onSuccess: () => {
-      toast("Successfully updated link to list.");
+      toast.success("Successfully updated link to list.");
     },
     onError: () => {
-      toast("Unable to update the list.");
+      toast.error("Unable to update the list.");
     },
   });
 

@@ -30,10 +30,10 @@ const Sort = ({
   const copyLinkToClipboard = async () => {
     await navigator.clipboard.writeText(window.location.href).then(
       () => {
-        toast("Successfully copied.");
+        toast.success("Successfully copied.");
       },
       () => {
-        toast("Unable to copy link.");
+        toast.warn("Unable to copy link.");
       }
     );
   };
