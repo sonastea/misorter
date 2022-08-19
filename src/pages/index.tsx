@@ -1,7 +1,7 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.min.css";
 import Footer from "src/components/Footer";
@@ -75,7 +75,7 @@ const Home: NextPage = () => {
     if (data?.title) setTitle(data?.title);
   }, [data?.items, data?.title]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (textAreaRef.current) {
       textAreaRef.current.style.height = "inherit";
       textAreaRef.current.style.height = `${Math.max(
