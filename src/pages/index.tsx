@@ -132,6 +132,7 @@ const Home: NextPage = () => {
             <span
               className={styles.title}
               onDoubleClick={() => setEditTitle(true)}
+              title={title}
             >
               {title}
             </span>

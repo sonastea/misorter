@@ -28,7 +28,12 @@ const ThemeToggle = () => {
   };
 
   return (
-    <button className="themeToggle" type="button" onClick={() => toggleTheme()}>
+    <button
+      className="themeToggle"
+      type="button"
+      onClick={() => toggleTheme()}
+      title={`Switch between light and dark mode (currently ${theme} mode)`}
+    >
       <span className="themeTogglePic">
         {theme === "dark" ? <span>🌙</span> : <span>☀️</span>}
       </span>
