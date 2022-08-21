@@ -42,11 +42,11 @@
 .both,
 .noOpinion {
   color: var(--color-text-primary);
-  background: var(--color-bg-secondary);
+  background: var(--color-bg-primary);
   cursor: pointer;
   border: hsl(0, 0%, 29%);
   border-style: solid;
-  border-width: thin;
+  border-width: 1px;
   padding: 1.2rem 0;
   font-size: 1.25rem;
   box-shadow: var(--md-shadow-dp1);
@@ -56,7 +56,7 @@
 .rightField:hover,
 .both:hover,
 .noOpinion:hover {
-  background-color: hsl(0, 0%, 96%);
+  background: var(--color-bg-secondary);
 }
 
 .gridHeader {
@@ -205,29 +205,41 @@
     cursor: pointer;
     border: hsl(0, 0%, 29%);
     border-style: solid;
-    border-width: thin;
+    border-width: 1px;
     padding: 0.5rem;
     font-size: 1rem;
   }
 }
 
 html[data-theme="dark"] .leftField {
-  border: var(--color-bg-secondary);
+  background: var(--color-bg-secondary);
+  border: transparent;
+  border-style: solid;
+  border-width: 1px;
   box-shadow: var(--md-shadow-dp1);
 }
 
 html[data-theme="dark"] .rightField {
-  border: var(--color-bg-secondary);
+  background: var(--color-bg-secondary);
+  border: transparent;
+  border-style: solid;
+  border-width: 1px;
   box-shadow: var(--md-shadow-dp1);
 }
 
 html[data-theme="dark"] .both {
-  border: var(--color-bg-secondary);
+  background: var(--color-bg-secondary);
+  border: transparent;
+  border-style: solid;
+  border-width: 1px;
   box-shadow: var(--md-shadow-dp1);
 }
 
 html[data-theme="dark"] .noOpinion {
-  border: var(--color-bg-secondary);
+  background: var(--color-bg-secondary);
+  border: transparent;
+  border-style: solid;
+  border-width: 1px;
   box-shadow: var(--md-shadow-dp1);
 }
 
