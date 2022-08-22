@@ -24,6 +24,7 @@ const Sort = ({
   ogList: ListItem[];
   setStartSort: Function;
 }) => {
+  const [finishedSort, setFinishedSort] = useState<boolean>(false);
   const [showResults, setShowResults] = useState<boolean>(false);
   const ref = useRef<HTMLTableElement>(null);
 
@@ -262,16 +263,16 @@ const Sort = ({
 
       document.getElementById("battleNumber")!.innerHTML = str;
 
-      setShowResults(true);
+      setFinishedSort(true);
 
       finishFlag = 1;
     } else {
-      showImage();
+      showSortable();
     }
   }
 
   //Populate the boxes with items to compare
-  function showImage() {
+  function showSortable() {
     let str0 =
       "battle #" +
       numQuestion +
@@ -296,7 +297,7 @@ const Sort = ({
 
   useEffect(() => {
     initList();
-    showImage();
+    showSortable();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -334,28 +335,43 @@ const Sort = ({
     }
 
     return (
-      <>
-        <table id="ResultsTable" className={styles.resultsTable} ref={ref}>
-          <tbody>
-            <tr className={styles.resultsHeaderContainer}>
-              <td className={styles.resultsHeader}>rank</td>
-              <td className={styles.resultsHeader}>options</td>
-            </tr>
-            {resultsItems}
-          </tbody>
-        </table>
-        <button
-          className={styles.export}
-          type="button"
-          onClick={() => {
-            if (typeof window !== "undefined") {
-              exportToPng();
-            }
-          }}
-        >
-          Download as png
-        </button>
-      </>
+      <div className={styles.resultsContainer}>
+        {finishedSort && (
+          <button
+            className={styles.toggleResults}
+            type="button"
+            onClick={() => {
+              setShowResults((prev) => !prev);
+            }}
+          >
+            {showResults ? "Collapse results" : "Show results"}
+          </button>
+        )}
+        {showResults && (
+          <>
+            <table id="ResultsTable" className={styles.resultsTable} ref={ref}>
+              <thead className={styles.resultsHeaderContainer}>
+                <tr>
+                  <th className={styles.resultsHeader}>rank</th>
+                  <th className={styles.resultsHeader}>options</th>
+                </tr>
+              </thead>
+              <tbody>{resultsItems}</tbody>
+            </table>
+            <button
+              className={styles.export}
+              type="button"
+              onClick={() => {
+                if (typeof window !== "undefined") {
+                  exportToPng();
+                }
+              }}
+            >
+              Download as png
+            </button>
+          </>
+        )}
+      </div>
     );
   };
 
@@ -454,7 +470,7 @@ const Sort = ({
         </div>
       </div>
 
-      {showResults === true ? <Results /> : null}
+      {finishedSort && <Results />}
     </>
   );
 };

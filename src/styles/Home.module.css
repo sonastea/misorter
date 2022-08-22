@@ -265,6 +265,10 @@ html[data-theme="light"] .listInput {
 }
 
 @media (max-width: 600px) {
+  .description {
+    max-width: 99vw;
+  }
+
   .editTitleButton {
     height: 1rem;
     width: 1rem;
