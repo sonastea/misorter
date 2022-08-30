@@ -20,6 +20,11 @@ class MyDocument extends Document {
             rel="stylesheet"
             crossOrigin="true"
           />
+
+          <link rel="manifest" href="/manifest.json" />
+          <link rel="icon" href="/favicon.ico" />
+          <link rel="apple-touch-icon" href="/favicon.ico" />
+          <meta name="theme-color" content="#ff5fa2" />
         </Head>
         <body>
           <Main />

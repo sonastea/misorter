@@ -99,7 +99,6 @@ const Home: NextPage = () => {
         <meta name="twitter:creator" content="@teadroplets" />
         <meta name="og:title" content={metaTitle} />
         <meta name="og:description" content={metaDescription} />
-        <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <ThemeToggle />

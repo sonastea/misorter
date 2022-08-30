@@ -1,0 +1,27 @@
+{
+  "name": "misorter",
+  "short_name": "misorter",
+  "start_url": "/",
+  "theme_color": "#ff5fa2",
+  "background_color": "#fcc89b",
+  "display": "fullscreen",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icons/maskable_icon_32.png",
+      "type": "image/png",
+      "sizes": "32x32",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/icon_192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "icons/icon_512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}

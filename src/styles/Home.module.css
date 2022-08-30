@@ -242,7 +242,7 @@ html[data-theme="light"] .listInput {
 
 .reset {
   color: var(--color-text-primary);
-  background-color: transparent;
+  background: transparent;
   border-color: transparent;
   border-style: solid;
   display: inline-block;
@@ -254,13 +254,13 @@ html[data-theme="light"] .listInput {
   vertical-align: bottom;
   position: relative;
   overflow: hidden;
-  transition: background-color 0.15s ease-in, color 0.3s;
+  transition: background 0.15s ease-in, color 0.3s;
   padding: 0.55rem;
 }
 
 .reset:hover {
   color: hsl(0, 0%, 0%);
-  background-color: hsl(0, 0%, 88%);
+  background: hsl(0, 0%, 88%);
   transition: transform 0.15s;
 }
 
@@ -303,7 +303,7 @@ html[data-theme="dark"] .listInput {
   border-width: thin;
   place-self: center;
   color: var(--color-text-primary);
-  background-color: var(--color-bg-secondary);
+  background: var(--color-bg-secondary);
   box-shadow: var(--md-shadow-dp1);
 }
 
@@ -440,7 +440,7 @@ html[data-theme="dark"] .reset:hover {
   html[data-theme="light"] .listInput {
     border: 1px solid var(--color-text-primary);
     border-width: thin;
-    background-color: hsl(0, 0%, 95%);
+    background: hsl(0, 0%, 95%);
     box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px 0px;
     outline: none !important;
   }
@@ -460,7 +460,7 @@ html[data-theme="dark"] .reset:hover {
   html[data-theme="dark"] .listInput {
     border: 1px solid hsl(0, 0%, 88%);
     color: white;
-    background-color: transparent;
+    background: transparent;
     outline: none !important;
     box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
   }
