@@ -1,4 +1,4 @@
-import html2canvas from "html2canvas";
+import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { ListItem } from "src/pages";
@@ -27,6 +27,13 @@ const Sort = ({
   const [finishedSort, setFinishedSort] = useState<boolean>(false);
   const [showResults, setShowResults] = useState<boolean>(false);
   const ref = useRef<HTMLTableElement>(null);
+
+  const DownloadAsPng = dynamic(
+    () => import("../components/DownloadAsPngButton"),
+    {
+      ssr: false,
+    }
+  );
 
   const copyLinkToClipboard = async () => {
     await navigator.clipboard.writeText(window.location.href).then(
@@ -358,17 +365,7 @@ const Sort = ({
               </thead>
               <tbody>{resultsItems}</tbody>
             </table>
-            <button
-              className={styles.export}
-              type="button"
-              onClick={() => {
-                if (typeof window !== "undefined") {
-                  exportToPng();
-                }
-              }}
-            >
-              Download as png
-            </button>
+            <DownloadAsPng />
           </>
         )}
       </div>
@@ -380,19 +377,6 @@ const Sort = ({
       setStartSort(false);
     }
     return;
-  };
-
-  const exportToPng = () => {
-    html2canvas(document.getElementById("ResultsTable") as HTMLElement).then(
-      (canvas) => {
-        let link = document.createElement("a");
-        link.download = `misorter-results-${new Date(
-          Date.now()
-        ).toLocaleString()}.png`;
-        link.href = canvas.toDataURL();
-        link.click();
-      }
-    );
   };
 
   return (
