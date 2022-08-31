@@ -83,6 +83,10 @@ html[data-theme="light"] .toastBody {
   min-height: 3rem;
 }
 
+html[data-theme="light"] .Toastify__close-button {
+  color: var(--color-text-primary);
+}
+
 html[data-theme="dark"] .toastBody {
   color: #ff7fb5;
   background-color: var(--color-bg-secondary);
