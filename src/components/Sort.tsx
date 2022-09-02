@@ -25,6 +25,8 @@ const Sort = ({
 }) => {
   const [finishedSort, setFinishedSort] = useState<boolean>(false);
   const [showResults, setShowResults] = useState<boolean>(false);
+  const [option1, setOption1] = useState<string>("");
+  const [option2, setOption2] = useState<string>("");
   const ref = useRef<HTMLTableElement>(null);
 
   const DownloadAsPng = dynamic(
@@ -296,6 +298,9 @@ const Sort = ({
     document.getElementById("leftField")!.innerHTML = str1;
     document.getElementById("rightField")!.innerHTML = str2;
 
+    setOption1(str1);
+    setOption2(str2);
+
     numQuestion++;
   }
 
@@ -397,8 +402,8 @@ const Sort = ({
           <br />
           0% sorted.
         </div>
+        <TwitchPollButton option1={option1} option2={option2} />
         <ShareLinkButton />
-        <TwitchPollButton />
         <div
           className={styles.leftField}
           onClick={() => {

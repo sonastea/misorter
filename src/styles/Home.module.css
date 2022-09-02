@@ -358,7 +358,7 @@ html[data-theme="dark"] .reset {
 }
 
 html[data-theme="dark"] .reset:hover {
-  background: hsl(0, 0%, 12%);
+  background: var(--color-bg-secondary);
 }
 
 html[data-theme="dark"] .start {

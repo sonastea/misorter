@@ -73,6 +73,104 @@
   transition: color 0.1s;
 }
 
+.pollPopover {
+  display: flex;
+  justify-items: center;
+  justify-content: center;
+  align-items: center;
+}
+
+.pollPanel {
+  position: absolute;
+}
+
+.pollForm {
+  display: grid;
+  gap: 0.25rem;
+  border: 1px solid var(--color-bg-secondary);
+  background: var(--color-bg-secondary);
+  border-radius: 0.25rem;
+  max-width: 24rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 1rem;
+  box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+}
+
+.pollTitle {
+  color: var(--color-text-primary);
+}
+
+.pollInput {
+  outline: transparent;
+  border: transparent;
+  border-radius: 0.15rem;
+  background: var(--color-bg-primary);
+}
+
+.pollInput:focus-within {
+  outline: 1px solid var(--color-text-primary);
+}
+
+.pollInput:disabled {
+  cursor: not-allowed;
+}
+
+.pollLabels {
+  font-size: small;
+  color: var(--color-text-primary);
+  display: grid;
+  gap: 2px;
+  text-align: left;
+}
+
+.pollCancel {
+  color: var(--color-text-primary);
+  background: transparent;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 1px;
+  display: inline-block;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-weight: bold;
+  user-select: none;
+  vertical-align: bottom;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.15s ease-in, color 0.3s;
+}
+
+.pollCancel:hover {
+  color: hsl(0, 0%, 0%);
+  background: hsl(0, 0%, 88%);
+  transition: transform 0.15s;
+}
+
+.pollConfirm {
+  color: var(--color-text-once);
+  border-color: var(--color-text-once);
+  background: transparent;
+  display: inline-block;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-weight: bold;
+  user-select: none;
+  vertical-align: bottom;
+  position: relative;
+  border-style: solid;
+  overflow: hidden;
+  transition: color 0.15s ease-in, background-color 0.15s ease-in;
+}
+
+.pollConfirm:hover {
+  color: white;
+  background-color: var(--color-text-once);
+  transition: transform 0.15s;
+}
+
 .leftField,
 .rightField,
 .both,
@@ -352,6 +450,45 @@ html[data-theme="dark"] .pollUnauthorized:hover {
   color: #7438cc;
   font-weight: 700;
   transform: color 0.15s;
+}
+
+html[data-theme="dark"] .pollForm {
+  border: transparent;
+  background: var(--color-bg-secondary);
+  box-shadow: var(--md-shadow-dp1);
+}
+
+html[data-theme="dark"] .pollInput {
+  color: var(--color-text-primary);
+  border: transparent;
+  border-radius: 0.15rem;
+  background: var(--color-bg-tertiary);
+}
+
+html[data-theme="dark"] .pollInput:disabled {
+  color: #bbbbbb;
+}
+
+html[data-theme="dark"] .pollLabels {
+  color: var(--color-text-primary);
+}
+
+html[data-theme="dark"] .pollCancel {
+  color: var(--color-text-primary);
+}
+
+html[data-theme="dark"] .pollCancel:hover {
+  background: var(--color-bg-tertiary);
+}
+
+html[data-theme="dark"] .pollConfirm {
+  color: var(--color-text-primary);
+}
+
+html[data-theme="dark"] .pollConfirm:hover {
+  color: #1d1d1d;
+  border-color: #e65692;
+  background: #e65692;
 }
 
 html[data-theme="dark"] .leftField:hover {

@@ -4,7 +4,13 @@ import { trpc } from "src/utils/trpc";
 import CreatePollButton from "./CreatePollButton";
 import CreatePollUnauthorizedButton from "./CreatePollUnauthorizedButton";
 
-const CreatePollButtonContainer = () => {
+const CreatePollButtonContainer = ({
+  option1,
+  option2,
+}: {
+  option1: string;
+  option2: string;
+}) => {
   const [isLoggedIn, setLoggedIn] = useState<boolean | null>(null);
   let code: string | null = "";
 
@@ -16,6 +22,7 @@ const CreatePollButtonContainer = () => {
       .then((res) => res.json())
       .then((data) => {
         if (data && data.status !== 401) {
+          sessionStorage.setItem("twitch_user_id", data.user_id);
           setLoggedIn(true);
         } else {
           setLoggedIn(false);
@@ -50,7 +57,7 @@ const CreatePollButtonContainer = () => {
   if (isLoggedIn === null) return null;
 
   if (isLoggedIn) {
-    return <CreatePollButton />;
+    return <CreatePollButton option1={option1} option2={option2} />;
   }
 
   return <CreatePollUnauthorizedButton isLoggedIn={isLoggedIn} />;
