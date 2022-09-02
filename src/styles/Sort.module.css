@@ -59,6 +59,20 @@
   transition: color 0.1s;
 }
 
+.pollUnauthorized {
+  color: #9146ff;
+  height: 1.35rem;
+  width: 1.35rem;
+  cursor: pointer;
+  transition: font-size 0.1s;
+}
+
+.pollUnauthorized:hover {
+  color: #7438cc;
+  font-weight: 700;
+  transition: color 0.1s;
+}
+
 .leftField,
 .rightField,
 .both,
@@ -138,7 +152,7 @@
 .resultsContainer {
   display: grid;
   gap: 1rem;
-  justify-items: center;;
+  justify-items: center;
   text-align: center;
 }
 
@@ -325,6 +339,17 @@ html[data-theme="dark"] .poll {
 
 html[data-theme="dark"] .poll:hover {
   color: #56a0ff;
+  font-weight: 700;
+  transform: color 0.15s;
+}
+
+html[data-theme="dark"] .pollUnauthorized {
+  color: #9146ff;
+  transition: color 0.15s ease-in-out;
+}
+
+html[data-theme="dark"] .pollUnauthorized:hover {
+  color: #7438cc;
   font-weight: 700;
   transform: color 0.15s;
 }

@@ -1,12 +1,17 @@
+import { useEffect, useState } from "react";
+import { trpc } from "src/utils/trpc";
 import styles from "../styles/Sort.module.css";
 
 const CreatePollButton = () => {
+  const handleCreatePoll = () => {};
+
   return (
     <button
       aria-label="Create a twitch poll with the shown options"
       className={styles.pollContainer}
       type="button"
       title="Create a twitch poll with the shown options"
+      onClick={() => handleCreatePoll()}
     >
       <svg className={styles.poll} viewBox="0 0 24 24">
         <path

@@ -1,6 +1,6 @@
 {
   "name": "misorter",
-  "version": "1.1.4",
+  "version": "1.2.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -17,6 +17,8 @@
     "@trpc/server": "^9.27.2",
     "@upstash/ratelimit": "^0.1.4",
     "@upstash/redis": "^1.12.0",
+    "cookies-next": "^2.1.1",
+    "crypto-random-string": "^5.0.0",
     "html2canvas": "^1.4.1",
     "ioredis": "^5.2.3",
     "next": "^12.2.5",

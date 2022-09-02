@@ -2,8 +2,6 @@ import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import { ListItem } from "src/pages";
 import styles from "../styles/Sort.module.css";
-import CreatePollButton from "./CreatePollButton";
-import ShareLinkButton from "./ShareLinkButton";
 
 let lstMember = new Array();
 let parent = new Array();
@@ -31,6 +29,20 @@ const Sort = ({
 
   const DownloadAsPng = dynamic(
     () => import("../components/DownloadAsPngButton"),
+    {
+      ssr: false,
+    }
+  );
+
+  const TwitchPollButton = dynamic(
+    () => import("../components/CreatePollButtonContainer"),
+    {
+      ssr: false,
+    }
+  );
+
+  const ShareLinkButton = dynamic(
+    () => import("../components/ShareLinkButton"),
     {
       ssr: false,
     }
@@ -386,7 +398,7 @@ const Sort = ({
           0% sorted.
         </div>
         <ShareLinkButton />
-        <CreatePollButton />
+        <TwitchPollButton />
         <div
           className={styles.leftField}
           onClick={() => {

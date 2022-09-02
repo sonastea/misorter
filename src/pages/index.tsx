@@ -61,6 +61,19 @@ const Home: NextPage = () => {
   });
 
   useEffect(() => {
+    if (router.query["code"] && router.query["state"]) {
+      if (router.query["state"] === sessionStorage.getItem("state")) {
+        sessionStorage.setItem(
+          "twitch_auth_code",
+          router.query["code"].toString()
+        );
+        sessionStorage.removeItem("state");
+      }
+      router.back();
+    }
+  }, [router, router.query]);
+
+  useEffect(() => {
     if (listLabel && !getListOnce) {
       refetch();
       setGetListOnce(true);
