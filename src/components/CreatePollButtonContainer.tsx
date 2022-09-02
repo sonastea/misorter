@@ -6,7 +6,7 @@ import CreatePollUnauthorizedButton from "./CreatePollUnauthorizedButton";
 
 const CreatePollButtonContainer = () => {
   const [isLoggedIn, setLoggedIn] = useState<boolean>(false);
-  let code: string = "";
+  let code: string | null = "";
 
   useEffect(() => {
     fetch("/api/twitch-validate", {
@@ -49,7 +49,7 @@ const CreatePollButtonContainer = () => {
     return <CreatePollButton />;
   }
 
-  return <CreatePollUnauthorizedButton />;
+  return <CreatePollUnauthorizedButton isLoggedIn={isLoggedIn} />;
 };
 
 export default CreatePollButtonContainer;

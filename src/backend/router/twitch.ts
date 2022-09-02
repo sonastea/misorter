@@ -3,6 +3,7 @@ import { z } from "zod";
 
 let clientId: string = "";
 let clientSecret: string = "";
+let redirectUri: string = "";
 
 if (process.env.NEXT_PUBLIC_clientId) {
   clientId = process.env.NEXT_PUBLIC_clientId;
@@ -10,6 +11,10 @@ if (process.env.NEXT_PUBLIC_clientId) {
 
 if (process.env.NEXT_PUBLIC_clientSecret) {
   clientSecret = process.env.NEXT_PUBLIC_clientSecret;
+}
+
+if (process.env.redirectUri) {
+  redirectUri = process.env.redirectUri;
 }
 
 export const twitch = trpc.router().query("get-token", {
@@ -26,7 +31,7 @@ export const twitch = trpc.router().query("get-token", {
           client_secret: clientSecret,
           code: input,
           grant_type: "authorization_code",
-          redirect_uri: window.location.origin,
+          redirect_uri: redirectUri,
         }),
       }).then((res) => res.json());
       return { access_token: data.access_token };

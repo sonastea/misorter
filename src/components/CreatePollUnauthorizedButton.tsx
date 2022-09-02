@@ -5,12 +5,16 @@ import styles from "../styles/Sort.module.css";
 const clientId = process.env.NEXT_PUBLIC_clientId;
 const secret = cryptoRandomString({ length: 9, type: "url-safe" });
 
-const CreatePollUnauthorizedButton = () => {
+const CreatePollUnauthorizedButton = ({
+  isLoggedIn,
+}: {
+  isLoggedIn: boolean;
+}) => {
   const twitchAuth = `https://id.twitch.tv/oauth2/authorize?response_type=code&client_id=${clientId}&redirect_uri=${window.location.origin}&scope=channel%3Amanage%3Apolls&state=${secret}`;
 
-  useEffect(() => {
+  if (!isLoggedIn) {
     sessionStorage.setItem("state", secret);
-  }, []);
+  }
 
   return (
     <button
