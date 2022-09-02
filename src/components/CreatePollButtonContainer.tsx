@@ -5,7 +5,7 @@ import CreatePollButton from "./CreatePollButton";
 import CreatePollUnauthorizedButton from "./CreatePollUnauthorizedButton";
 
 const CreatePollButtonContainer = () => {
-  const [isLoggedIn, setLoggedIn] = useState<boolean>(false);
+  const [isLoggedIn, setLoggedIn] = useState<boolean | null>(null);
   let code: string | null = "";
 
   useEffect(() => {
@@ -17,6 +17,8 @@ const CreatePollButtonContainer = () => {
       .then((data) => {
         if (data && data.status !== 401) {
           setLoggedIn(true);
+        } else {
+          setLoggedIn(false);
         }
       });
   }, []);
@@ -44,6 +46,8 @@ const CreatePollButtonContainer = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code]);
+
+  if (isLoggedIn === null) return null;
 
   if (isLoggedIn) {
     return <CreatePollButton />;
