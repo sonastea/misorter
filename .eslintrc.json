@@ -1,5 +1,6 @@
 {
-  "extends": "next/core-web-vitals",
+  "extends": ["next/core-web-vitals", "plugin:prettier/recommended"],
+  "plugins": ["prettier"],
   "rules": {
     "react/no-unknown-property": [1, { "ignore": ["viewBox", "fill", "d"] }]
   }
