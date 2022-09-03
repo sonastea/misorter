@@ -22,6 +22,10 @@ const CreatePollButton = ({
       { title: option2 },
     ];
 
+    if (duration < 15) {
+      setDuration(15);
+    }
+
     const data = await fetch("https://api.twitch.tv/helix/polls", {
       method: "POST",
       headers: {
@@ -84,28 +88,26 @@ const CreatePollButton = ({
               <input className={styles.pollInput} value={option2} disabled />
               <label className={styles.pollLabels}>
                 Duration
-                <select
+                <input
+                  type="number"
                   className={styles.pollInput}
-                  name="duration"
-                  onChange={(e) => setDuration(parseInt(e.target.value))}
-                  value={15}
-                >
-                  <option value={15}>15 seconds</option>
-                  <option value={30}>30 seconds</option>
-                  <option value={60}>1 minute</option>
-                  <option value={90}>1 minute 30 seconds</option>
-                </select>
+                  step="5"
+                  min="0"
+                  max="1800"
+                  value={duration}
+                  onChange={(e) => {
+                    setDuration(parseInt(e.target.value));
+
+                    if (parseInt(e.target.value) > 1800) {
+                      setDuration(1800);
+                    }
+
+                    if (parseInt(e.target.value) === NaN) {
+                      setDuration(15);
+                    }
+                  }}
+                />
               </label>
-              {/* <input
-              type="range"
-              min="15"
-              max="1800"
-              value={duration}
-              onChange={(e: any) => {
-                setDuration(e.target.value);
-                console.log(e.target.value);
-              }}
-            /> */}
               <div>
                 <button
                   className={styles.pollCancel}

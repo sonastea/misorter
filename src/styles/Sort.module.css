@@ -82,6 +82,8 @@
 
 .pollPanel {
   position: absolute;
+  left: 50%;
+  transform: translate(-50%, 0%);
 }
 
 .pollForm {
@@ -149,7 +151,7 @@
 
 .pollConfirm {
   color: var(--color-text-once);
-  border-color: var(--color-text-once);
+  border-color: transparent;
   background: transparent;
   display: inline-block;
   border-width: 1px;
@@ -482,13 +484,13 @@ html[data-theme="dark"] .pollCancel:hover {
 }
 
 html[data-theme="dark"] .pollConfirm {
-  color: var(--color-text-primary);
+  color: var(--color-text-once);
+  border-color: transparent;
 }
 
 html[data-theme="dark"] .pollConfirm:hover {
   color: #1d1d1d;
-  border-color: #e65692;
-  background: #e65692;
+  background: var(--color-text-once);
 }
 
 html[data-theme="dark"] .leftField:hover {

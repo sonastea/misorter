@@ -15,24 +15,24 @@ const CreatePollButtonContainer = ({
   let code: string | null = "";
 
   useEffect(() => {
-    const validate = () => fetch("/api/twitch-validate", {
-      method: "GET",
-      credentials: "include",
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data && data.status !== 401) {
-          sessionStorage.setItem("twitch_user_id", data.user_id);
-          setLoggedIn(true);
-        } else {
-          setLoggedIn(false);
-        }
-      });
+    const validate = () =>
+      fetch("/api/twitch-validate", {
+        method: "GET",
+        credentials: "include",
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data && data.status !== 401) {
+            sessionStorage.setItem("twitch_user_id", data.user_id);
+            setLoggedIn(true);
+          } else {
+            setLoggedIn(false);
+          }
+        });
 
     if (!isLoggedIn && !sessionStorage.getItem("twitch_auth_code")) {
       validate();
     }
-
   }, []);
 
   if (typeof window !== "undefined" && sessionStorage) {
@@ -51,12 +51,12 @@ const CreatePollButtonContainer = ({
       getAccessToken
         .refetch()
         .then((res) => {
-          setCookie("Authorization", `Bearer ${res.data?.access_token}`)
+          setCookie("Authorization", `Bearer ${res.data?.access_token}`);
         })
         .finally(() => {
           sessionStorage.removeItem("twitch_auth_code");
           setLoggedIn(true);
-        })
+        });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code]);
