@@ -1,5 +1,4 @@
 import cryptoRandomString from "crypto-random-string";
-import { useEffect } from "react";
 import styles from "../styles/Sort.module.css";
 
 const clientId = process.env.NEXT_PUBLIC_clientId;
