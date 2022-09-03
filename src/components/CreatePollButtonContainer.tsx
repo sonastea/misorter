@@ -15,7 +15,7 @@ const CreatePollButtonContainer = ({
   let code: string | null = "";
 
   useEffect(() => {
-    fetch("/api/twitch-validate", {
+    const validate = () => fetch("/api/twitch-validate", {
       method: "GET",
       credentials: "include",
     })
@@ -28,12 +28,17 @@ const CreatePollButtonContainer = ({
           setLoggedIn(false);
         }
       });
+
+    if (!isLoggedIn && !sessionStorage.getItem("twitch_auth_code")) {
+      validate();
+    }
+
   }, []);
 
   if (typeof window !== "undefined" && sessionStorage) {
-    code = sessionStorage.getItem("twitch_auth_code") as string;
+    code = sessionStorage.getItem("twitch_auth_code");
   }
-  const getAccessToken = trpc.useQuery(["twitch.get-token", code], {
+  const getAccessToken = trpc.useQuery(["twitch.get-token", code as string], {
     refetchOnMount: false,
     refetchInterval: false,
     refetchOnReconnect: false,
@@ -45,11 +50,13 @@ const CreatePollButtonContainer = ({
     if (code && !isLoggedIn) {
       getAccessToken
         .refetch()
-        .then((res) =>
+        .then((res) => {
           setCookie("Authorization", `Bearer ${res.data?.access_token}`)
-        )
-        .finally(() => sessionStorage.removeItem("twitch_auth_code"));
-      setLoggedIn(true);
+        })
+        .finally(() => {
+          sessionStorage.removeItem("twitch_auth_code");
+          setLoggedIn(true);
+        })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code]);
