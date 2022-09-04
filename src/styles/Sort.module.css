@@ -111,8 +111,8 @@
   background: var(--color-bg-primary);
 }
 
-.pollInput:focus-within {
-  outline: 1px solid var(--color-text-primary);
+.pollInput:focus {
+  outline: 1px solid var(--color-text-once);
 }
 
 .pollInput:disabled {
@@ -470,6 +470,10 @@ html[data-theme="dark"] .pollInput {
   border: transparent;
   border-radius: 0.15rem;
   background: var(--color-bg-tertiary);
+}
+
+html[data-theme="dark"] .pollInput:focus {
+  outline: 1px solid var(--color-text-once);
 }
 
 html[data-theme="dark"] .pollInput:disabled {

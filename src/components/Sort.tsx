@@ -1,6 +1,8 @@
+import { deleteCookie, setCookie } from "cookies-next";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import { ListItem } from "src/pages";
+import { trpc } from "src/utils/trpc";
 import styles from "../styles/Sort.module.css";
 
 let lstMember = new Array();
@@ -23,11 +25,14 @@ const Sort = ({
   ogList: ListItem[];
   setStartSort: Function;
 }) => {
+  const [isLoggedIn, setLoggedIn] = useState<boolean | undefined>();
   const [finishedSort, setFinishedSort] = useState<boolean>(false);
   const [showResults, setShowResults] = useState<boolean>(false);
   const [option1, setOption1] = useState<string>("");
   const [option2, setOption2] = useState<string>("");
   const ref = useRef<HTMLTableElement>(null);
+
+  let code: string | null = "";
 
   const DownloadAsPng = dynamic(
     () => import("../components/DownloadAsPngButton"),
@@ -49,6 +54,55 @@ const Sort = ({
       ssr: false,
     }
   );
+
+  useEffect(() => {
+    const validate = () =>
+      fetch("/api/twitch-validate", {
+        method: "GET",
+        credentials: "include",
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data && data.status !== 401) {
+            sessionStorage.setItem("twitch_user_id", data.user_id);
+            setLoggedIn(true);
+          } else {
+            deleteCookie("Authorization");
+            setLoggedIn(false);
+          }
+        });
+
+    if (!isLoggedIn && !sessionStorage.getItem("twitch_auth_code")) {
+      validate();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (typeof window !== "undefined" && sessionStorage) {
+    code = sessionStorage.getItem("twitch_auth_code");
+  }
+  const getAccessToken = trpc.useQuery(["twitch.get-token", code as string], {
+    refetchOnMount: false,
+    refetchInterval: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
+    enabled: false,
+  });
+
+  useEffect(() => {
+    if (code && !isLoggedIn) {
+      getAccessToken
+        .refetch()
+        .then((res) => {
+          setCookie("Authorization", `Bearer ${res.data?.access_token}`);
+        })
+        .finally(() => {
+          sessionStorage.removeItem("twitch_auth_code");
+          setLoggedIn(true);
+        });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [code]);
 
   // Thanks to biasorter.tumblr.com for the code
   // https://biasorter.tumblr.com/
@@ -402,7 +456,11 @@ const Sort = ({
           <br />
           0% sorted.
         </div>
-        <TwitchPollButton option1={option1} option2={option2} />
+        <TwitchPollButton
+          isLoggedIn={isLoggedIn}
+          option1={option1}
+          option2={option2}
+        />
         <ShareLinkButton />
         <div
           className={styles.leftField}

@@ -7,7 +7,7 @@ const secret = cryptoRandomString({ length: 9, type: "url-safe" });
 const CreatePollUnauthorizedButton = ({
   isLoggedIn,
 }: {
-  isLoggedIn: boolean;
+  isLoggedIn: boolean | undefined;
 }) => {
   const twitchAuth = `https://id.twitch.tv/oauth2/authorize?response_type=code&client_id=${clientId}&redirect_uri=${window.location.origin}&scope=channel%3Amanage%3Apolls&state=${secret}`;
 

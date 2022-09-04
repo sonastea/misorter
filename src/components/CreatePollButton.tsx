@@ -12,14 +12,16 @@ const CreatePollButton = ({
   option2: string;
 }) => {
   const [title, setTitle] = useState<string>(`${option1} or ${option2}`);
+  const [newOption1, setNewOption1] = useState<string>(option1);
+  const [newOption2, setNewOption2] = useState<string>(option2);
   const [duration, setDuration] = useState<number>(15);
 
   const handleCreatePoll = async () => {
-    const user_id = sessionStorage.getItem("twitch_user_id");
+    const userId = sessionStorage.getItem("twitch_user_id");
     const clientId = process.env.NEXT_PUBLIC_clientId!;
     const choices: { title: string }[] = [
-      { title: option1 },
-      { title: option2 },
+      { title: newOption1 },
+      { title: newOption2 },
     ];
 
     if (duration < 15) {
@@ -34,7 +36,7 @@ const CreatePollButton = ({
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        broadcaster_id: user_id,
+        broadcaster_id: userId,
         title: title,
         choices: choices,
         duration: duration,
@@ -42,7 +44,7 @@ const CreatePollButton = ({
     }).then((res) => res.json());
 
     if (data.status === 401) {
-      toast.error("Unable to create poll due to invalid token");
+      toast.error("Unauthorized to create poll");
       deleteCookie("Authorization");
     }
 
@@ -59,10 +61,10 @@ const CreatePollButton = ({
     <>
       <Popover className={styles.pollPopover}>
         <Popover.Button
-          aria-label="Create a twitch poll with the shown options"
+          aria-label="Create a twitch poll"
           className={styles.pollContainer}
           type="button"
-          title="Create a twitch poll with the shown options"
+          title="Create a twitch poll"
         >
           <svg className={styles.poll} viewBox="0 0 24 24">
             <path
@@ -76,7 +78,7 @@ const CreatePollButton = ({
           {({ close }) => (
             <form className={styles.pollForm}>
               <label className={styles.pollLabels}>
-                Poll title
+                Poll Title
                 <input
                   className={styles.pollInput}
                   placeholder={`${option1} vs ${option2}`}
@@ -84,8 +86,19 @@ const CreatePollButton = ({
                   onChange={(e) => setTitle(e.currentTarget.value)}
                 />
               </label>
-              <input className={styles.pollInput} value={option1} disabled />
-              <input className={styles.pollInput} value={option2} disabled />
+              <label className={styles.pollLabels}>
+                Options
+                <input
+                  className={styles.pollInput}
+                  value={newOption1}
+                  onChange={(e) => setNewOption1(e.target.value)}
+                />
+                <input
+                  className={styles.pollInput}
+                  value={newOption2}
+                  onChange={(e) => setNewOption2(e.target.value)}
+                />
+              </label>
               <label className={styles.pollLabels}>
                 Duration
                 <input
