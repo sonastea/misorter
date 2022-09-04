@@ -55,28 +55,27 @@ const Sort = ({
     }
   );
 
-  useEffect(() => {
-    const validate = () =>
-      fetch("/api/twitch-validate", {
-        method: "GET",
-        credentials: "include",
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data && data.status !== 401) {
-            sessionStorage.setItem("twitch_user_id", data.user_id);
-            setLoggedIn(true);
-          } else {
-            deleteCookie("Authorization");
-            setLoggedIn(false);
-          }
-        });
+  const validate = async () =>
+    await fetch("/api/twitch-validate", {
+      method: "GET",
+      credentials: "include",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.status !== 401) {
+          sessionStorage.setItem("twitch_user_id", data.user_id);
+          setLoggedIn(true);
+        } else {
+          deleteCookie("Authorization");
+          setLoggedIn(false);
+        }
+      });
 
+  useEffect(() => {
     if (!isLoggedIn && !sessionStorage.getItem("twitch_auth_code")) {
       validate();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isLoggedIn]);
 
   if (typeof window !== "undefined" && sessionStorage) {
     code = sessionStorage.getItem("twitch_auth_code");
@@ -99,6 +98,7 @@ const Sort = ({
         .finally(() => {
           sessionStorage.removeItem("twitch_auth_code");
           setLoggedIn(true);
+          validate();
         });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
