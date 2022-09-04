@@ -13,6 +13,7 @@ const CreatePollUnauthorizedButton = ({
 
   if (!isLoggedIn) {
     sessionStorage.setItem("state", secret);
+    sessionStorage.setItem("back-url", window.location.toString());
   }
 
   return (

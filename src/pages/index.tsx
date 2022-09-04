@@ -61,6 +61,7 @@ const Home: NextPage = () => {
   });
 
   useEffect(() => {
+    const backUrl = sessionStorage.getItem("back-url");
     if (router.query["code"] && router.query["state"]) {
       if (router.query["state"] === sessionStorage.getItem("state")) {
         sessionStorage.setItem(
@@ -69,7 +70,10 @@ const Home: NextPage = () => {
         );
         sessionStorage.removeItem("state");
       }
-      router.back();
+      if (backUrl) {
+        router.push(backUrl);
+        sessionStorage.removeItem("back-url");
+      }
     }
   }, [router, router.query]);
 
