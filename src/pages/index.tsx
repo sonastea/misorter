@@ -30,6 +30,7 @@ export type ListItem = {
 const Home: NextPage = () => {
   const [editTitle, setEditTitle] = useState<boolean>(false);
   const [title, setTitle] = useState<string>("misorter");
+  const [oldTitle, setOldTitle] = useState<string>();
   const [list, setList] = useState<ListItem[]>([]);
   const [newItem, setNewItem] = useState<string>("");
   const [startSort, setStartSort] = useState<boolean>(false);
@@ -89,7 +90,10 @@ const Home: NextPage = () => {
     data?.items.map((item: { value: string }) => {
       setList((prev: any) => [...prev, { id: uuidv4(), value: item.value }]);
     });
-    if (data?.title) setTitle(data?.title);
+    if (data?.title) {
+      setTitle(data?.title);
+      setOldTitle(data?.title);
+    }
   }, [data?.items, data?.title]);
 
   useEffect(() => {
@@ -137,8 +141,9 @@ const Home: NextPage = () => {
                 }
                 if (data) {
                   // only update title of the list if we've fetched and changed the title from the original
-                  if (listLabel && title !== data.title) {
+                  if (listLabel && title !== oldTitle) {
                     updateTitle.mutate({ label: data.label, title });
+                    setOldTitle(title);
                   }
                 }
                 setEditTitle(false);
