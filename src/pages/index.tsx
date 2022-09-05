@@ -135,9 +135,11 @@ const Home: NextPage = () => {
                 if (title === "") {
                   setTitle("misorter");
                 }
-                // only update title of the list if we've fetched and changed the title from the original
-                if (listLabel && title !== data.title) {
-                  updateTitle.mutate({ label: data.label, title });
+                if (data) {
+                  // only update title of the list if we've fetched and changed the title from the original
+                  if (listLabel && title !== data.title) {
+                    updateTitle.mutate({ label: data.label, title });
+                  }
                 }
                 setEditTitle(false);
               }
