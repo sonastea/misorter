@@ -1,7 +1,7 @@
 .back {
   color: #2253a3;
   border: transparent;
-  background-color: transparent;
+  background: transparent;
   cursor: pointer;
   grid-area: back;
   font-weight: 600;
@@ -18,7 +18,7 @@
 .shareContainer {
   color: #2253a3;
   border: transparent;
-  background-color: transparent;
+  background: transparent;
   grid-area: share;
   font-size: 0.5rem;
 }
@@ -40,7 +40,7 @@
 .pollContainer {
   color: #2253a3;
   border: transparent;
-  background-color: transparent;
+  background: transparent;
   grid-area: poll;
   font-size: 0.5rem;
 }
@@ -147,7 +147,6 @@
 .pollCancel:hover {
   color: hsl(0, 0%, 0%);
   background: hsl(0, 0%, 88%);
-  transition: transform 0.15s;
 }
 
 .pollConfirm {
@@ -165,13 +164,12 @@
   position: relative;
   border-style: solid;
   overflow: hidden;
-  transition: color 0.15s ease-in, background-color 0.15s ease-in;
+  transition: color 0.15s ease-in, background 0.15s ease-in;
 }
 
 .pollConfirm:hover {
   color: white;
-  background-color: var(--color-text-once);
-  transition: transform 0.15s;
+  background: var(--color-text-once);
 }
 
 .leftField,
@@ -298,7 +296,7 @@
 .export {
   color: var(--color-text-once);
   border-color: var(--color-text-once);
-  background-color: transparent;
+  background: transparent;
   display: inline-block;
   border-style: solid;
   border-radius: 0.55rem;
@@ -311,13 +309,12 @@
   border-style: solid;
   overflow: hidden;
   padding: 0.55rem;
-  transition: color 0.15s ease-in, background-color 0.15s ease-in;
+  transition: color 0.15s ease-in, background 0.15s ease-in;
 }
 
 .export:hover {
   color: white;
-  background-color: var(--color-text-once);
-  transition: transform 0.15s;
+  background: var(--color-text-once);
 }
 
 .toggleResults {
@@ -423,7 +420,6 @@ html[data-theme="dark"] .back {
 html[data-theme="dark"] .back:hover {
   color: #56a0ff;
   font-weight: 700;
-  transform: color 0.15s;
 }
 
 html[data-theme="dark"] .share {
@@ -434,7 +430,6 @@ html[data-theme="dark"] .share {
 html[data-theme="dark"] .share:hover {
   color: #56a0ff;
   font-weight: 700;
-  transform: color 0.15s;
 }
 
 html[data-theme="dark"] .poll {
@@ -445,7 +440,6 @@ html[data-theme="dark"] .poll {
 html[data-theme="dark"] .poll:hover {
   color: #56a0ff;
   font-weight: 700;
-  transform: color 0.15s;
 }
 
 html[data-theme="dark"] .pollUnauthorized {
@@ -456,7 +450,6 @@ html[data-theme="dark"] .pollUnauthorized {
 html[data-theme="dark"] .pollUnauthorized:hover {
   color: #7438cc;
   font-weight: 700;
-  transform: color 0.15s;
 }
 
 html[data-theme="dark"] .pollForm {
@@ -521,14 +514,14 @@ html[data-theme="dark"] .noOpinion:hover {
 html[data-theme="dark"] .export {
   color: var(--color-bg-secondary);
   border-color: #ff7fb5;
-  background-color: #ff7fb5;
-  transition: border-color 0.15s ease-in, background-color 0.15s ease-in;
+  background: #ff7fb5;
+  transition: border-color 0.15s ease-in, background 0.15s ease-in;
 }
 
 html[data-theme="dark"] .export:hover {
   color: var(--color-bg-secondary);
   border-color: #e65692;
-  background-color: #e65692;
+  background: #e65692;
 }
 
 html[data-theme="dark"] .toggleResults {

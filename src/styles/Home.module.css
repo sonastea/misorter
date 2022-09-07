@@ -76,7 +76,7 @@
   color: hsl(0, 0%, 12%);
   margin: 0.9rem 0;
   line-height: 1.5;
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
 .listTable {
@@ -106,14 +106,14 @@ html[data-theme="light"] .listInput {
   border-style: none;
   border-width: thin;
   place-self: center;
-  background-color: hsl(0, 0%, 95%);
+  background: hsl(0, 0%, 95%);
   box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px 0px;
 }
 
 .inputButton {
   border: none;
   color: hsl(0, 0%, 95%);
-  background-color: var(--color-text-once);
+  background: var(--color-text-once);
   border-top-right-radius: 0.65rem;
   border-bottom-right-radius: 0.65rem;
   outline: outset;
@@ -128,7 +128,7 @@ html[data-theme="light"] .listInput {
 }
 
 .inputButton:hover {
-  background-color: #e65692;
+  background: #e65692;
   cursor: pointer;
 }
 
@@ -213,9 +213,11 @@ html[data-theme="light"] .listInput {
 }
 
 .start {
+  color: #ff5fa2;
   color: var(--color-text-once);
   border-color: var(--color-text-once);
-  background-color: transparent;
+  background: rgba(0, 0, 0, 0);
+  background: transparent;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -231,13 +233,12 @@ html[data-theme="light"] .listInput {
   overflow: hidden;
   padding: 0.55rem;
   width: 4.5rem;
-  transition: color 0.15s ease-in, background-color 0.15s ease-in;
+  transition: color 0.15s ease-in, background 0.15s ease-in;
 }
 
 .start:hover {
   color: white;
-  background-color: var(--color-text-once);
-  transition: transform 0.15s;
+  background: var(--color-text-once);
 }
 
 .reset {
@@ -254,18 +255,18 @@ html[data-theme="light"] .listInput {
   vertical-align: bottom;
   position: relative;
   overflow: hidden;
-  transition: background 0.15s ease-in, color 0.3s;
+  transition: background 0.15s ease-in;
   padding: 0.55rem;
 }
 
 .reset:hover {
-  color: hsl(0, 0%, 0%);
+  background: rgb(224, 224, 244);
   background: hsl(0, 0%, 88%);
-  transition: transform 0.15s;
 }
 
 @media (max-width: 600px) {
   .description {
+    font-size: 0.765rem;
     max-width: 99vw;
   }
 
@@ -280,10 +281,6 @@ html[data-theme="light"] .listInput {
 
   .title {
     font-size: 1.25rem;
-  }
-
-  .description {
-    font-size: 0.765rem;
   }
 
   .listTable,
@@ -355,9 +352,11 @@ html[data-theme="dark"] .removeItem:hover {
 
 html[data-theme="dark"] .reset {
   color: var(--color-text-primary);
+  background: var(--color-bg-primary);
 }
 
 html[data-theme="dark"] .reset:hover {
+  color: var(--color-text-primary);
   background: var(--color-bg-secondary);
 }
 
@@ -378,10 +377,6 @@ html[data-theme="dark"] .title {
 }
 
 html[data-theme="dark"] .description {
-  color: var(--color-text-primary);
-}
-
-html[data-theme="dark"] .reset:hover {
   color: var(--color-text-primary);
 }
 
@@ -467,14 +462,14 @@ html[data-theme="dark"] .reset:hover {
 
   html[data-theme="dark"] .listInput:hover {
     color: white;
-    background-color: transparent;
+    background: transparent;
     border: 1px solid hsl(0, 0%, 88%);
     outline: none !important;
   }
 
   html[data-theme="dark"] .listInput:focus {
     color: white;
-    background-color: transparent;
+    background: transparent;
     border: 1px solid hsl(0, 0%, 88%);
     outline: none !important;
   }

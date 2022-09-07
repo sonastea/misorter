@@ -41,9 +41,10 @@ a:hover {
 
 footer {
   color: hsl(0, 0%, 12%);
-  position: absolute;
+  position: relative;
   bottom: 0;
   text-align: center;
+  height: 100%;
   width: 100%;
   padding: 1rem 0;
 }
@@ -69,6 +70,10 @@ footer {
   background: var(--color-bg-icon);
 }
 
+html[data-theme="dark"] .a {
+  color: #6fc5c2;
+}
+
 html[data-theme="dark"] .themeTogglePic:hover {
   background: var(--color-bg-secondary);
 }
@@ -79,7 +84,7 @@ html[data-theme="dark"] footer {
 
 html[data-theme="light"] .toastBody {
   color: var(--color-text-primary);
-  background-color: var(--color-bg-secondary);
+  background: var(--color-bg-secondary);
   min-height: 3rem;
 }
 
@@ -89,7 +94,7 @@ html[data-theme="light"] .Toastify__close-button {
 
 html[data-theme="dark"] .toastBody {
   color: #ff7fb5;
-  background-color: var(--color-bg-secondary);
+  background: var(--color-bg-secondary);
   min-height: 3rem;
 }
 
