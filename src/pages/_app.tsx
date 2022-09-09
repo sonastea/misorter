@@ -1,7 +1,7 @@
 import { AppRouter } from "@router/index";
 import { withTRPC } from "@trpc/next";
 import type { AppProps } from "next/app";
-import { ToastContainer } from "react-toastify";
+import ToastContainer from "src/components/ToastContainer";
 import "../styles/globals.css";
 
 function MyApp({ Component, pageProps }: AppProps) {

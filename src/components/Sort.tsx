@@ -1,9 +1,10 @@
 import { deleteCookie, setCookie } from "cookies-next";
 import dynamic from "next/dynamic";
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { ListItem } from "src/pages";
 import { trpc } from "src/utils/trpc";
 import styles from "../styles/Sort.module.css";
+import DownloadAsPngSkeleton from "./DownloadAsPngSkeleton";
 
 let lstMember = new Array();
 let parent = new Array();
@@ -426,7 +427,9 @@ const Sort = ({
               </thead>
               <tbody>{resultsItems}</tbody>
             </table>
-            <DownloadAsPng />
+            <Suspense fallback={<DownloadAsPngSkeleton />}>
+              <DownloadAsPng />
+            </Suspense>
           </>
         )}
       </div>
