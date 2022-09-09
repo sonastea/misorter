@@ -8,7 +8,6 @@ import "react-toastify/dist/ReactToastify.min.css";
 import ListItemsSkeletonLoader from "src/components/ListItemsSkeletonLoader";
 import Setup from "src/components/Setup";
 import Sort from "src/components/Sort";
-import ThemeToggle from "src/components/ThemeToggle";
 import { trpc } from "src/utils/trpc";
 import { v4 as uuidv4 } from "uuid";
 import styles from "../styles/Home.module.css";
@@ -126,7 +125,6 @@ const Home: NextPage = () => {
         <meta name="og:description" content={metaDescription} />
       </Head>
 
-      <ThemeToggle />
       <main className={styles.main}>
         {editTitle ? (
           <textarea

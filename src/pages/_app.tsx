@@ -1,12 +1,14 @@
 import { AppRouter } from "@router/index";
 import { withTRPC } from "@trpc/next";
 import type { AppProps } from "next/app";
+import ThemeToggle from "src/components/ThemeToggle";
 import ToastContainer from "src/components/ToastContainer";
 import "../styles/globals.css";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <>
+      <ThemeToggle />
       <ToastContainer
         position="top-right"
         autoClose={1000}
