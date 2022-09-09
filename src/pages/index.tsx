@@ -1,10 +1,10 @@
 import type { NextPage } from "next";
+import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.min.css";
-import Footer from "src/components/Footer";
 import ListItemsSkeletonLoader from "src/components/ListItemsSkeletonLoader";
 import Setup from "src/components/Setup";
 import Sort from "src/components/Sort";
@@ -51,6 +51,10 @@ const Home: NextPage = () => {
       enabled: false,
     }
   );
+
+  const DynamicFooter = dynamic(() => import("../components/Footer"), {
+    ssr: false,
+  });
 
   const updateTitle = trpc.useMutation(["listing.update-title"], {
     onSuccess: () => {
@@ -194,7 +198,7 @@ const Home: NextPage = () => {
 
         {startSort && <Sort ogList={list} setStartSort={setStartSort} />}
       </main>
-      <Footer />
+      <DynamicFooter />
     </div>
   );
 };
