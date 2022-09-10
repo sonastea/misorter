@@ -14,7 +14,7 @@ import styles from "../styles/Home.module.css";
 
 const metaTitle = "misorter";
 const metaDescription =
-  "Sort list of items to create a ranking based on the results.";
+  "Sort list of items to create a ranking based on the results. Sorter, Rankings, Favorites";
 
 const tip =
   "hitting 'no opinion' or 'I like both' frequently will negatively affect your results.";
