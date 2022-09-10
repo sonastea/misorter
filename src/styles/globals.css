@@ -61,6 +61,7 @@ footer {
   border: none;
   cursor: pointer;
   transition: background 0.25s ease-in-out;
+  z-index: 999;
 }
 
 .themeTogglePic {
