@@ -456,7 +456,7 @@ html[data-theme="dark"] .pollUnauthorized:hover {
 html[data-theme="dark"] .pollForm {
   border: transparent;
   background: var(--color-bg-secondary);
-  box-shadow: var(--md-shadow-dp1);
+  box-shadow: var(--md-shadow-dp2);
 }
 
 html[data-theme="dark"] .pollInput {
