@@ -59,6 +59,7 @@ const Setup = ({
       // start sort if we've fetched a listing
       setStartSort(true);
     }
+    window.scrollTo({ top: 0 });
   };
 
   const resetList = () => {

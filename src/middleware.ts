@@ -32,5 +32,5 @@ export default async function middleware(
 }
 
 export const config = {
-  matcher: "/api/:path*",
+  matcher: ["/api/tprc/listing.get:path*"],
 };

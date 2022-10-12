@@ -1,21 +1,20 @@
 import type { NextPage } from "next";
+import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.min.css";
-import Footer from "src/components/Footer";
 import ListItemsSkeletonLoader from "src/components/ListItemsSkeletonLoader";
 import Setup from "src/components/Setup";
 import Sort from "src/components/Sort";
-import ThemeToggle from "src/components/ThemeToggle";
 import { trpc } from "src/utils/trpc";
 import { v4 as uuidv4 } from "uuid";
 import styles from "../styles/Home.module.css";
 
 const metaTitle = "misorter";
 const metaDescription =
-  "Sort list of items to create a ranking based on the results.";
+  "Sort list of items to create a ranking based on the results. Sorter, Rankings, Favorites";
 
 const tip =
   "hitting 'no opinion' or 'I like both' frequently will negatively affect your results.";
@@ -30,6 +29,7 @@ export type ListItem = {
 const Home: NextPage = () => {
   const [editTitle, setEditTitle] = useState<boolean>(false);
   const [title, setTitle] = useState<string>("misorter");
+  const [oldTitle, setOldTitle] = useState<string>();
   const [list, setList] = useState<ListItem[]>([]);
   const [newItem, setNewItem] = useState<string>("");
   const [startSort, setStartSort] = useState<boolean>(false);
@@ -51,6 +51,10 @@ const Home: NextPage = () => {
     }
   );
 
+  const DynamicFooter = dynamic(() => import("../components/Footer"), {
+    ssr: false,
+  });
+
   const updateTitle = trpc.useMutation(["listing.update-title"], {
     onSuccess: () => {
       toast.success("Successfully updated link to list.");
@@ -59,6 +63,23 @@ const Home: NextPage = () => {
       toast.error("Unable to update the list.");
     },
   });
+
+  useEffect(() => {
+    const backUrl = sessionStorage.getItem("back-url");
+    if (router.query["code"] && router.query["state"]) {
+      if (router.query["state"] === sessionStorage.getItem("state")) {
+        sessionStorage.setItem(
+          "twitch_auth_code",
+          router.query["code"].toString()
+        );
+        sessionStorage.removeItem("state");
+      }
+      if (backUrl) {
+        router.push(backUrl);
+        sessionStorage.removeItem("back-url");
+      }
+    }
+  }, [router, router.query]);
 
   useEffect(() => {
     if (listLabel && !getListOnce) {
@@ -72,7 +93,10 @@ const Home: NextPage = () => {
     data?.items.map((item: { value: string }) => {
       setList((prev: any) => [...prev, { id: uuidv4(), value: item.value }]);
     });
-    if (data?.title) setTitle(data?.title);
+    if (data?.title) {
+      setTitle(data?.title);
+      setOldTitle(data?.title);
+    }
   }, [data?.items, data?.title]);
 
   useEffect(() => {
@@ -101,7 +125,6 @@ const Home: NextPage = () => {
         <meta name="og:description" content={metaDescription} />
       </Head>
 
-      <ThemeToggle />
       <main className={styles.main}>
         {editTitle ? (
           <textarea
@@ -118,9 +141,12 @@ const Home: NextPage = () => {
                 if (title === "") {
                   setTitle("misorter");
                 }
-                // only update title of the list if we've fetched and changed the title from the original
-                if (listLabel && title !== data.title) {
-                  updateTitle.mutate({ label: data.label, title });
+                if (data) {
+                  // only update title of the list if we've fetched and changed the title from the original
+                  if (listLabel && title !== oldTitle) {
+                    updateTitle.mutate({ label: data.label, title });
+                    setOldTitle(title);
+                  }
                 }
                 setEditTitle(false);
               }
@@ -170,7 +196,7 @@ const Home: NextPage = () => {
 
         {startSort && <Sort ogList={list} setStartSort={setStartSort} />}
       </main>
-      <Footer />
+      <DynamicFooter />
     </div>
   );
 };
