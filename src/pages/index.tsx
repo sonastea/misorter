@@ -18,7 +18,7 @@ const metaDescription =
   "Sort list of items to create a ranking based on the results. Sorter, Rankings, Favorites";
 
 const tip =
-  "hitting 'no opinion' or 'I like both' frequently will negatively affect your results.";
+  "hitting <b>no opinion</b>  or  <b>I like both</b> frequently will negatively affect your results.";
 
 const MIN_TEXTAREA_HEIGHT = 32;
 
@@ -133,7 +133,10 @@ const Home: NextPage = () => {
         ) : (
           <ListTitle title={title} setEditTitle={setEditTitle} />
         )}
-        <p className={styles.description}>{tip}</p>
+        <p
+          className={styles.description}
+          dangerouslySetInnerHTML={{ __html: tip }}
+        />
 
         {isFetching && <ListItemsSkeletonLoader />}
 
