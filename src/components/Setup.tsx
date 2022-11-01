@@ -29,8 +29,8 @@ const Setup = ({
 }: SetupProps) => {
   const router = useRouter();
 
-  const createList = trpc.useMutation(["listing.create"], {
-    onSuccess: (data) => {
+  const createList = trpc.listing.create.useMutation({
+    onSuccess: (data: { label: string }) => {
       router.push(`/?list=${data.label}`, undefined, { shallow: true });
       setGetListOnce(true);
       setStartSort(true);

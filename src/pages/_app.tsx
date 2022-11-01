@@ -1,8 +1,7 @@
-import { AppRouter } from "@router/index";
-import { withTRPC } from "@trpc/next";
 import type { AppProps } from "next/app";
 import ThemeToggle from "src/components/ThemeToggle";
 import ToastContainer from "src/components/ToastContainer";
+import { trpc } from "src/utils/trpc";
 import "../styles/globals.css";
 
 function MyApp({ Component, pageProps }: AppProps) {
@@ -23,21 +22,4 @@ function MyApp({ Component, pageProps }: AppProps) {
   );
 }
 
-function getBaseUrl() {
-  if (typeof window === "undefined") return ""; // Browser should use current path
-  if (process.env.NEXT_PUBLIC_VERCEL_URL)
-    return `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`; // SSR should use vercel url
-
-  return `http://${window.location.hostname}:${process.env.PORT ?? 3000}`; // dev SSR should use localhost
-}
-
-export default withTRPC<AppRouter>({
-  config() {
-    const url = `${getBaseUrl()}/api/trpc`;
-
-    return {
-      url,
-    };
-  },
-  ssr: false,
-})(MyApp);
+export default trpc.withTRPC(MyApp);

@@ -81,20 +81,21 @@ const Sort = ({
   if (typeof window !== "undefined" && sessionStorage) {
     code = sessionStorage.getItem("twitch_auth_code");
   }
-  const getAccessToken = trpc.useQuery(["twitch.get-token", code as string], {
+  const getAccessToken = trpc.twitch.getToken.useQuery(code as string, {
     refetchOnMount: false,
     refetchInterval: false,
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
     enabled: false,
+    trpc: {},
   });
 
   useEffect(() => {
     if (code && !isLoggedIn) {
       getAccessToken
         .refetch()
-        .then((res) => {
-          setCookie("Authorization", `Bearer ${res.data?.access_token}`);
+        .then((res: { data: { access_token: string } }) => {
+          setCookie("Authorization", `Bearer ${res.data.access_token}`);
         })
         .finally(() => {
           sessionStorage.removeItem("twitch_auth_code");

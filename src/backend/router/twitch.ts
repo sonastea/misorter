@@ -1,4 +1,4 @@
-import * as trpc from "@trpc/server";
+import { publicProcedure, router } from "src/backend/trpc";
 import { z } from "zod";
 
 let clientId: string = "";
@@ -17,9 +17,8 @@ if (process.env.redirectUri) {
   redirectUri = process.env.redirectUri;
 }
 
-export const twitch = trpc.router().query("get-token", {
-  input: z.string(),
-  async resolve({ input }) {
+export const twitchRouter = router({
+  getToken: publicProcedure.input(z.string()).query(async ({ input }) => {
     try {
       const data = await fetch("https://id.twitch.tv/oauth2/token", {
         method: "POST",
@@ -38,5 +37,5 @@ export const twitch = trpc.router().query("get-token", {
     } catch (error) {
       console.log(error);
     }
-  },
+  }),
 });

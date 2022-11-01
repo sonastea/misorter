@@ -38,16 +38,17 @@ const Home: NextPage = () => {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
   const router = useRouter();
-  const listLabel = router.query["list"];
+  const listLabel = router.query["list"] as string;
 
-  const { data, isLoading, refetch } = trpc.useQuery(
-    ["listing.get", { label: listLabel as string }],
+  const { data, isFetching, refetch } = trpc.listing.get.useQuery(
+    { label: listLabel },
     {
       refetchOnMount: false,
       refetchInterval: false,
       refetchOnReconnect: false,
       refetchOnWindowFocus: false,
       enabled: false,
+      trpc: {},
     }
   );
 
@@ -55,7 +56,7 @@ const Home: NextPage = () => {
     ssr: false,
   });
 
-  const updateTitle = trpc.useMutation(["listing.update-title"], {
+  const updateTitle = trpc.listing.updateTitle.useMutation({
     onSuccess: () => {
       toast.success("Successfully updated link to list.");
     },
@@ -176,9 +177,9 @@ const Home: NextPage = () => {
         )}
         <p className={styles.description}>{tip}</p>
 
-        {isLoading && <ListItemsSkeletonLoader />}
+        {isFetching && <ListItemsSkeletonLoader />}
 
-        {!isLoading && !startSort && (
+        {!isFetching && !startSort && (
           <Setup
             {...{
               label: data?.label,
