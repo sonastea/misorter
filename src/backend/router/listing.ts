@@ -98,7 +98,7 @@ export const listingRouter = router({
           },
         },
       });
-      await redis.set(input.label, JSON.stringify(updatedList));
+      await redis.set(input.label, JSON.stringify(updatedList), "KEEPTTL");
 
       return updatedList;
     }),

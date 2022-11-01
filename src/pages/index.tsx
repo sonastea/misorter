@@ -3,9 +3,10 @@ import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
-import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.min.css";
 import ListItemsSkeletonLoader from "src/components/ListItemsSkeletonLoader";
+import ListTitle from "src/components/ListTitle";
+import ListTitleEdit from "src/components/ListTitleEdit";
 import Setup from "src/components/Setup";
 import Sort from "src/components/Sort";
 import { trpc } from "src/utils/trpc";
@@ -54,15 +55,6 @@ const Home: NextPage = () => {
 
   const DynamicFooter = dynamic(() => import("../components/Footer"), {
     ssr: false,
-  });
-
-  const updateTitle = trpc.listing.updateTitle.useMutation({
-    onSuccess: () => {
-      toast.success("Successfully updated link to list.");
-    },
-    onError: () => {
-      toast.error("Unable to update the list.");
-    },
   });
 
   useEffect(() => {
@@ -119,7 +111,7 @@ const Home: NextPage = () => {
         <meta name="description" content={metaDescription} />
         <meta
           name="keywords"
-          content="sort, list, kpop, rank, ranking, tournament, sorter"
+          content="sort, list, kpop, rank, ranking, tournament, sorter, song, movie, show, character"
         />
         <meta name="twitter:creator" content="@teadroplets" />
         <meta name="og:title" content={metaTitle} />
@@ -128,52 +120,18 @@ const Home: NextPage = () => {
 
       <main className={styles.main}>
         {editTitle ? (
-          <textarea
-            className={styles.editTitle}
-            value={title}
-            ref={textAreaRef}
-            onChange={(e: any) => {
-              setTitle(e.target.value);
-            }}
-            onKeyDown={(e) => {
-              if (e.code === "Enter" || e.code === "Escape") {
-                e.preventDefault();
-                e.stopPropagation();
-                if (title === "") {
-                  setTitle("misorter");
-                }
-                if (data) {
-                  // only update title of the list if we've fetched and changed the title from the original
-                  if (listLabel && title !== oldTitle) {
-                    updateTitle.mutate({ label: data.label, title });
-                    setOldTitle(title);
-                  }
-                }
-                setEditTitle(false);
-              }
-            }}
+          <ListTitleEdit
+            title={title}
+            setTitle={setTitle}
+            textAreaRef={textAreaRef}
+            data={data}
+            listLabel={listLabel}
+            oldTitle={oldTitle}
+            setOldTitle={setOldTitle}
+            setEditTitle={setEditTitle}
           />
         ) : (
-          <div className={styles.titleContainer}>
-            <span
-              className={styles.title}
-              onDoubleClick={() => setEditTitle(true)}
-              title={title}
-            >
-              {title}
-            </span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              className={styles.editTitleButton}
-              onClick={() => setEditTitle(true)}
-            >
-              <path
-                fill="currentColor"
-                d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z"
-              />
-            </svg>
-          </div>
+          <ListTitle title={title} setEditTitle={setEditTitle} />
         )}
         <p className={styles.description}>{tip}</p>
 
