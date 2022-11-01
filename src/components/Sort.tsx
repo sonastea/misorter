@@ -94,8 +94,8 @@ const Sort = ({
     if (code && !isLoggedIn) {
       getAccessToken
         .refetch()
-        .then((res: { data: { access_token: string } }) => {
-          setCookie("Authorization", `Bearer ${res.data.access_token}`);
+        .then((res: { data?: { access_token: string } }) => {
+          setCookie("Authorization", `Bearer ${res.data?.access_token}`);
         })
         .finally(() => {
           sessionStorage.removeItem("twitch_auth_code");
