@@ -83,8 +83,11 @@ const Home: NextPage = () => {
   }, [listLabel]);
 
   useEffect(() => {
-    data?.items.map((item: { value: string }) => {
-      setList((prev: any) => [...prev, { id: uuidv4(), value: item.value }]);
+    data?.items?.map((item: { value: string }) => {
+      setList((prev: ListItem[]) => [
+        ...prev,
+        { id: uuidv4(), value: item.value },
+      ]);
     });
     if (data?.title) {
       setTitle(data?.title);
@@ -119,7 +122,7 @@ const Home: NextPage = () => {
       </Head>
 
       <main className={styles.main}>
-        {editTitle ? (
+        {editTitle && data ? (
           <ListTitleEdit
             title={title}
             setTitle={setTitle}

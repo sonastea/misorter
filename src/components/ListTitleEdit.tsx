@@ -1,4 +1,5 @@
-import { RefObject } from "react";
+import { List } from "@router/listing";
+import { ChangeEvent, RefObject } from "react";
 import { toast } from "react-toastify";
 import { trpc } from "src/utils/trpc";
 import styles from "../styles/Home.module.css";
@@ -16,7 +17,7 @@ const ListTitleEdit = ({
   title: string;
   setTitle: Function;
   textAreaRef: RefObject<HTMLTextAreaElement>;
-  data: { label: string };
+  data: Partial<List>;
   listLabel: string;
   oldTitle: string | undefined;
   setOldTitle: Function;
@@ -36,7 +37,7 @@ const ListTitleEdit = ({
       className={styles.editTitle}
       value={title}
       ref={textAreaRef}
-      onChange={(e: any) => {
+      onChange={(e: ChangeEvent<HTMLTextAreaElement>) => {
         setTitle(e.target.value);
       }}
       onKeyDown={(e) => {
@@ -49,7 +50,7 @@ const ListTitleEdit = ({
           if (data) {
             // only update title of the list if we've fetched and changed the title from the original
             if (listLabel && title !== oldTitle) {
-              updateTitle.mutate({ label: data.label, title });
+              updateTitle.mutate({ label: data.label!, title });
               setOldTitle(title);
             }
           }

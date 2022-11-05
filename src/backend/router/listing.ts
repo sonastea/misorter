@@ -12,6 +12,12 @@ const nanoid = customAlphabet(
 const redis = new Redis(process.env.REDIS_URL as string);
 const RedisExpireTime: number = 7 * (60 * 60 * 24); // expire time in days from seconds
 
+export type List = {
+  label: string;
+  title: string;
+  items: { value: string }[];
+};
+
 export const listingRouter = router({
   get: publicProcedure
     .input(
@@ -20,7 +26,7 @@ export const listingRouter = router({
       })
     )
     .query(async ({ input }) => {
-      let list: any;
+      let list: Partial<List> | null = {};
       await prisma.listing.update({
         where: { label: input.label },
         data: { updatedAt: new Date() },
