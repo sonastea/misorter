@@ -1,6 +1,6 @@
 import { deleteCookie, setCookie } from "cookies-next";
 import dynamic from "next/dynamic";
-import { Suspense, useEffect, useRef, useState } from "react";
+import { ReactElement, Suspense, useEffect, useRef, useState } from "react";
 import { ListItem } from "src/pages";
 import { trpc } from "src/utils/trpc";
 import styles from "../styles/Sort.module.css";
@@ -81,19 +81,20 @@ const Sort = ({
   if (typeof window !== "undefined" && sessionStorage) {
     code = sessionStorage.getItem("twitch_auth_code");
   }
-  const getAccessToken = trpc.useQuery(["twitch.get-token", code as string], {
+  const getAccessToken = trpc.twitch.getToken.useQuery(code as string, {
     refetchOnMount: false,
     refetchInterval: false,
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
     enabled: false,
+    trpc: {},
   });
 
   useEffect(() => {
     if (code && !isLoggedIn) {
       getAccessToken
         .refetch()
-        .then((res) => {
+        .then((res: { data?: { access_token: string } }) => {
           setCookie("Authorization", `Bearer ${res.data?.access_token}`);
         })
         .finally(() => {
@@ -359,7 +360,7 @@ const Sort = ({
     numQuestion++;
   }
 
-  function toNameFace(n: any) {
+  function toNameFace(n: number) {
     let str = ogList[n].value;
     return str;
   }
@@ -370,7 +371,13 @@ const Sort = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const ResultsItem = ({ ranking, item }: { ranking: number; item: any }) => {
+  const ResultsItem = ({
+    ranking,
+    item,
+  }: {
+    ranking: number;
+    item: string;
+  }) => {
     return (
       <tr className={styles.itemRow}>
         <td className={styles.leftItemRow}>{ranking}</td>
@@ -382,7 +389,7 @@ const Sort = ({
   const Results = () => {
     let ranking: number = 1;
     let sameRank: number = 1;
-    let resultsItems: any[] = [];
+    let resultsItems: ReactElement<typeof ResultsItem>[] = [];
 
     for (let i = 0; i < ogList.length; i++) {
       resultsItems.push(

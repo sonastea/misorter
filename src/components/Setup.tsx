@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { useRouter } from "next/router";
+import { ChangeEvent, ChangeEventHandler, KeyboardEvent } from "react";
 import { toast } from "react-toastify";
 import { ListItem } from "src/pages";
 import { trpc } from "src/utils/trpc";
@@ -29,8 +30,8 @@ const Setup = ({
 }: SetupProps) => {
   const router = useRouter();
 
-  const createList = trpc.useMutation(["listing.create"], {
-    onSuccess: (data) => {
+  const createList = trpc.listing.create.useMutation({
+    onSuccess: (data: { label: string }) => {
       router.push(`/?list=${data.label}`, undefined, { shallow: true });
       setGetListOnce(true);
       setStartSort(true);
@@ -67,7 +68,7 @@ const Setup = ({
   };
 
   const addItemToList = () => {
-    setList((prev: any) => [{ id: uuidv4(), value: newItem }, ...prev]);
+    setList((prev: ListItem[]) => [{ id: uuidv4(), value: newItem }, ...prev]);
     setNewItem("");
     // try resetting getListOnce assuming new items considers it a different list
     setGetListOnce(false);
@@ -83,10 +84,10 @@ const Setup = ({
           type="text"
           placeholder="Add an item to the list"
           value={newItem}
-          onChange={(e: any) => {
+          onChange={(e: ChangeEvent<HTMLInputElement>) => {
             setNewItem(e.target.value);
           }}
-          onKeyDown={(e: any) => {
+          onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
             if (e.code === "Enter") {
               e.preventDefault();
               e.stopPropagation();
@@ -116,12 +117,13 @@ const Setup = ({
                 <p
                   contentEditable="true"
                   suppressContentEditableWarning={true}
-                  onKeyDown={(e: any) => {
+                  onKeyDown={(e: KeyboardEvent<HTMLParagraphElement>) => {
                     if (e.code === "Enter" || e.code === "Escape") {
                       e.preventDefault();
-                      e.target.blur();
+                      (e.target as HTMLElement).blur();
                     }
-                    item.value = e.target.textContent;
+                    item.value =
+                      (e.target as HTMLParagraphElement).textContent ?? "";
                     // editting a list field indicates a new item
                     setGetListOnce(false);
                   }}

@@ -6,5 +6,6 @@
       1,
       { "ignore": ["key", "xmlns", "viewBox", "fill", "d"] }
     ]
-  }
+  },
+  "ignorePatterns": ["dist", "node_modules"]
 }

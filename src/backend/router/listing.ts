@@ -1,7 +1,7 @@
 import { prisma } from "@db/client";
-import * as trpc from "@trpc/server";
 import Redis from "ioredis";
 import { customAlphabet } from "nanoid";
+import { publicProcedure, router } from "src/backend/trpc";
 import { z } from "zod";
 
 const nanoid = customAlphabet(
@@ -12,14 +12,21 @@ const nanoid = customAlphabet(
 const redis = new Redis(process.env.REDIS_URL as string);
 const RedisExpireTime: number = 7 * (60 * 60 * 24); // expire time in days from seconds
 
-export const listingRouter = trpc
-  .router()
-  .query("get", {
-    input: z.object({
-      label: z.string(),
-    }),
-    async resolve({ input }) {
-      let list: any;
+export type List = {
+  label: string;
+  title: string;
+  items: { value: string }[];
+};
+
+export const listingRouter = router({
+  get: publicProcedure
+    .input(
+      z.object({
+        label: z.string(),
+      })
+    )
+    .query(async ({ input }) => {
+      let list: Partial<List> | null = {};
       await prisma.listing.update({
         where: { label: input.label },
         data: { updatedAt: new Date() },
@@ -41,23 +48,24 @@ export const listingRouter = trpc
             },
           });
           await redis.set(input.label, JSON.stringify(list));
-          redis.expire(input.label, RedisExpireTime);
+          await redis.expire(input.label, RedisExpireTime);
         }
       });
 
       return list;
-    },
-  })
-  .mutation("create", {
-    input: z.object({
-      title: z.string(),
-      items: z.array(
-        z.object({
-          value: z.string(),
-        })
-      ),
     }),
-    async resolve({ input }) {
+  create: publicProcedure
+    .input(
+      z.object({
+        title: z.string(),
+        items: z.array(
+          z.object({
+            value: z.string(),
+          })
+        ),
+      })
+    )
+    .mutation(async ({ input }) => {
       const newLabel = nanoid();
       const list = await prisma.listing.create({
         data: {
@@ -76,14 +84,15 @@ export const listingRouter = trpc
       });
 
       return list;
-    },
-  })
-  .mutation("update-title", {
-    input: z.object({
-      label: z.string(),
-      title: z.string(),
     }),
-    async resolve({ input }) {
+  updateTitle: publicProcedure
+    .input(
+      z.object({
+        label: z.string(),
+        title: z.string(),
+      })
+    )
+    .mutation(async ({ input }) => {
       const updatedList = await prisma.listing.update({
         where: { label: input.label },
         data: { title: input.title },
@@ -95,8 +104,8 @@ export const listingRouter = trpc
           },
         },
       });
-      await redis.set(input.label, JSON.stringify(updatedList));
+      await redis.set(input.label, JSON.stringify(updatedList), "KEEPTTL");
 
       return updatedList;
-    },
-  });
+    }),
+});

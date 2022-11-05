@@ -14,7 +14,7 @@ export default async function middleware(
   const ip = request.ip ?? "127.0.0.1";
 
   if (request.nextUrl.pathname === "/api/blocked")
-    return NextResponse.next(request);
+    return NextResponse.next({ request });
 
   const { success, pending, limit, reset, remaining } = await ratelimit.limit(
     `mw_${ip}`
@@ -22,7 +22,7 @@ export default async function middleware(
   event.waitUntil(pending);
 
   const res = success
-    ? NextResponse.next(request)
+    ? NextResponse.next({ request })
     : NextResponse.rewrite(new URL("/api/blocked", request.url), request);
 
   res.headers.set("X-RateLimit-Limit", limit.toString());
@@ -32,5 +32,5 @@ export default async function middleware(
 }
 
 export const config = {
-  matcher: ["/api/tprc/listing.get:path*"],
+  matcher: ["/api/trpc/listing.get:path*"],
 };
