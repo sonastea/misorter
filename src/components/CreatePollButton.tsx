@@ -115,7 +115,7 @@ const CreatePollButton = ({
                       setDuration(1800);
                     }
 
-                    if (parseInt(e.target.value) === NaN) {
+                    if (isNaN(parseInt(e.target.value))) {
                       setDuration(15);
                     }
                   }}
