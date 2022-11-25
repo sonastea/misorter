@@ -2,7 +2,6 @@ import { deleteCookie, getCookie, setCookie } from "cookies-next";
 import dynamic from "next/dynamic";
 import { ReactElement, Suspense, useEffect, useRef, useState } from "react";
 import { ListItem } from "src/pages";
-import { trpc } from "src/utils/trpc";
 import styles from "../styles/Sort.module.css";
 import DownloadAsPngSkeleton from "./DownloadAsPngSkeleton";
 
@@ -18,6 +17,16 @@ let numQuestion: number;
 let totalSize: number;
 let finishSize: number;
 let finishFlag: number;
+let clientId: string = "";
+let clientSecret: string = "";
+
+if (process.env.NEXT_PUBLIC_clientId) {
+  clientId = process.env.NEXT_PUBLIC_clientId;
+}
+
+if (process.env.NEXT_PUBLIC_clientSecret) {
+  clientSecret = process.env.NEXT_PUBLIC_clientSecret;
+}
 
 const Sort = ({
   ogList,
@@ -88,30 +97,43 @@ const Sort = ({
   if (typeof window !== "undefined" && sessionStorage) {
     code = sessionStorage.getItem("twitch_auth_code");
   }
-  const getAccessToken = trpc.twitch.getToken.useQuery(code as string, {
-    refetchOnMount: false,
-    refetchInterval: false,
-    refetchOnReconnect: false,
-    refetchOnWindowFocus: false,
-    enabled: false,
-    trpc: {},
-  });
 
   useEffect(() => {
-    if (code && !isLoggedIn) {
-      getAccessToken
-        .refetch()
-        .then((res: { data?: { access_token: string } }) => {
-          setCookie("Authorization", `Bearer ${res.data?.access_token}`, {
-            secure: true,
-            sameSite: true,
-          });
+    const getAccessToken = async () => {
+      try {
+        const data = await fetch("https://id.twitch.tv/oauth2/token", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams({
+            client_id: clientId,
+            client_secret: clientSecret,
+            code: code as string,
+            grant_type: "authorization_code",
+            redirect_uri: window.location.host,
+          }),
         })
-        .finally(() => {
-          sessionStorage.removeItem("twitch_auth_code");
-          setLoggedIn(true);
-          validate();
-        });
+          .then((res) => res.json())
+          .then((data) => {
+            if (data && data.access_token) {
+              setCookie("Authorization", `Bearer ${data.access_token}`, {
+                secure: true,
+                sameSite: true,
+              });
+              sessionStorage.removeItem("twitch_auth_code");
+              setLoggedIn(true);
+              validate();
+            }
+          });
+        return data;
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    if (code && !isLoggedIn) {
+      getAccessToken();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code]);
