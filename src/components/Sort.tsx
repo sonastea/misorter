@@ -1,4 +1,4 @@
-import { deleteCookie, setCookie } from "cookies-next";
+import { deleteCookie, getCookie, setCookie } from "cookies-next";
 import dynamic from "next/dynamic";
 import { ReactElement, Suspense, useEffect, useRef, useState } from "react";
 import { ListItem } from "src/pages";
@@ -56,24 +56,28 @@ const Sort = ({
     }
   );
 
-  const validate = async () =>
-    await fetch("/api/twitch-validate", {
-      method: "GET",
-      credentials: "include",
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data && data.user_id) {
-          sessionStorage.setItem("twitch_user_id", data.user_id);
-          setLoggedIn(true);
-        } else if (data.status === 401) {
-          deleteCookie("Authorization", {
-            secure: true,
-            sameSite: true,
-          });
-          setLoggedIn(false);
-        }
-      });
+  const validate = async () => {
+    try {
+      const data = await fetch("https://id.twitch.tv/oauth2/validate", {
+        method: "GET",
+        headers: {
+          Authorization: `${getCookie("Authorization")}`,
+        },
+      }).then((res) => res.json());
+      if (data && data.user_id) {
+        sessionStorage.setItem("twitch_user_id", data.user_id);
+        setLoggedIn(true);
+      } else if (data.status === 401) {
+        deleteCookie("Authorization", {
+          secure: true,
+          sameSite: true,
+        });
+        setLoggedIn(false);
+      }
+    } catch (error: any) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
     if (!isLoggedIn && !sessionStorage.getItem("twitch_auth_code")) {
