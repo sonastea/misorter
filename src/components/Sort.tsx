@@ -26,7 +26,7 @@ const Sort = ({
   ogList: ListItem[];
   setStartSort: Function;
 }) => {
-  const [isLoggedIn, setLoggedIn] = useState<boolean | undefined>();
+  const [isLoggedIn, setLoggedIn] = useState<boolean>(false);
   const [finishedSort, setFinishedSort] = useState<boolean>(false);
   const [showResults, setShowResults] = useState<boolean>(false);
   const [option1, setOption1] = useState<string>("");
