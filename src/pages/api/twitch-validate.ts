@@ -13,7 +13,7 @@ export default async function handler(
         }`,
       },
     }).then((res) => res.json());
-    res.status(200).json(data);
+    return res.status(200).send(data);
   } catch (error: any) {
     console.error(error);
     return res.status(error.status || 500).end(error.message ?? "");
