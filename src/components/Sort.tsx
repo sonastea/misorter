@@ -63,11 +63,14 @@ const Sort = ({
     })
       .then((res) => res.json())
       .then((data) => {
-        if (data && data.status !== 401) {
+        if (data && data.user_id) {
           sessionStorage.setItem("twitch_user_id", data.user_id);
           setLoggedIn(true);
-        } else {
-          deleteCookie("Authorization");
+        } else if (data.status === 401) {
+          deleteCookie("Authorization", {
+            secure: true,
+            sameSite: true,
+          });
           setLoggedIn(false);
         }
       });
@@ -95,7 +98,10 @@ const Sort = ({
       getAccessToken
         .refetch()
         .then((res: { data?: { access_token: string } }) => {
-          setCookie("Authorization", `Bearer ${res.data?.access_token}`);
+          setCookie("Authorization", `Bearer ${res.data?.access_token}`, {
+            secure: true,
+            sameSite: true,
+          });
         })
         .finally(() => {
           sessionStorage.removeItem("twitch_auth_code");
