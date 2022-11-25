@@ -111,7 +111,7 @@ const Sort = ({
             client_secret: clientSecret,
             code: code as string,
             grant_type: "authorization_code",
-            redirect_uri: window.location.host,
+            redirect_uri: window.location.hostname,
           }),
         })
           .then((res) => res.json())
