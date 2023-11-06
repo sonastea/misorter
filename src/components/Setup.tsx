@@ -74,7 +74,7 @@ const Setup = ({
     setGetListOnce(false);
   };
 
-  const creatingList = createList.isLoading;
+  const creatingList = createList.isPending;
 
   return (
     <>

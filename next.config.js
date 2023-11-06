@@ -10,5 +10,8 @@ module.exports = withAxiom(
   withPWA({
     reactStrictMode: true,
     swcMinify: true,
+    experimental: {
+      webpackBuildWorker: true,
+    }
   })
 );
