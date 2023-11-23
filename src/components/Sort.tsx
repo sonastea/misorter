@@ -4,6 +4,7 @@ import { ReactElement, Suspense, useEffect, useRef, useState } from "react";
 import { ListItem } from "src/pages";
 import styles from "../styles/Sort.module.css";
 import DownloadAsPngSkeleton from "./DownloadAsPngSkeleton";
+import ConfirmModal from "./ConfirmModal";
 
 let lstMember = new Array();
 let parent = new Array();
@@ -37,6 +38,7 @@ const Sort = ({
 }) => {
   const [isLoggedIn, setLoggedIn] = useState<boolean>(false);
   const [finishedSort, setFinishedSort] = useState<boolean>(false);
+  const [goBack, setGoBack] = useState<boolean>(false);
   const [showResults, setShowResults] = useState<boolean>(false);
   const [option1, setOption1] = useState<string>("");
   const [option2, setOption2] = useState<string>("");
@@ -476,19 +478,25 @@ const Sort = ({
   };
 
   const goBackConfirmation = () => {
-    if (confirm("Are you sure you want to go back?") === true) {
-      setStartSort(false);
-    }
-    return;
+    setGoBack(true);
   };
 
   return (
     <>
       <div className={styles.container}>
+        {goBack && (
+          <ConfirmModal
+            title="Would you like to return and edit the current list, or create a new one?"
+            message="Any battles done will be lost."
+            onCancel={() => setGoBack(false)}
+            onConfirm={() => setStartSort(false)}
+            open={goBack}
+          />
+        )}
         <button
           className={styles.back}
           type="button"
-          onClick={() => goBackConfirmation()}
+          onClick={goBackConfirmation}
           title="Back to the list"
         >
           ← Back

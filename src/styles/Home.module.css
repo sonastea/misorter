@@ -213,7 +213,6 @@ html[data-theme="light"] .listInput {
 }
 
 .start {
-  color: #ff5fa2;
   color: var(--color-text-once);
   border-color: var(--color-text-once);
   background: rgba(0, 0, 0, 0);
