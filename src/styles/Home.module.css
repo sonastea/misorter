@@ -295,7 +295,7 @@ html[data-theme="dark"] .listInput {
   margin: 0.75rem;
   padding: 0.75rem;
   width: 100%;
-  border: none;
+  border: 1px solid transparent;
   border-style: none;
   border-width: thin;
   place-self: center;
@@ -337,7 +337,7 @@ html[data-theme="dark"] .item {
 html[data-theme="dark"] .item:hover {
   color: var(--color-text-primary);
   background: var(--color-bg-tertiary);
-  border: transparent;
+  border: 1px solid var(--color-bg-tertiary);
   border-radius: 1.3rem;
   box-shadow: var(--md-shadow-dp1);
 }
@@ -407,7 +407,7 @@ html[data-theme="dark"] .description {
     }
 
     html[data-theme="dark"] .listInput {
-      border: 1px solid transparent;
+      border: 1px solid var(--color-text-primary);
       color: white;
       background: var(--color-bg-secondary);
       outline: none !important;
@@ -441,13 +441,13 @@ html[data-theme="dark"] .description {
   }
 
   html[data-theme="light"] .listInput:hover {
-    border: none;
+    border: 1px solid transparent;
     border-style: none;
     outline: none !important;
   }
 
   html[data-theme="light"] .listInput:focus {
-    border: none;
+    border: 1px solid transparent;
     border-style: none;
     outline: none !important;
   }
