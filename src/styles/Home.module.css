@@ -329,7 +329,7 @@ html[data-theme="dark"] .inputButton:hover {
 html[data-theme="dark"] .item {
   color: var(--color-text-primary);
   background: var(--color-bg-secondary);
-  border: transparent;
+  border: 1px solid #202020;
   border-radius: 1.3rem;
   box-shadow: var(--md-shadow-dp1);
 }
