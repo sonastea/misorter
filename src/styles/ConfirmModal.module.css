@@ -1,0 +1,138 @@
+.backdrop {
+  position: fixed;
+  inset: 0px;
+}
+
+.buttonContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 2.5rem;
+}
+
+.dialog {
+  position: relative;
+  z-index: 999;
+}
+
+.modal {
+  position: fixed;
+  inset: 0px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(8px);
+  padding: 1rem;
+  text-wrap: balance;
+}
+
+.panel {
+  border: 1px solid var(--color-bg-secondary);
+  background: var(--color-bg-primary);
+  border-radius: 0.65rem;
+  width: 100%;
+  max-width: 30rem;
+  padding: 2rem;
+  box-shadow: var(--md-shadow-dp1);
+}
+
+.cancel {
+  color: var(--color-text-primary);
+  background: transparent;
+  border: transparent;
+  border-radius: 0.55rem;
+  border-style: solid;
+  display: inline-block;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  user-select: none;
+  vertical-align: bottom;
+  margin-right: 0.5rem;
+  padding: 0.45rem;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.15s ease-in;
+  flex: 0 0 25%;
+}
+
+.cancel:hover {
+  background: var(--color-bg-secondary);
+}
+
+.confirm {
+  background: var(--color-text-once);
+  color: var(--color-text-primary);
+  border: 1px var(--color-text-once);
+  border-radius: 0.55rem;
+  border-style: solid;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  user-select: none;
+  vertical-align: bottom;
+  margin-right: 0.5rem;
+  padding: 0.45rem;
+  position: relative;
+  overflow: hidden;
+  transition:
+    color 0.15s ease-in,
+    background 0.15s ease-in;
+  flex: 0 0 25%;
+}
+
+.confirm:hover {
+  background: rgba(255, 95, 162, 0.8);
+}
+
+.description {
+  color: var(--color-text-secondary);
+  margin: 0.5rem 0;
+  line-height: 1.5;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.title {
+  color: var(--color-text-primary);
+  font-size: 1.2rem;
+  margin: 0;
+  cursor: text;
+  text-align: center;
+}
+
+html[data-theme="dark"] .panel {
+  border: 1px solid var(--color-bg-primary);
+  background: var(--color-bg-secondary);
+  box-shadow: var(--md-shadow-dp2);
+}
+
+html[data-theme="dark"] .cancel {
+  color: var(--color-text-primary);
+}
+
+html[data-theme="dark"] .cancel:hover {
+  color: var(--color-text-primary);
+  background: var(--color-bg-tertiary);
+}
+
+html[data-theme="dark"] .confirm {
+  color: var(--color-bg-primary);
+}
+
+html[data-theme="dark"] .title {
+  color: var(--color-text-primary);
+}
+
+html[data-theme="dark"] .description {
+  color: var(--color-text-primary);
+}
+
+@media (max-width: 600px) {
+  .title {
+    font-size: 1.25rem;
+  }
+}

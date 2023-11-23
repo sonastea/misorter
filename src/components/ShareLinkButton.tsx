@@ -5,7 +5,7 @@ const ShareLinkButton = () => {
   const copyLinkToClipboard = async () => {
     await navigator.clipboard.writeText(window.location.href).then(
       () => {
-        toast.success("Successfully copied.");
+        toast.success("Successfully copied link.");
       },
       () => {
         toast.warn("Unable to copy link.");
@@ -15,10 +15,10 @@ const ShareLinkButton = () => {
 
   return (
     <button
-      aria-label="Share a direct link of this list"
+      aria-label="Share a direct link to this list"
       className={styles.shareContainer}
       type="button"
-      title="Share a direct link of this list"
+      title="Share a direct link to this list"
     >
       <svg
         className={styles.share}
