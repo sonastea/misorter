@@ -1,3 +1,4 @@
+import { List } from "@router/listing";
 import type { NextPage } from "next";
 import dynamic from "next/dynamic";
 import Head from "next/head";
@@ -41,17 +42,18 @@ const Home: NextPage = () => {
   const router = useRouter();
   const listLabel = router.query["list"] as string;
 
-  const { data, isFetching, refetch } = trpc.listing.get.useQuery(
-    { label: listLabel },
-    {
-      refetchOnMount: false,
-      refetchInterval: false,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-      enabled: false,
-      trpc: {},
-    }
-  );
+  const { data, isFetching, isSuccess, refetch } =
+    trpc.listing.get.useQuery<List>(
+      { label: listLabel },
+      {
+        refetchOnMount: false,
+        refetchInterval: false,
+        refetchOnReconnect: false,
+        refetchOnWindowFocus: false,
+        enabled: false,
+        trpc: {},
+      }
+    );
 
   const DynamicFooter = dynamic(() => import("../components/Footer"), {
     ssr: false,
@@ -83,17 +85,14 @@ const Home: NextPage = () => {
   }, [listLabel]);
 
   useEffect(() => {
-    data?.items?.map((item: { value: string }) => {
-      setList((prev: ListItem[]) => [
-        ...prev,
-        { id: uuidv4(), value: item.value },
-      ]);
-    });
-    if (data?.title) {
-      setTitle(data?.title);
-      setOldTitle(data?.title);
+    if (isSuccess) {
+      data.items.map((item) => {
+        setList((prev) => [...prev, { id: uuidv4(), value: item.value }]);
+      });
+      setTitle(data.title);
+      setOldTitle(data.title);
     }
-  }, [data?.items, data?.title]);
+  }, [data?.items, data?.title, isSuccess]);
 
   useEffect(() => {
     if (textAreaRef.current) {
