@@ -1,5 +1,6 @@
 import type { AppProps } from "next/app";
 import Head from "next/head";
+import Script from "next/script";
 import ThemeToggle from "src/components/ThemeToggle";
 import ToastContainer from "src/components/ToastContainer";
 import { trpc } from "src/utils/trpc";
@@ -16,6 +17,13 @@ function MyApp({ Component, pageProps }: AppProps) {
         <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/favicon.ico" />
       </Head>
+      <Script
+        async
+        src="https://umami-sonastea.vercel.app/script.js"
+        data-cache="true"
+        data-domains="www.misorter.com,misorter.com"
+        data-website-id="9147fb3a-6922-4859-8bb8-d98d54ebc2fa"
+      />
       <ThemeToggle />
       <ToastContainer
         position="top-right"
