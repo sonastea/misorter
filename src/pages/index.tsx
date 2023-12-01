@@ -107,7 +107,13 @@ const Home: NextPage = () => {
   return (
     <div className={styles.container}>
       <Head>
-        <title>{metaTitle}</title>
+        <meta
+          name="title"
+          content={`${metaTitle}${data?.title && " | " + data.title}`}
+        />
+        <title>
+          {data?.title ? "misorter | " + data.title + " list" : "misorter"}
+        </title>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="description" content={metaDescription} />
