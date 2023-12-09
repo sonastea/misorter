@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@headlessui/react": "^1.7.17",
-    "@prisma/client": "^5.6.0",
+    "@prisma/client": "^5.7.0",
     "@tanstack/react-query": "^5.12.2",
     "@trpc/client": "^11.0.0-alpha-next-2023-11-24-13-58-38.113",
     "@trpc/next": "^11.0.0-alpha-next-2023-11-24-13-58-38.113",
@@ -23,7 +23,7 @@
     "crypto-random-string": "^5.0.0",
     "html2canvas": "^1.4.1",
     "ioredis": "^5.3.2",
-    "next": "^14.0.3",
+    "next": "^14.0.4",
     "next-axiom": "^1.1.1",
     "next-pwa": "^5.6.0",
     "react": "18.2.0",
@@ -34,17 +34,17 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@types/node": "^20.10.3",
-    "@types/react": "^18.2.41",
+    "@types/node": "^20.10.4",
+    "@types/react": "^18.2.42",
     "@types/react-dom": "^18.2.17",
     "@types/uuid": "^9.0.7",
     "eslint": "^8.55.0",
-    "eslint-config-next": "^14.0.3",
+    "eslint-config-next": "^14.0.4",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.0.1",
     "nanoid": "^5.0.4",
     "prettier": "^3.1.0",
-    "prisma": "^5.6.0",
-    "typescript": "^5.3.2"
+    "prisma": "^5.7.0",
+    "typescript": "^5.3.3"
   }
 }
