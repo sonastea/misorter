@@ -1,7 +1,7 @@
 datasource db {
   provider     = "mysql"
+  relationMode = "foreignKeys"
   url          = env("DATABASE_URL")
-  relationMode = "prisma"
 }
 
 generator client {
@@ -14,14 +14,24 @@ model Listing {
   title     String   @default("misorter")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  items     Item[]   @relation("ListingItems")
+  items     Item[]
+  visits    Visit[]
 }
 
 model Item {
   id           Int      @id @default(autoincrement())
   value        String   @db.Text
   createdAt    DateTime @default(now())
-  list         Listing  @relation("ListingItems", fields: [listingLabel], references: [label], onDelete: Cascade)
+  list         Listing  @relation(fields: [listingLabel], references: [label], onDelete: Cascade)
+  listingLabel String
+
+  @@index([listingLabel])
+}
+
+model Visit {
+  id           Int      @id @default(autoincrement())
+  createdAt    DateTime @default(now())
+  list         Listing  @relation(fields: [listingLabel], references: [label], onDelete: Cascade)
   listingLabel String
 
   @@index([listingLabel])

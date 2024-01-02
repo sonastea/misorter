@@ -1,4 +1,5 @@
 import { prisma } from "@db/client";
+import { Prisma } from "@prisma/client";
 import Redis from "ioredis";
 import { customAlphabet } from "nanoid";
 import { publicProcedure, router } from "src/backend/trpc";
@@ -12,10 +13,32 @@ const nanoid = customAlphabet(
 const redis = new Redis(process.env.REDIS_URL as string);
 const RedisExpireTime: number = 7 * (60 * 60 * 24); // expire time in days from seconds
 
-export type List = {
-  label: string;
-  title: string;
-  items: { value: string }[];
+const ListType = Prisma.validator<Prisma.ListingDefaultArgs>()({
+  select: {
+    label: true,
+    title: true,
+    visits: true,
+  },
+  include: {
+    items: { select: { value: true } },
+  },
+});
+
+export type List = Prisma.ListingGetPayload<typeof ListType>;
+
+const updateListingVisited = async (listingId: string) => {
+  const date = new Date();
+
+  // Update the updatedAt field and connect a new Visit record
+  await prisma.listing.update({
+    where: { label: listingId },
+    data: {
+      updatedAt: date,
+      visits: {
+        create: { createdAt: date },
+      },
+    },
+  });
 };
 
 export const listingRouter = router({
@@ -27,10 +50,8 @@ export const listingRouter = router({
     )
     .query(async ({ input }) => {
       let list: Partial<List> | null = {};
-      await prisma.listing.update({
-        where: { label: input.label },
-        data: { updatedAt: new Date() },
-      });
+
+      await updateListingVisited(input.label);
 
       await redis.get(input.label).then(async (result) => {
         if (result != null) {

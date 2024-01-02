@@ -1,6 +1,6 @@
 {
   "name": "misorter",
-  "version": "1.3.7",
+  "version": "1.4.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -12,7 +12,7 @@
   "dependencies": {
     "@headlessui/react": "^1.7.17",
     "@prisma/client": "^5.7.1",
-    "@tanstack/react-query": "^5.15.5",
+    "@tanstack/react-query": "^5.17.0",
     "@trpc/client": "^11.0.0-next-alpha.149",
     "@trpc/next": "^11.0.0-next-alpha.149",
     "@trpc/react-query": "^11.0.0-next-alpha.149",
@@ -30,6 +30,7 @@
     "react-dom": "18.2.0",
     "react-query": "^3.39.3",
     "react-toastify": "^9.1.3",
+    "superjson": "^2.2.1",
     "uuid": "^9.0.1",
     "zod": "^3.22.4"
   },
