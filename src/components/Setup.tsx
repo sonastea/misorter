@@ -83,7 +83,7 @@ const Setup = ({
           className={styles.listInput}
           type="text"
           placeholder="Add an item to the list"
-          value={newItem}
+          name="newItem"
           onChange={(e: ChangeEvent<HTMLInputElement>) => {
             setNewItem(e.target.value);
           }}
