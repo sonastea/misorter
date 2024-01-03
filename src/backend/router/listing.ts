@@ -3,7 +3,7 @@ import { Prisma } from "@prisma/client";
 import Redis from "ioredis";
 import { customAlphabet } from "nanoid";
 import { publicProcedure, router } from "src/backend/trpc";
-import { z } from "zod";
+import { array, object, string } from "superstruct";
 
 const nanoid = customAlphabet(
   "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
@@ -44,8 +44,8 @@ const updateListingVisited = async (listingId: string) => {
 export const listingRouter = router({
   get: publicProcedure
     .input(
-      z.object({
-        label: z.string(),
+      object({
+        label: string(),
       })
     )
     .query(async ({ input }) => {
@@ -77,11 +77,11 @@ export const listingRouter = router({
     }),
   create: publicProcedure
     .input(
-      z.object({
-        title: z.string(),
-        items: z.array(
-          z.object({
-            value: z.string(),
+      object({
+        title: string(),
+        items: array(
+          object({
+            value: string(),
           })
         ),
       })
@@ -108,9 +108,9 @@ export const listingRouter = router({
     }),
   updateTitle: publicProcedure
     .input(
-      z.object({
-        label: z.string(),
-        title: z.string(),
+      object({
+        label: string(),
+        title: string(),
       })
     )
     .mutation(async ({ input }) => {
