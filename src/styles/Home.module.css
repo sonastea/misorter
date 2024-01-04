@@ -317,12 +317,12 @@ html[data-theme="dark"] .listInput:focus {
 
 html[data-theme="dark"] .inputButton {
   color: var(--color-bg-secondary);
-  background: #ff7fb5;
+  background: var(--color-bg-once-dark-faded-hover);
 }
 
 html[data-theme="dark"] .inputButton:hover {
   color: var(--color-bg-secondary);
-  background: #e65692;
+  background: var(--color-bg-once-dark-hover);
 }
 
 html[data-theme="dark"] .item {
@@ -361,14 +361,14 @@ html[data-theme="dark"] .reset:hover {
 
 html[data-theme="dark"] .start {
   color: var(--color-bg-secondary);
-  border: #ff7fb5;
-  background: #ff7fb5;
+  border: var(--color-bg-once-dark-faded-hover);
+  background: var(--color-bg-once-dark-faded-hover);
 }
 
 html[data-theme="dark"] .start:hover {
   color: #1d1d1d;
-  border-color: #e65692;
-  background: #e65692;
+  border-color: var(--color-bg-once-dark-hover);
+  background: var(--color-bg-once-dark-hover);
 }
 
 html[data-theme="dark"] .title {
