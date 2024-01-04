@@ -84,6 +84,7 @@
 }
 
 .try:hover {
+  color: var(--color-bg-primary);
   background: var(--color-text-once);
 }
 
