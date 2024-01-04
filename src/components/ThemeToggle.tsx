@@ -29,12 +29,12 @@ const ThemeToggle = () => {
 
   return (
     <button
-      className="themeToggle"
+      className="toggle"
       type="button"
       onClick={() => toggleTheme()}
       title={`Switch between light and dark mode (currently ${theme} mode)`}
     >
-      <span className="themeTogglePic">
+      <span className="toggleIcon">
         {theme === "dark" ? <span>🌙</span> : <span>☀️</span>}
       </span>
     </button>

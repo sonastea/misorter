@@ -32,6 +32,7 @@ const Home: NextPage = () => {
   const [editTitle, setEditTitle] = useState<boolean>(false);
   const [title, setTitle] = useState<string>("misorter");
   const [oldTitle, setOldTitle] = useState<string>();
+  const [open, setOpen] = useState(false);
   const [list, setList] = useState<ListItem[]>([]);
   const [newItem, setNewItem] = useState<string>("");
   const [startSort, setStartSort] = useState<boolean>(false);
@@ -55,9 +56,27 @@ const Home: NextPage = () => {
       }
     );
 
+  const FeaturedListsToggle = dynamic(
+    () => import("../components/FeaturedListsToggle"),
+    {
+      ssr: false,
+    }
+  );
+
   const DynamicFooter = dynamic(() => import("../components/Footer"), {
     ssr: false,
   });
+
+  const DynamicFeaturedLists = dynamic(
+    () => import("../components/FeaturedLists"),
+    {
+      ssr: false,
+    }
+  );
+
+  const toggleFeaturedLists = () => {
+    setOpen(!open);
+  };
 
   useEffect(() => {
     const backUrl = sessionStorage.getItem("back-url");
@@ -166,6 +185,15 @@ const Home: NextPage = () => {
 
         {startSort && <Sort ogList={list} setStartSort={setStartSort} />}
       </main>
+
+      <FeaturedListsToggle toggleFeaturedLists={toggleFeaturedLists} />
+
+      <DynamicFeaturedLists
+        open={open}
+        toggleOpen={toggleFeaturedLists}
+        title="Featured Lists"
+      />
+
       <DynamicFooter />
     </div>
   );
