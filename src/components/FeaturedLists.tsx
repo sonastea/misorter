@@ -123,10 +123,11 @@ const FeaturedLists = ({
                     value={list.label}
                     className={({ checked }) =>
                       `hover:text-once-hover hover:dark:text-once relative justify-between mt-2 dark:bg-dark-bg-tertiary cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none
-              ${checked
-                        ? "text-once-hover dark:text-once ring-1 ring-once dark:ring-dark-primary"
-                        : "dark:text-dark-text-primary dark:bg-dark-bg-tertiary"
-                      }`
+              ${
+                checked
+                  ? "text-once-hover dark:text-once ring-1 ring-once dark:ring-dark-primary"
+                  : "dark:text-dark-text-primary dark:bg-dark-bg-tertiary"
+              }`
                     }
                   >
                     {list.title}
