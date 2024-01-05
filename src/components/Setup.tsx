@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { ChangeEvent, ChangeEventHandler, KeyboardEvent } from "react";
+import { ChangeEvent, KeyboardEvent } from "react";
 import { toast } from "react-toastify";
 import { ListItem } from "src/pages";
 import { trpc } from "src/utils/trpc";
