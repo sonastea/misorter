@@ -1,6 +1,6 @@
 import { Dialog, RadioGroup, Transition } from "@headlessui/react";
 import { List } from "@router/listing";
-import { Dispatch, Fragment, SetStateAction, useEffect } from "react";
+import { Dispatch, Fragment, SetStateAction } from "react";
 import { trpc } from "src/utils/trpc";
 import styles from "../styles/FeaturedLists.module.css";
 import { useRouter } from "next/router";
