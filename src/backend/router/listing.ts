@@ -115,6 +115,8 @@ export const listingRouter = router({
     });
 
     if (featured.length < topKLists) {
+      const totalLists = await prisma.listing.count();
+      const skip = Math.floor(Math.random() * totalLists);
       featured = await prisma.listing.findMany({
         select: {
           label: true,
@@ -126,7 +128,7 @@ export const listingRouter = router({
             },
           },
         },
-        // skip: Math.floor(Math.random() * 10),
+        skip,
         take: 3,
       });
     }
