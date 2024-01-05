@@ -84,6 +84,7 @@ const Setup = ({
           type="text"
           placeholder="Add an item to the list"
           name="newItem"
+          value={newItem}
           onChange={(e: ChangeEvent<HTMLInputElement>) => {
             setNewItem(e.target.value);
           }}
