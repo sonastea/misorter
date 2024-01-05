@@ -124,6 +124,10 @@
   background: var(--color-text-once);
 }
 
+.try:disabled {
+  cursor: not-allowed;
+}
+
 html[data-theme="dark"] .panel {
   border: 1px solid var(--color-bg-tertiary);
   background: var(--color-bg-secondary);

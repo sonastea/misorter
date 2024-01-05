@@ -146,7 +146,6 @@ const FeaturedLists = ({
             </RadioGroup>
             <div className={styles.buttonContainer}>
               <button
-                // onClick={() => console.log(data?.find((list) => list.label === selectedList))}
                 onClick={() => {
                   updateList(
                     data?.find((list) => list.label === selectedList),
@@ -158,6 +157,7 @@ const FeaturedLists = ({
                   });
                 }}
                 className={styles.try}
+                disabled={isLoading || !selectedList}
               >
                 Try it now
               </button>
