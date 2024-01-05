@@ -3,7 +3,7 @@ import type { NextPage } from "next";
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import "react-toastify/dist/ReactToastify.min.css";
 import FeaturedLists from "src/components/FeaturedLists";
 import ListItemsSkeletonLoader from "src/components/ListItemsSkeletonLoader";
@@ -75,20 +75,23 @@ const Home: NextPage = () => {
     setOpen(!open);
   };
 
-  const updateList = (data: List, featured: boolean) => {
-    if (featured) {
-      // if we picked a featured list, add a visit to the db
-      refetch();
-      setGetListOnce(true);
-    }
+  const updateList = useCallback(
+    (data: List, featured: boolean) => {
+      if (featured) {
+        // if we picked a featured list, add a visit to the db
+        refetch();
+        setGetListOnce(true);
+      }
 
-    setList([]);
-    data.items.map((item) => {
-      setList((prev) => [...prev, { id: uuidv4(), value: item.value }]);
-    });
-    setTitle(data.title);
-    setOldTitle(data.title);
-  };
+      setList([]);
+      data.items.map((item) => {
+        setList((prev) => [...prev, { id: uuidv4(), value: item.value }]);
+      });
+      setTitle(data.title);
+      setOldTitle(data.title);
+    },
+    [refetch]
+  );
 
   useEffect(() => {
     const backUrl = sessionStorage.getItem("back-url");
@@ -112,13 +115,13 @@ const Home: NextPage = () => {
       refetch();
       setGetListOnce(true);
     }
-  }, [listLabel, getListOnce]);
+  }, [listLabel, getListOnce, refetch]);
 
   useEffect(() => {
     if (isSuccess) {
       updateList(data, false);
     }
-  }, [data?.items, data?.title, isSuccess]);
+  }, [data, data?.items, data?.title, isSuccess, updateList]);
 
   useEffect(() => {
     if (textAreaRef.current) {
