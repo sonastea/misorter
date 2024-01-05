@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @font-face {
   font-family: "Merriweather Sans";
   font-style: normal;
@@ -18,6 +22,8 @@ body {
   background: var(--color-bg-primary);
 
   --color-text-once: #ff5fa2;
+  --color-bg-once-dark-hover: #e65692;
+  --color-bg-once-dark-faded-hover: #ff7fb5;
 }
 
 .pulse {
@@ -61,7 +67,7 @@ footer {
   padding: 1rem 0;
 }
 
-.themeToggle {
+.toggle {
   font-size: 1.5rem;
   padding: 0.5rem 1rem;
   position: absolute;
@@ -74,12 +80,17 @@ footer {
   z-index: 999;
 }
 
-.themeTogglePic {
+.featuredLists {
+  right: unset;
+  top: 0;
+}
+
+.toggleIcon {
   display: flex;
   border-radius: 50%;
 }
 
-.themeTogglePic:hover {
+.toggleIcon:hover {
   background: var(--color-bg-icon);
 }
 
@@ -87,7 +98,7 @@ html[data-theme="dark"] .a {
   color: #6fc5c2;
 }
 
-html[data-theme="dark"] .themeTogglePic:hover {
+html[data-theme="dark"] .toggleIcon:hover {
   background: var(--color-bg-secondary);
 }
 
@@ -106,7 +117,7 @@ html[data-theme="light"] .Toastify__close-button {
 }
 
 html[data-theme="dark"] .toastBody {
-  color: #ff7fb5;
+  color: var(--color-bg-once-dark-faded-hover);
   background: var(--color-bg-secondary);
   min-height: 3rem;
 }
@@ -133,17 +144,17 @@ html[data-theme="dark"] {
 }
 
 @media (max-width: 600px) {
-  .themeToggle {
+  .toggle {
     padding: 0.25rem 0.5rem;
   }
 }
 
 @supports (-webkit-touch-callout: none) {
-  .themeToggle {
+  .toggle {
     background: none !important;
   }
 
-  .themeTogglePic {
+  .toggleIcon {
     background: none !important;
   }
 }

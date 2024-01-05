@@ -11,6 +11,7 @@ const ListItemsSkeletonLoader = () => {
           className={`${styles.listInput} pulse`}
           type="text"
           placeholder="Add an item to the list"
+          name="newItem"
         />
         <button
           aria-label="Add item to the list"

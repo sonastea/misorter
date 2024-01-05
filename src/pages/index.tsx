@@ -3,8 +3,9 @@ import type { NextPage } from "next";
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import "react-toastify/dist/ReactToastify.min.css";
+import FeaturedLists from "src/components/FeaturedLists";
 import ListItemsSkeletonLoader from "src/components/ListItemsSkeletonLoader";
 import ListTitle from "src/components/ListTitle";
 import ListTitleEdit from "src/components/ListTitleEdit";
@@ -37,6 +38,10 @@ const Home: NextPage = () => {
   const [startSort, setStartSort] = useState<boolean>(false);
   const [getListOnce, setGetListOnce] = useState<boolean>(false);
 
+  // Featured Lists
+  const [selectedList, setSelectedList] = useState<string>("");
+  const [open, setOpen] = useState(false);
+
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
   const router = useRouter();
@@ -55,9 +60,38 @@ const Home: NextPage = () => {
       }
     );
 
+  const FeaturedListsToggle = dynamic(
+    () => import("../components/FeaturedListsToggle"),
+    {
+      ssr: false,
+    }
+  );
+
   const DynamicFooter = dynamic(() => import("../components/Footer"), {
     ssr: false,
   });
+
+  const toggleFeaturedLists = () => {
+    setOpen(!open);
+  };
+
+  const updateList = useCallback(
+    (data: List, featured: boolean) => {
+      if (featured) {
+        // if we picked a featured list, add a visit to the db
+        refetch();
+        setGetListOnce(true);
+      }
+
+      setList([]);
+      data.items.map((item) => {
+        setList((prev) => [...prev, { id: uuidv4(), value: item.value }]);
+      });
+      setTitle(data.title);
+      setOldTitle(data.title);
+    },
+    [refetch]
+  );
 
   useEffect(() => {
     const backUrl = sessionStorage.getItem("back-url");
@@ -81,18 +115,13 @@ const Home: NextPage = () => {
       refetch();
       setGetListOnce(true);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [listLabel]);
+  }, [listLabel, getListOnce, refetch]);
 
   useEffect(() => {
     if (isSuccess) {
-      data.items.map((item) => {
-        setList((prev) => [...prev, { id: uuidv4(), value: item.value }]);
-      });
-      setTitle(data.title);
-      setOldTitle(data.title);
+      updateList(data, false);
     }
-  }, [data?.items, data?.title, isSuccess]);
+  }, [data, data?.items, data?.title, isSuccess, updateList]);
 
   useEffect(() => {
     if (textAreaRef.current) {
@@ -166,6 +195,18 @@ const Home: NextPage = () => {
 
         {startSort && <Sort ogList={list} setStartSort={setStartSort} />}
       </main>
+
+      <FeaturedListsToggle toggleFeaturedLists={toggleFeaturedLists} />
+
+      <FeaturedLists
+        open={open}
+        toggleOpen={toggleFeaturedLists}
+        selectedList={selectedList}
+        setSelectedList={setSelectedList}
+        title="Featured Lists"
+        updateList={updateList}
+      />
+
       <DynamicFooter />
     </div>
   );

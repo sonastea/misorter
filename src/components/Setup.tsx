@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { ChangeEvent, ChangeEventHandler, KeyboardEvent } from "react";
+import { ChangeEvent, KeyboardEvent } from "react";
 import { toast } from "react-toastify";
 import { ListItem } from "src/pages";
 import { trpc } from "src/utils/trpc";
@@ -83,7 +83,7 @@ const Setup = ({
           className={styles.listInput}
           type="text"
           placeholder="Add an item to the list"
-          value={newItem}
+          name="newItem"
           onChange={(e: ChangeEvent<HTMLInputElement>) => {
             setNewItem(e.target.value);
           }}

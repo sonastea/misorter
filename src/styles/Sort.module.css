@@ -96,7 +96,9 @@
   margin-left: auto;
   margin-right: auto;
   padding: 1rem;
-  box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+  box-shadow:
+    rgba(0, 0, 0, 0.12) 0px 1px 3px,
+    rgba(0, 0, 0, 0.24) 0px 1px 2px;
 }
 
 .pollTitle {
@@ -142,7 +144,9 @@
   vertical-align: bottom;
   position: relative;
   overflow: hidden;
-  transition: background 0.15s ease-in, color 0.3s;
+  transition:
+    background 0.15s ease-in,
+    color 0.3s;
 }
 
 .pollCancel:hover {
@@ -165,7 +169,9 @@
   position: relative;
   border-style: solid;
   overflow: hidden;
-  transition: color 0.15s ease-in, background 0.15s ease-in;
+  transition:
+    color 0.15s ease-in,
+    background 0.15s ease-in;
 }
 
 .pollConfirm:hover {
@@ -269,7 +275,7 @@
 }
 
 .resultsHeaderContainer {
-  background: #ff7fb5;
+  background: var(--color-bg-once-dark-faded-hover);
   border-top: 1px solid hsl(0, 0%, 29%);
   border-right: 1px solid hsl(0, 0%, 29%);
   border-left: 1px solid hsl(0, 0%, 29%);
@@ -310,7 +316,9 @@
   border-style: solid;
   overflow: hidden;
   padding: 0.55rem;
-  transition: color 0.15s ease-in, background 0.15s ease-in;
+  transition:
+    color 0.15s ease-in,
+    background 0.15s ease-in;
 }
 
 .export:hover {
@@ -514,20 +522,22 @@ html[data-theme="dark"] .noOpinion:hover {
 
 html[data-theme="dark"] .export {
   color: var(--color-bg-secondary);
-  border-color: #ff7fb5;
-  background: #ff7fb5;
-  transition: border-color 0.15s ease-in, background 0.15s ease-in;
+  border-color: var(--color-bg-once-dark-hover);
+  background: var(--color-bg-once-dark-faded-hover);
+  transition:
+    border-color 0.15s ease-in,
+    background 0.15s ease-in;
 }
 
 html[data-theme="dark"] .export:hover {
   color: var(--color-bg-secondary);
-  border-color: #e65692;
-  background: #e65692;
+  border-color: var(--color-bg-once-dark-hover);
+  background: var(--color-bg-once-dark-hover);
 }
 
 html[data-theme="dark"] .toggleResults {
-  color: #ff7fb5;
-  border-color: #ff7fb5;
+  color: var(--color-bg-once-dark-faded-hover);
+  border-color: var(--color-bg-once-dark-faded-hover);
 }
 
 html[data-theme="dark"] .resultsHeader {
