@@ -157,6 +157,7 @@ const FeaturedLists = ({
                   });
                 }}
                 className={styles.try}
+                disabled={isLoading || !selectedList}
               >
                 Try it now
               </button>
