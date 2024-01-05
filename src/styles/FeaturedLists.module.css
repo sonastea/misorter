@@ -67,7 +67,44 @@
   padding: 1rem;
 }
 
+.listContainer {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+}
+
+.listLabel {
+  color: var(--color-text-primary);
+}
+
+.listTitle {
+  color: var(--color-text-primary);
+}
+
+.listItem {
+  display: flex;
+  position: relative;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  margin-top: 0.5rem;
+  justify-content: space-between;
+  border: 1px solid var(--color-bg-secondary);
+  border-radius: 0.5rem;
+  box-shadow: var(--md-shadow-dp1);
+  cursor: pointer;
+}
+
+.listItem:active,
+.listItem:focus {
+  box-shadow: var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--color-text-once);
+  --ring-offset-width: 1px;
+}
+
 .try {
+  background: var(--color-text-once);
+  color: var(--color-text-primary);
   display: inline-flex;
   padding-top: 0.625rem;
   padding-bottom: 0.625rem;
@@ -80,7 +117,6 @@
   line-height: 1.25rem;
   font-weight: 500;
   text-align: center;
-  color: var(--color-text-once);
 }
 
 .try:hover {
@@ -100,6 +136,11 @@ html[data-theme="dark"] .close:hover {
 
 html[data-theme="dark"] .header {
   border-bottom: 1px solid var(--color-bg-tertiary);
+}
+
+html[data-theme="dark"] .listItem {
+  color: var(--color-text-primary);
+  background: var(--color-bg-tertiary);
 }
 
 html[data-theme="dark"] .try {

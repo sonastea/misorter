@@ -5,6 +5,7 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import "react-toastify/dist/ReactToastify.min.css";
+import FeaturedLists from "src/components/FeaturedLists";
 import ListItemsSkeletonLoader from "src/components/ListItemsSkeletonLoader";
 import ListTitle from "src/components/ListTitle";
 import ListTitleEdit from "src/components/ListTitleEdit";
@@ -32,11 +33,14 @@ const Home: NextPage = () => {
   const [editTitle, setEditTitle] = useState<boolean>(false);
   const [title, setTitle] = useState<string>("misorter");
   const [oldTitle, setOldTitle] = useState<string>();
-  const [open, setOpen] = useState(false);
   const [list, setList] = useState<ListItem[]>([]);
   const [newItem, setNewItem] = useState<string>("");
   const [startSort, setStartSort] = useState<boolean>(false);
   const [getListOnce, setGetListOnce] = useState<boolean>(false);
+
+  // Featured Lists
+  const [selectedList, setSelectedList] = useState<string>("");
+  const [open, setOpen] = useState(false);
 
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -67,15 +71,23 @@ const Home: NextPage = () => {
     ssr: false,
   });
 
-  const DynamicFeaturedLists = dynamic(
-    () => import("../components/FeaturedLists"),
-    {
-      ssr: false,
-    }
-  );
-
   const toggleFeaturedLists = () => {
     setOpen(!open);
+  };
+
+  const updateList = (data: List, featured: boolean) => {
+    if (featured) {
+      // if we picked a featured list, add a visit to the db
+      refetch();
+      setGetListOnce(true);
+    }
+
+    setList([]);
+    data.items.map((item) => {
+      setList((prev) => [...prev, { id: uuidv4(), value: item.value }]);
+    });
+    setTitle(data.title);
+    setOldTitle(data.title);
   };
 
   useEffect(() => {
@@ -100,16 +112,11 @@ const Home: NextPage = () => {
       refetch();
       setGetListOnce(true);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [listLabel]);
+  }, [listLabel, getListOnce]);
 
   useEffect(() => {
     if (isSuccess) {
-      data.items.map((item) => {
-        setList((prev) => [...prev, { id: uuidv4(), value: item.value }]);
-      });
-      setTitle(data.title);
-      setOldTitle(data.title);
+      updateList(data, false);
     }
   }, [data?.items, data?.title, isSuccess]);
 
@@ -188,10 +195,13 @@ const Home: NextPage = () => {
 
       <FeaturedListsToggle toggleFeaturedLists={toggleFeaturedLists} />
 
-      <DynamicFeaturedLists
+      <FeaturedLists
         open={open}
         toggleOpen={toggleFeaturedLists}
+        selectedList={selectedList}
+        setSelectedList={setSelectedList}
         title="Featured Lists"
+        updateList={updateList}
       />
 
       <DynamicFooter />

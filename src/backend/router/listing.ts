@@ -75,6 +75,64 @@ export const listingRouter = router({
 
       return list;
     }),
+  getFeatured: publicProcedure.query(async () => {
+    const topKLists = 3;
+    let featured: any[] = [];
+    let daysAgo = 5;
+    let kDaysAgo;
+
+    kDaysAgo = new Date(new Date().setDate(new Date().getDate() - daysAgo));
+
+    featured = await prisma.listing.findMany({
+      select: {
+        label: true,
+        title: true,
+        items: {
+          select: {
+            id: true,
+            value: true,
+          },
+        },
+      },
+      orderBy: {
+        visits: {
+          _count: "desc",
+        },
+      },
+      where: {
+        createdAt: {
+          gte: kDaysAgo,
+        },
+        visits: {
+          some: {
+            createdAt: {
+              gte: kDaysAgo,
+            },
+          },
+        },
+      },
+      take: topKLists,
+    });
+
+    if (featured.length < topKLists) {
+      featured = await prisma.listing.findMany({
+        select: {
+          label: true,
+          title: true,
+          items: {
+            select: {
+              id: true,
+              value: true,
+            },
+          },
+        },
+        // skip: Math.floor(Math.random() * 10),
+        take: 3,
+      });
+    }
+
+    return featured;
+  }),
   create: publicProcedure
     .input(
       object({
