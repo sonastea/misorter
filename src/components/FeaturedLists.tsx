@@ -87,14 +87,10 @@ const FeaturedLists = ({
               </button>
             </div>
             <RadioGroup
-              key={"test"}
               className={styles.listContainer}
               value={selectedList}
               onChange={setSelectedList}
             >
-              <RadioGroup.Label className="sr-only">
-                Featured List
-              </RadioGroup.Label>
               {isLoading ? (
                 <svg
                   className="self-center animate-spin -ml-1 mr-3 h-5 w-5 text-light-text-primary dark:text-dark-text-primary"
@@ -121,14 +117,15 @@ const FeaturedLists = ({
                   <RadioGroup.Option
                     key={list.label}
                     value={list.label}
-                    className={({ checked }) =>
-                      `hover:text-once-hover hover:dark:text-once relative justify-between mt-2 dark:bg-dark-bg-tertiary cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none
-              ${
-                checked
-                  ? "text-once-hover dark:text-once ring-1 ring-once dark:ring-dark-primary"
-                  : "dark:text-dark-text-primary dark:bg-dark-bg-tertiary"
-              }`
-                    }
+                    className={({ checked }) => {
+                      const baseClasses =
+                        "hover:text-once-hover hover:dark:text-once relative justify-between mt-2 dark:bg-dark-bg-tertiary cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none";
+                      const dynamicClasses = checked
+                        ? "text-once-hover dark:text-once ring-1 ring-once dark:ring-dark-primary"
+                        : "dark:text-dark-text-primary dark:bg-dark-bg-tertiary";
+
+                      return `${baseClasses} ${dynamicClasses}`.trim();
+                    }}
                   >
                     {list.title}
                     <RadioGroup.Description className="text-[0.55rem] sm:text-xs text-light-text-secondary/85 dark:text-dark-text-primary/85 space-x-2 whitespace-nowrap overflow-hidden text-ellipsis">
