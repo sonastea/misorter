@@ -1,6 +1,6 @@
 {
   "name": "misorter",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "private": true,
   "scripts": {
     "dev": "rm public/sw.js & next dev",
@@ -11,14 +11,15 @@
   },
   "dependencies": {
     "@headlessui/react": "^1.7.17",
+    "@headlessui/tailwindcss": "^0.2.0",
     "@prisma/client": "^5.7.1",
-    "@tanstack/react-query": "^5.17.0",
-    "@trpc/client": "^11.0.0-next-alpha.149",
-    "@trpc/next": "^11.0.0-next-alpha.149",
-    "@trpc/react-query": "^11.0.0-next-alpha.149",
-    "@trpc/server": "^11.0.0-next-alpha.149",
+    "@tanstack/react-query": "^5.17.5",
+    "@trpc/client": "^11.0.0-next-alpha.152",
+    "@trpc/next": "^11.0.0-next-alpha.152",
+    "@trpc/react-query": "^11.0.0-next-alpha.152",
+    "@trpc/server": "^11.0.0-next-alpha.152",
     "@upstash/ratelimit": "^1.0.0",
-    "@upstash/redis": "^1.27.1",
+    "@upstash/redis": "^1.28.0",
     "cookies-next": "^4.1.0",
     "crypto-random-string": "^5.0.0",
     "dom-to-image-more": "^3.2.0",
@@ -46,10 +47,10 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.2",
     "nanoid": "^5.0.4",
-    "postcss": "^8.4.32",
+    "postcss": "^8.4.33",
     "prettier": "^3.1.1",
     "prisma": "^5.7.1",
-    "tailwindcss": "^3.4.0",
+    "tailwindcss": "^3.4.1",
     "typescript": "^5.3.3"
   }
 }

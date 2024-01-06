@@ -67,7 +67,7 @@ const FeaturedLists = ({
               <button
                 onClick={toggleOpen}
                 type="button"
-                className={styles.close}
+                className={`${styles.close} ui-focus-visible:ring-once-hover ui-focus-visible:dark:ring-once ui-focus-visible:ring-2 focus:outline-none`}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -119,7 +119,7 @@ const FeaturedLists = ({
                     value={list.label}
                     className={({ checked }) => {
                       const baseClasses =
-                        "hover:text-once-hover hover:dark:text-once relative justify-between mt-2 dark:bg-dark-bg-tertiary cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none";
+                        "border border-dark-bg-tertiary/15 hover:text-once-hover hover:dark:text-once relative justify-between mt-2 dark:bg-dark-bg-tertiary cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none";
                       const dynamicClasses = checked
                         ? "text-once-hover dark:text-once ring-1 ring-once dark:ring-dark-primary"
                         : "dark:text-dark-text-primary dark:bg-dark-bg-tertiary";
@@ -156,7 +156,7 @@ const FeaturedLists = ({
                     shallow: true,
                   });
                 }}
-                className={styles.try}
+                className={`${styles.try} ui-focus-visible:ring-light-text-primary ui-focus-visible:dark:ring-dark-text-primary ui-focus-visible:ring-2 focus:outline-none`}
                 disabled={isLoading || !selectedList}
               >
                 Try it now
