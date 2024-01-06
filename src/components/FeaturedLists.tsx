@@ -67,7 +67,7 @@ const FeaturedLists = ({
               <button
                 onClick={toggleOpen}
                 type="button"
-                className={styles.close}
+                className={`${styles.close} ui-focus-visible:ring-once-hover ui-focus-visible:dark:ring-once ui-focus-visible:ring-2 focus:outline-none`}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -156,7 +156,7 @@ const FeaturedLists = ({
                     shallow: true,
                   });
                 }}
-                className={styles.try}
+                className={`${styles.try} ui-focus-visible:ring-light-text-primary ui-focus-visible:dark:ring-dark-text-primary ui-focus-visible:ring-2 focus:outline-none`}
                 disabled={isLoading || !selectedList}
               >
                 Try it now
