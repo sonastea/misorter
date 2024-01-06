@@ -3,7 +3,7 @@ import { Prisma } from "@prisma/client";
 import Redis from "ioredis";
 import { customAlphabet } from "nanoid";
 import { publicProcedure, router } from "src/backend/trpc";
-import { array, object, string } from "superstruct";
+import { array, enums, object, string } from "superstruct";
 
 const nanoid = customAlphabet(
   "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
@@ -23,22 +23,28 @@ const ListType = Prisma.validator<Prisma.ListingDefaultArgs>()({
     items: { select: { value: true } },
   },
 });
+const VisitSourceEnum = enums(["URL", "FEATURED"]);
 
 export type List = Prisma.ListingGetPayload<typeof ListType>;
 
-const updateListingVisited = async (listingId: string) => {
+const updateListingVisited = async (
+  listingId: string,
+  source: typeof VisitSourceEnum.TYPE
+) => {
   const date = new Date();
 
   // Update the updatedAt field and connect a new Visit record
-  await prisma.listing.update({
+  const result = await prisma.listing.update({
     where: { label: listingId },
     data: {
       updatedAt: date,
       visits: {
-        create: { createdAt: date },
+        create: { createdAt: date, source },
       },
     },
   });
+
+  return result;
 };
 
 export const listingRouter = router({
@@ -51,7 +57,7 @@ export const listingRouter = router({
     .query(async ({ input }) => {
       let list: Partial<List> | null = {};
 
-      await updateListingVisited(input.label);
+      await updateListingVisited(input.label, "URL");
 
       await redis.get(input.label).then(async (result) => {
         if (result != null) {
@@ -148,23 +154,41 @@ export const listingRouter = router({
     )
     .mutation(async ({ input }) => {
       const newLabel = nanoid();
-      const list = await prisma.listing.create({
-        data: {
-          label: newLabel,
-          title: input.title,
-          items: { create: input.items },
-        },
-        select: {
-          label: true,
-          title: true,
-          items: {
-            orderBy: { id: "asc" },
-            select: { value: true },
+      const list = await prisma.listing
+        .create({
+          data: {
+            label: newLabel,
+            title: input.title,
+            items: { create: input.items },
           },
-        },
-      });
+          select: {
+            label: true,
+            title: true,
+            items: {
+              orderBy: { id: "asc" },
+              select: { value: true },
+            },
+          },
+        })
+        .finally(async () => await updateListingVisited(newLabel, "FEATURED"));
 
       return list;
+    }),
+  createVisit: publicProcedure
+    .input(
+      object({
+        label: string(),
+        source: VisitSourceEnum,
+      })
+    )
+    .mutation(async ({ input }) => {
+      const result = await updateListingVisited(input.label, input.source);
+
+      if (!result.id) {
+        return { success: false };
+      }
+
+      return { success: true };
     }),
   updateTitle: publicProcedure
     .input(

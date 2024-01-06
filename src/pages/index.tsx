@@ -60,6 +60,8 @@ const Home: NextPage = () => {
       }
     );
 
+  const createVisit = trpc.listing.createVisit.useMutation();
+
   const FeaturedListsToggle = dynamic(
     () => import("../components/FeaturedListsToggle"),
     {
@@ -79,7 +81,7 @@ const Home: NextPage = () => {
     (data: List, featured: boolean) => {
       if (featured) {
         // if we picked a featured list, add a visit to the db
-        refetch();
+        createVisit.mutate({ label: data.label, source: "FEATURED" });
         setGetListOnce(true);
       }
 

@@ -33,6 +33,7 @@ model Visit {
   createdAt    DateTime @default(now())
   list         Listing  @relation(fields: [listingLabel], references: [label], onDelete: Cascade)
   listingLabel String
+  source       String?
 
   @@index([listingLabel])
 }
