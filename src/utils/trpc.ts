@@ -24,10 +24,11 @@ export const trpc = createTRPCNext<AppRouter>({
         }),
         httpBatchLink({
           url,
+          transformer: superjson,
         }),
       ],
-      transformer: superjson,
     };
   },
   ssr: false,
+  transformer: superjson,
 });

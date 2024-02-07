@@ -26,7 +26,7 @@
 .share {
   color: #2253a3;
   height: 1.35rem;
-  width: 1.35rem;
+  width: 100%;
   cursor: pointer;
   transition: font-size 0.1s;
 }
@@ -48,7 +48,7 @@
 .poll {
   color: #2253a3;
   height: 1.35rem;
-  width: 1.35rem;
+  width: 100%;
   cursor: pointer;
   transition: font-size 0.1s;
 }
@@ -62,7 +62,7 @@
 .pollUnauthorized {
   color: #9146ff;
   height: 1.35rem;
-  width: 1.35rem;
+  width: 100%;
   cursor: pointer;
   transition: font-size 0.1s;
 }

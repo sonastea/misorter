@@ -77,23 +77,21 @@ const Home: NextPage = () => {
     setOpen(!open);
   };
 
-  const updateList = useCallback(
-    (data: List, featured: boolean) => {
-      if (featured) {
-        // if we picked a featured list, add a visit to the db
-        createVisit.mutate({ label: data.label, source: "FEATURED" });
-        setGetListOnce(true);
-      }
+  const updateList = useCallback((data: List, featured: boolean) => {
+    if (featured) {
+      // if we picked a featured list, add a visit to the db
+      createVisit.mutate({ label: data.label, source: "FEATURED" });
+      setGetListOnce(true);
+    }
 
-      setList([]);
-      data.items.map((item) => {
-        setList((prev) => [...prev, { id: uuidv4(), value: item.value }]);
-      });
-      setTitle(data.title);
-      setOldTitle(data.title);
-    },
-    [refetch]
-  );
+    setList([]);
+    data.items.map((item) => {
+      setList((prev) => [...prev, { id: uuidv4(), value: item.value }]);
+    });
+    setTitle(data.title);
+    setOldTitle(data.title);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const backUrl = sessionStorage.getItem("back-url");
