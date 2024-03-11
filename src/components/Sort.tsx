@@ -395,8 +395,7 @@ const Sort = ({
   }
 
   function toNameFace(n: number) {
-    let str = ogList[n].value;
-    return str;
+    return ogList[n]?.value;
   }
 
   useEffect(() => {

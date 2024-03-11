@@ -156,12 +156,12 @@ const Home: NextPage = () => {
       </Head>
 
       <main className={styles.main}>
-        {editTitle && data ? (
+        {editTitle ? (
           <ListTitleEdit
             title={title}
             setTitle={setTitle}
             textAreaRef={textAreaRef}
-            data={data}
+            data={data ?? {}}
             listLabel={listLabel}
             oldTitle={oldTitle}
             setOldTitle={setOldTitle}

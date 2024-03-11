@@ -34,12 +34,20 @@ const ListTitleEdit = ({
 
   return (
     <textarea
+      autoFocus
       className={styles.editTitle}
       value={title}
       ref={textAreaRef}
       onChange={(e: ChangeEvent<HTMLTextAreaElement>) => {
         setTitle(e.target.value);
       }}
+      onBlur={() => setEditTitle(false)}
+      onFocus={(e) =>
+        e.currentTarget.setSelectionRange(
+          e.currentTarget.value.length,
+          e.currentTarget.value.length
+        )
+      }
       onKeyDown={(e) => {
         if (e.code === "Enter" || e.code === "Escape") {
           e.preventDefault();
@@ -47,10 +55,10 @@ const ListTitleEdit = ({
           if (title === "") {
             setTitle("misorter");
           }
-          if (data) {
+          if (data && data.label) {
             // only update title of the list if we've fetched and changed the title from the original
             if (listLabel && title !== oldTitle) {
-              updateTitle.mutate({ label: data.label!, title });
+              updateTitle.mutate({ label: data.label, title });
               setOldTitle(title);
             }
           }
