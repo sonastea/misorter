@@ -1,6 +1,4 @@
 .backdrop {
-  background: var(--color-light-bg-secondary);
-  backdrop-filter: opacity(0.1);
   backdrop-filter: blur(8px);
   inset: 0;
   position: fixed;
@@ -20,7 +18,7 @@
 }
 
 .panel {
-  border: 1px solid var(--color-bg-secondary);
+  border: 1px solid var(--color-bg-quaternary);
   background: var(--color-bg-primary);
   border-radius: 0.5rem;
   width: 75%;
@@ -35,7 +33,7 @@
   align-items: center;
   border-top-left-radius: 0.25rem;
   border-top-right-radius: 0.25rem;
-  border-bottom-width: 1px;
+  border-bottom: 1px solid var(--color-bg-tertiary);
 }
 
 .title {

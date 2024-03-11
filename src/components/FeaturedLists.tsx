@@ -119,7 +119,7 @@ const FeaturedLists = ({
                     value={list.label}
                     className={({ checked }) => {
                       const baseClasses =
-                        "border border-dark-bg-tertiary/15 hover:text-once-hover hover:dark:text-once relative justify-between mt-2 dark:bg-dark-bg-tertiary cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none";
+                        "border border-dark-bg-secondary/25 hover:text-once-hover hover:dark:text-once relative justify-between mt-2 dark:bg-dark-bg-tertiary cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none";
                       const dynamicClasses = checked
                         ? "text-once-hover dark:text-once ring-1 ring-once dark:ring-dark-primary"
                         : "dark:text-dark-text-primary dark:bg-dark-bg-tertiary";
