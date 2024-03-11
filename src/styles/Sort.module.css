@@ -333,6 +333,8 @@
   border-radius: 0.375rem;
   border-style: solid;
   border-width: 1px;
+  padding-left: 0.375em;
+  padding-right: 0.375em;
 }
 
 .toggleResults:hover {
