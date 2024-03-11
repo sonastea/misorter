@@ -86,6 +86,7 @@ const Home: NextPage = () => {
     }
 
     setList([]);
+    setInititalListSize(data.items?.length);
     data.items.map((item) => {
       setList((prev) => [...prev, { id: uuidv4(), value: item.value }]);
     });
