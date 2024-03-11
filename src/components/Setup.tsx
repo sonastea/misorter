@@ -10,21 +10,25 @@ import styles from "../styles/Home.module.css";
 interface SetupProps {
   title: string;
   list: ListItem[];
+  initialListSize: number;
   setList: Function;
   getListOnce: boolean;
-  setGetListOnce: Function;
+  setGetListOnce: (x: boolean) => void;
   newItem: string;
-  setNewItem: Function;
-  setStartSort: Function;
+  setEditTitle: (x: boolean) => void;
+  setNewItem: (x: string) => void;
+  setStartSort: (x: boolean) => void;
 }
 
 const Setup = ({
   title,
   list,
+  initialListSize,
   setList,
   getListOnce,
   setGetListOnce,
   newItem,
+  setEditTitle,
   setNewItem,
   setStartSort,
 }: SetupProps) => {
@@ -53,17 +57,18 @@ const Setup = ({
       return { value: item.value };
     });
 
-    // don't create a Listing if we've already fetched one
-    if (!getListOnce) {
-      createList.mutate({ title: title, items: sanitizedList });
-    } else {
-      // start sort if we've fetched a listing
+    // fetched a list and it's the same list
+    if (getListOnce && initialListSize === list.length) {
       setStartSort(true);
+    } else {
+      createList.mutate({ title: title, items: sanitizedList });
     }
+
     window.scrollTo({ top: 0 });
   };
 
   const resetList = () => {
+    setEditTitle(false);
     setList([]);
   };
 

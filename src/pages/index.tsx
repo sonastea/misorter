@@ -37,6 +37,7 @@ const Home: NextPage = () => {
   const [newItem, setNewItem] = useState<string>("");
   const [startSort, setStartSort] = useState<boolean>(false);
   const [getListOnce, setGetListOnce] = useState<boolean>(false);
+  const [initialListSize, setInititalListSize] = useState<number>(-1);
 
   // Featured Lists
   const [selectedList, setSelectedList] = useState<string>("");
@@ -115,10 +116,12 @@ const Home: NextPage = () => {
       refetch();
       setGetListOnce(true);
     }
-  }, [listLabel, getListOnce, refetch]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [listLabel, refetch]);
 
   useEffect(() => {
     if (isSuccess) {
+      setInititalListSize(data.items?.length);
       updateList(data, false);
     }
   }, [data, data?.items, data?.title, isSuccess, updateList]);
@@ -182,11 +185,13 @@ const Home: NextPage = () => {
             {...{
               label: data?.label,
               title,
+              initialListSize,
               list,
               setList,
               getListOnce,
               setGetListOnce,
               newItem,
+              setEditTitle,
               setNewItem,
               setStartSort,
             }}
