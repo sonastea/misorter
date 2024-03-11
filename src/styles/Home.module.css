@@ -247,7 +247,7 @@ html[data-theme="light"] .listInput {
 .reset {
   color: var(--color-text-primary);
   background: transparent;
-  border-color: transparent;
+  border: transparent;
   border-style: solid;
   display: inline-block;
   border-radius: 0.55rem;
@@ -366,13 +366,12 @@ html[data-theme="dark"] .reset:hover {
 html[data-theme="dark"] .start {
   color: var(--color-bg-secondary);
   border: var(--color-bg-once-dark-faded-hover);
-  border-style: solid;
   background: var(--color-bg-once-dark-faded-hover);
 }
 
 html[data-theme="dark"] .start:hover {
   color: #1d1d1d;
-  border-color: var(--color-bg-once-dark-hover);
+  border: var(--color-bg-once-dark-hover);
   background: var(--color-bg-once-dark-hover);
 }
 
