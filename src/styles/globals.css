@@ -7,21 +7,37 @@
   font-style: normal;
   font-display: swap;
   font-weight: 400;
-  src: local("Merriweather Sans"),
+  src:
+    local("Merriweather Sans"),
     url("/fonts/Merriweather-Sans.woff2") format("woff2"),
-    local("-apple-system"), local("BlinkMacSystemFont"), local("Segoe UI"),
-    local("Roboto"), local("Ubuntu"), local("Droid Sans"), local("sans-serif");
+    local("-apple-system"),
+    local("BlinkMacSystemFont"),
+    local("Segoe UI"),
+    local("Roboto"),
+    local("Ubuntu"),
+    local("Droid Sans"),
+    local("sans-serif");
 }
 
 html,
 body {
   padding: 0;
   margin: 0;
-  font-family: "Merriweather Sans", -apple-system, BlinkMacSystemFont, Segoe UI,
-    Roboto, Ubuntu, Droid Sans, sans-serif;
+  font-family:
+    "Merriweather Sans",
+    -apple-system,
+    BlinkMacSystemFont,
+    Segoe UI,
+    Roboto,
+    Ubuntu,
+    Droid Sans,
+    sans-serif;
   background: var(--color-bg-primary);
 
   --color-text-once: #ff5fa2;
+  --color-text-once-light: #b34371;
+  --color-text-once-light-hover: hsl(332 82% 92% / 1);
+  --color-text-once-dark: #ff7fb5;
   --color-bg-once-dark-hover: #e65692;
   --color-bg-once-dark-faded-hover: #ff7fb5;
 }
@@ -35,6 +51,7 @@ body {
   100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
@@ -45,7 +62,7 @@ button {
 }
 
 a {
-  color: #6fc5c2;
+  color: #0572e8;
   text-decoration: none;
 }
 
@@ -94,8 +111,8 @@ footer {
   background: var(--color-bg-icon);
 }
 
-html[data-theme="dark"] .a {
-  color: #6fc5c2;
+html[data-theme="dark"] a {
+  color: #057af9;
 }
 
 html[data-theme="dark"] .toggleIcon:hover {
