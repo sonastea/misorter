@@ -5,10 +5,13 @@ const ThemeToggle = () => {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const currentTheme = window.matchMedia("(prefers-color-scheme: dark)")
+      const storedTheme = localStorage.getItem("theme");
+      const preferredTheme = window.matchMedia("(prefers-color-scheme: dark)")
         .matches
         ? "dark"
         : "light";
+      const currentTheme = storedTheme || preferredTheme;
+
       document.documentElement.setAttribute("data-theme", currentTheme);
       setTheme(currentTheme);
     }
@@ -16,11 +19,7 @@ const ThemeToggle = () => {
 
   const toggleTheme = () => {
     const currentTheme = document.documentElement.getAttribute("data-theme");
-    let targetTheme = "light";
-
-    if (currentTheme === "light") {
-      targetTheme = "dark";
-    }
+    const targetTheme = currentTheme === "light" ? "dark" : "light";
 
     document.documentElement.setAttribute("data-theme", targetTheme);
     localStorage.setItem("theme", targetTheme);
