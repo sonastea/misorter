@@ -1,5 +1,6 @@
 import { prisma } from "@db/client";
 import { Prisma } from "@prisma/client";
+import { TRPCError } from "@trpc/server";
 import Redis from "ioredis";
 import { customAlphabet } from "nanoid";
 import { publicProcedure, router } from "src/backend/trpc";
@@ -33,18 +34,29 @@ const updateListingVisited = async (
 ) => {
   const date = new Date();
 
-  // Update the updatedAt field and connect a new Visit record
-  const result = await prisma.listing.update({
-    where: { label: listingId },
-    data: {
-      updatedAt: date,
-      visits: {
-        create: { createdAt: date, source },
+  try {
+    // Update the updatedAt field and connect a new Visit record
+    const result = await prisma.listing.update({
+      where: { label: listingId },
+      data: {
+        updatedAt: date,
+        visits: {
+          create: { createdAt: date, source },
+        },
       },
-    },
-  });
-
-  return result;
+    });
+    return result;
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError) {
+      console.error("Prisma Error: ", e.code);
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "Invalid listing label.",
+        cause: e,
+      });
+    }
+  }
+  return { id: -1 };
 };
 
 export const listingRouter = router({
@@ -184,7 +196,7 @@ export const listingRouter = router({
     .mutation(async ({ input }) => {
       const result = await updateListingVisited(input.label, input.source);
 
-      if (!result.id) {
+      if (!result.id || result.id === -1) {
         return { success: false };
       }
 

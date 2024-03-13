@@ -48,7 +48,7 @@ const Home: NextPage = () => {
   const router = useRouter();
   const listLabel = router.query["list"] as string;
 
-  const { data, isFetching, isSuccess, refetch } =
+  const { data, isError, isFetching, refetch } =
     trpc.listing.get.useQuery<List>(
       { label: listLabel },
       {
@@ -56,6 +56,7 @@ const Home: NextPage = () => {
         refetchInterval: false,
         refetchOnReconnect: false,
         refetchOnWindowFocus: false,
+        retry: false,
         enabled: false,
         trpc: {},
       }
@@ -121,11 +122,11 @@ const Home: NextPage = () => {
   }, [listLabel, refetch]);
 
   useEffect(() => {
-    if (isSuccess) {
+    if (data) {
       setInititalListSize(data.items?.length);
       updateList(data, false);
     }
-  }, [data, data?.items, data?.title, isSuccess, updateList]);
+  }, [data, data?.items, data?.title, updateList]);
 
   useEffect(() => {
     if (textAreaRef.current) {
