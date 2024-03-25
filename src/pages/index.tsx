@@ -5,7 +5,6 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import "react-toastify/dist/ReactToastify.min.css";
-import FeaturedLists from "src/components/FeaturedLists";
 import ListItemsSkeletonLoader from "src/components/ListItemsSkeletonLoader";
 import ListTitle from "src/components/ListTitle";
 import ListTitleEdit from "src/components/ListTitleEdit";
@@ -14,6 +13,8 @@ import Sort from "src/components/Sort";
 import { trpc } from "src/utils/trpc";
 import { v4 as uuidv4 } from "uuid";
 import styles from "../styles/Home.module.css";
+
+const FeaturedLists = dynamic(() => import("../components/FeaturedLists"));
 
 const metaTitle = "misorter";
 const metaDescription =
@@ -48,19 +49,18 @@ const Home: NextPage = () => {
   const router = useRouter();
   const listLabel = router.query["list"] as string;
 
-  const { data, isError, isFetching, refetch } =
-    trpc.listing.get.useQuery<List>(
-      { label: listLabel },
-      {
-        refetchOnMount: false,
-        refetchInterval: false,
-        refetchOnReconnect: false,
-        refetchOnWindowFocus: false,
-        retry: false,
-        enabled: false,
-        trpc: {},
-      }
-    );
+  const { data, isFetching, refetch } = trpc.listing.get.useQuery<List>(
+    { label: listLabel },
+    {
+      refetchOnMount: false,
+      refetchInterval: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
+      retry: false,
+      enabled: false,
+      trpc: {},
+    }
+  );
 
   const createVisit = trpc.listing.createVisit.useMutation();
 
@@ -175,10 +175,9 @@ const Home: NextPage = () => {
         ) : (
           <ListTitle title={title} setEditTitle={setEditTitle} />
         )}
-        <p
-          className={styles.description}
-          dangerouslySetInnerHTML={{ __html: tip }}
-        />
+        <div className={styles.tipContainer}>
+          <p className={styles.tip} dangerouslySetInnerHTML={{ __html: tip }} />
+        </div>
 
         {isFetching && <ListItemsSkeletonLoader />}
 

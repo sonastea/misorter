@@ -32,6 +32,14 @@ const ListItemsSkeletonLoader = () => {
           return <ListItemSkeleton key={index} />;
         })}
       </ul>
+      <div className={`${styles.listButtons} pulse`}>
+        <button className={styles.reset} type="button">
+          Reset
+        </button>
+        <button className={styles.start} type="button">
+          Start
+        </button>
+      </div>
     </>
   );
 };
