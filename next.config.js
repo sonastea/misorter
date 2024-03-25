@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-const withPWA = require("next-pwa")({
+const withPWA = require("@ducanh2912/next-pwa").default({
   disable: process.env.NODE_ENV === "development",
   dest: "public",
 });
@@ -10,8 +10,5 @@ module.exports = withAxiom(
   withPWA({
     reactStrictMode: true,
     swcMinify: true,
-    experimental: {
-      webpackBuildWorker: true,
-    }
   })
 );
