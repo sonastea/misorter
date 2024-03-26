@@ -11,8 +11,13 @@ const nanoid = customAlphabet(
   16
 );
 
-const redis = new Redis(process.env.REDIS_URL as string);
 const RedisExpireTime: number = 7 * (60 * 60 * 24); // expire time in days from seconds
+
+const redis = new Redis(process.env.REDIS_URL as string, {
+  retryStrategy: (times) => Math.min(times * 50, 15000),
+})
+  .on("error", (err) => console.error("Redis error: ", err.message))
+  .on("connect", () => console.log("Redis is connected."));
 
 const ListType = Prisma.validator<Prisma.ListingDefaultArgs>()({
   select: {
