@@ -1,4 +1,9 @@
-import { Dialog } from "@headlessui/react";
+import {
+  Description,
+  Dialog,
+  DialogPanel,
+  DialogTitle,
+} from "@headlessui/react";
 import { useState } from "react";
 import styles from "../styles/ConfirmModal.module.css";
 
@@ -34,16 +39,13 @@ const ConfirmModal = ({
 
       {/* Full-screen container to center the panel */}
       <div className={styles.modal}>
-        <Dialog.Panel className={styles.panel}>
-          <Dialog.Title aria-label={title} className={styles.title}>
+        <DialogPanel className={styles.panel}>
+          <DialogTitle aria-label={title} className={styles.title}>
             {title}
-          </Dialog.Title>
-          <Dialog.Description
-            aria-label={message}
-            className={styles.description}
-          >
+          </DialogTitle>
+          <Description aria-label={message} className={styles.description}>
             {message}
-          </Dialog.Description>
+          </Description>
 
           <div className={styles.buttonContainer}>
             <button
@@ -61,7 +63,7 @@ const ConfirmModal = ({
               Yes
             </button>
           </div>
-        </Dialog.Panel>
+        </DialogPanel>
       </div>
     </Dialog>
   );

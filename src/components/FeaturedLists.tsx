@@ -1,9 +1,18 @@
-import { Dialog, RadioGroup, Transition } from "@headlessui/react";
+import {
+  Description,
+  Dialog,
+  DialogPanel,
+  DialogTitle,
+  Radio,
+  RadioGroup,
+  Transition,
+  TransitionChild,
+} from "@headlessui/react";
 import { List } from "@router/listing";
+import { useRouter } from "next/router";
 import { Dispatch, Fragment, SetStateAction } from "react";
 import { trpc } from "src/utils/trpc";
 import styles from "../styles/FeaturedLists.module.css";
-import { useRouter } from "next/router";
 
 const FeaturedLists = ({
   open,
@@ -39,7 +48,7 @@ const FeaturedLists = ({
       leaveFrom="opacity-100"
       leaveTo="opacity-0"
     >
-      <Transition.Child
+      <TransitionChild
         as={Fragment}
         enter="transition-opacity ease-out duration-300"
         enterFrom="opacity-0"
@@ -49,9 +58,9 @@ const FeaturedLists = ({
         leaveTo="opacity-0"
       >
         <div className={styles.backdrop} aria-hidden="true" />
-      </Transition.Child>
+      </TransitionChild>
 
-      <Transition.Child
+      <TransitionChild
         as={Fragment}
         enter="transition duration-500 ease-out"
         enterFrom="transform scale-95 opacity-0"
@@ -61,9 +70,9 @@ const FeaturedLists = ({
         leaveTo="transform scale-95 opacity-0"
       >
         <Dialog open={open} onClose={toggleOpen} className={styles.dialog}>
-          <Dialog.Panel className={styles.panel}>
+          <DialogPanel className={styles.panel}>
             <div className={styles.header}>
-              <Dialog.Title className={styles.title}>{title}</Dialog.Title>
+              <DialogTitle className={styles.title}>{title}</DialogTitle>
               <button
                 onClick={toggleOpen}
                 type="button"
@@ -114,7 +123,7 @@ const FeaturedLists = ({
                 </svg>
               ) : (
                 data?.map((list) => (
-                  <RadioGroup.Option
+                  <Radio
                     key={list.label}
                     value={list.label}
                     className={({ checked }) => {
@@ -128,7 +137,7 @@ const FeaturedLists = ({
                     }}
                   >
                     {list.title}
-                    <RadioGroup.Description className="text-[0.55rem] sm:text-xs text-light-text-secondary/85 dark:text-dark-text-primary/85 space-x-2 whitespace-nowrap overflow-hidden text-ellipsis">
+                    <Description className="text-[0.55rem] sm:text-xs text-light-text-secondary/85 dark:text-dark-text-primary/85 space-x-2 whitespace-nowrap overflow-hidden text-ellipsis">
                       {list.items.map(
                         (item: { value: string }, index: number) => (
                           <span
@@ -139,8 +148,8 @@ const FeaturedLists = ({
                           </span>
                         )
                       )}
-                    </RadioGroup.Description>
-                  </RadioGroup.Option>
+                    </Description>
+                  </Radio>
                 ))
               )}
             </RadioGroup>
@@ -162,9 +171,9 @@ const FeaturedLists = ({
                 Try it now
               </button>
             </div>
-          </Dialog.Panel>
+          </DialogPanel>
         </Dialog>
-      </Transition.Child>
+      </TransitionChild>
     </Transition>
   );
 };
