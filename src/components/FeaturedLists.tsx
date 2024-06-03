@@ -40,6 +40,7 @@ const FeaturedLists = ({
 
   return (
     <Transition
+      as="div"
       show={open}
       enter="transition duration-500 ease-out"
       enterFrom="opacity-0"
