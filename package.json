@@ -1,6 +1,6 @@
 {
   "name": "misorter",
-  "version": "1.4.10",
+  "version": "1.4.11",
   "private": true,
   "scripts": {
     "dev": "rm public/sw.js & next dev",
@@ -11,16 +11,16 @@
   },
   "dependencies": {
     "@ducanh2912/next-pwa": "^10.2.7",
-    "@headlessui/react": "^2.1.1",
+    "@headlessui/react": "^2.1.2",
     "@headlessui/tailwindcss": "^0.2.1",
     "@prisma/client": "^5.16.1",
-    "@tanstack/react-query": "^5.49.2",
+    "@tanstack/react-query": "^5.50.1",
     "@trpc/client": "^11.0.0-rc.436",
     "@trpc/next": "^11.0.0-rc.436",
     "@trpc/react-query": "^11.0.0-rc.436",
     "@trpc/server": "^11.0.0-rc.436",
     "@upstash/ratelimit": "^1.2.1",
-    "@upstash/redis": "^1.31.6",
+    "@upstash/redis": "^1.32.0",
     "cookies-next": "^4.2.1",
     "crypto-random-string": "^5.0.0",
     "dom-to-image-more": "^3.3.0",
@@ -32,12 +32,12 @@
     "react-query": "^3.39.3",
     "react-toastify": "^10.0.5",
     "superjson": "^2.2.1",
-    "superstruct": "^1.0.4",
+    "superstruct": "^2.0.2",
     "uuid": "^10.0.0"
   },
   "devDependencies": {
     "@types/dom-to-image": "^2.6.7",
-    "@types/node": "^20.14.9",
+    "@types/node": "^20.14.10",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@types/uuid": "^10.0.0",
