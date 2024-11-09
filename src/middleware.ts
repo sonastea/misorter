@@ -1,5 +1,6 @@
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
+import { ipAddress } from "@vercel/functions";
 import { NextFetchEvent, NextRequest, NextResponse } from "next/server";
 
 const ratelimit = new Ratelimit({
@@ -11,7 +12,7 @@ export default async function middleware(
   request: NextRequest,
   event: NextFetchEvent
 ): Promise<Response | undefined> {
-  const ip = request.ip ?? "127.0.0.1";
+  const ip = ipAddress(request) ?? "127.0.0.1";
 
   if (request.nextUrl.pathname === "/api/blocked")
     return NextResponse.next({ request });
