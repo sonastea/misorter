@@ -9,6 +9,5 @@ const { withAxiom } = require("next-axiom");
 module.exports = withAxiom(
   withPWA({
     reactStrictMode: true,
-    swcMinify: true,
   })
 );
