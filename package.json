@@ -1,6 +1,6 @@
 {
   "name": "misorter",
-  "version": "1.4.16",
+  "version": "1.5.0",
   "private": true,
   "scripts": {
     "dev": "rm public/sw.js & next dev",
@@ -37,13 +37,15 @@
     "uuid": "^11.0.3"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.1.0",
+    "@eslint/js": "^9.14.0",
     "@types/dom-to-image": "^2.6.7",
     "@types/node": "^22.9.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@types/uuid": "^10.0.0",
     "autoprefixer": "^10.4.20",
-    "eslint": "^8.57.0",
+    "eslint": "^9.14.0",
     "eslint-config-next": "^15.0.3",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
