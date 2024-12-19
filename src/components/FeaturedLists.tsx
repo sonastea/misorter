@@ -1,6 +1,7 @@
 import {
   Description,
   Dialog,
+  DialogBackdrop,
   DialogPanel,
   DialogTitle,
   Radio,
@@ -42,7 +43,7 @@ const FeaturedLists = ({
     <Transition
       as="div"
       show={open}
-      enter="transition duration-500 ease-out"
+      enter="transition duration-300 ease-out"
       enterFrom="opacity-0"
       enterTo="opacity-100"
       leave="transition duration-200 ease-out"
@@ -51,19 +52,7 @@ const FeaturedLists = ({
     >
       <TransitionChild
         as={Fragment}
-        enter="transition-opacity ease-out duration-300"
-        enterFrom="opacity-0"
-        enterTo="opacity-100"
-        leave="transition-opacity ease-out duration-300"
-        leaveFrom="opacity-100"
-        leaveTo="opacity-0"
-      >
-        <div className={styles.backdrop} aria-hidden="true" />
-      </TransitionChild>
-
-      <TransitionChild
-        as={Fragment}
-        enter="transition duration-500 ease-out"
+        enter="transition duration-300 ease-out"
         enterFrom="transform scale-95 opacity-0"
         enterTo="transform scale-100 opacity-100"
         leave="transition duration-200 ease-out"
@@ -71,6 +60,10 @@ const FeaturedLists = ({
         leaveTo="transform scale-95 opacity-0"
       >
         <Dialog open={open} onClose={toggleOpen} className={styles.dialog}>
+          <DialogBackdrop
+            className="fixed inset-0 bg-white/30 dark:bg-black/30 z-50"
+            aria-label="hidden"
+          />
           <DialogPanel className={styles.panel}>
             <div className={styles.header}>
               <DialogTitle className={styles.title}>{title}</DialogTitle>

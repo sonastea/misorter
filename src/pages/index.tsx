@@ -4,7 +4,6 @@ import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import "react-toastify/dist/ReactToastify.min.css";
 import ListItemsSkeletonLoader from "src/components/ListItemsSkeletonLoader";
 import ListTitle from "src/components/ListTitle";
 import ListTitleEdit from "src/components/ListTitleEdit";
