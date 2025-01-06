@@ -1,6 +1,6 @@
 {
   "name": "misorter",
-  "version": "1.6.7",
+  "version": "1.6.8",
   "private": true,
   "scripts": {
     "dev": "rm public/sw.js & next dev",
@@ -34,7 +34,7 @@
     "react-toastify": "^11.0.2",
     "superjson": "^2.2.2",
     "superstruct": "^2.0.2",
-    "uuid": "^11.0.3"
+    "uuid": "^11.0.4"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
