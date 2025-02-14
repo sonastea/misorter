@@ -1,6 +1,45 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@plugin '@headlessui/tailwindcss' {
+  prefix: 'ui';
+}
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+@theme {
+  --color-light-text-primary: hsl(0, 0%, 5%);
+  --color-light-text-secondary: hsl(0, 0%, 22%);
+  --color-light-bg-primary: #ffffff;
+  --color-light-bg-secondary: hsl(0, 0%, 95%);
+  --color-light-bg-icon: #e6e6e6;
+
+  --color-dark-text-primary: hsl(0, 0%, 95%);
+  --color-dark-bg-primary: #121212;
+  --color-dark-bg-secondary: #202020;
+  --color-dark-bg-tertiary: #313131;
+
+  --color-once: #ff5fa2;
+  --color-once-dark: #ff7fb5;
+  --color-once-hover: #e65692;
+}
+
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+}
 
 @font-face {
   font-family: "Merriweather Sans";
