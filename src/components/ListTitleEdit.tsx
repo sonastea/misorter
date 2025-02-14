@@ -16,7 +16,7 @@ const ListTitleEdit = ({
 }: {
   title: string;
   setTitle: Function;
-  textAreaRef: RefObject<HTMLTextAreaElement>;
+  textAreaRef: RefObject<HTMLTextAreaElement | null>;
   data: Partial<List>;
   listLabel: string;
   oldTitle: string | undefined;
