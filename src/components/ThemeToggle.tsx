@@ -28,12 +28,12 @@ const ThemeToggle = () => {
 
   return (
     <button
-      className="toggle"
+      className="toggle group"
       type="button"
       onClick={() => toggleTheme()}
       title={`Switch between light and dark mode (currently ${theme} mode)`}
     >
-      <span className="toggleIcon">
+      <span className="toggleIcon group-hover:bg-once-hover">
         {theme === "dark" ? <span>🌙</span> : <span>☀️</span>}
       </span>
     </button>
