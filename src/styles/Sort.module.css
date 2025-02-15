@@ -282,7 +282,7 @@
 }
 
 .resultsHeader {
-  color: #ffffff;
+  color: var(--color-text-primary);
   text-align: center;
 }
 

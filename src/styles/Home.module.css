@@ -109,13 +109,13 @@ html[data-theme="light"] .listInput {
   border-style: none;
   border-width: thin;
   place-self: center;
-  background: hsl(0, 0%, 95%);
+  background: var(--color-bg-tertiary);
   box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px 0px;
 }
 
 .inputButton {
   border: none;
-  color: hsl(0, 0%, 95%);
+  color: var(--color-text-secondary);
   background: var(--color-text-once);
   border-top-right-radius: 0.65rem;
   border-bottom-right-radius: 0.65rem;
@@ -447,7 +447,7 @@ html[data-theme="dark"] .tip {
   html[data-theme="light"] .listInput {
     border: 1px solid var(--color-text-primary);
     border-width: thin;
-    background: hsl(0, 0%, 95%);
+    background: var(--color-text-secondary);
     box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px 0px;
     outline: none !important;
   }
