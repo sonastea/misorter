@@ -38,6 +38,7 @@ export const ListType = Prisma.validator<Prisma.ListingDefaultArgs>()({
 
 export const FeaturedLists = Prisma.validator<Prisma.ListingDefaultArgs>()({
   select: {
+    id: true,
     label: true,
     title: true,
     createdAt: true,
