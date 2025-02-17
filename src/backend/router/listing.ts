@@ -11,27 +11,55 @@ const nanoid = customAlphabet(
   16
 );
 
-const RedisExpireTime: number = 7 * (60 * 60 * 24); // expire time in days from seconds
+const TOP_K_LISTS = 3;
+const DAYS_AGO = 5;
 
+const RedisExpireTime: number = 7 * (60 * 60 * 24); // expire time in days from seconds
 const redis = new Redis(process.env.REDIS_URL as string, {
   retryStrategy: (times) => Math.min(times * 50, 15000),
 })
   .on("error", (err) => console.error("Redis error: ", err.message))
   .on("connect", () => console.log("Redis is connected."));
 
-const ListType = Prisma.validator<Prisma.ListingDefaultArgs>()({
+const baseList = {
   select: {
     label: true,
     title: true,
     visits: true,
   },
   include: {
-    items: { select: { value: true } },
+    items: {
+      select: {
+        value: true,
+      },
+    },
   },
-});
-const VisitSourceEnum = enums(["URL", "FEATURED"]);
+} as const;
 
+const featuredList = {
+  ...baseList,
+  select: {
+    ...baseList.select,
+    updatedAt: true,
+    createdAt: true,
+    items: {
+      select: {
+        ...baseList.include.items.select,
+        id: true,
+      },
+    },
+  },
+  include: {
+    ...baseList.include,
+  },
+} as const;
+
+export const ListType = Prisma.validator<Prisma.ListingDefaultArgs>()(baseList);
+export const FeaturedLists =
+  Prisma.validator<Prisma.ListingDefaultArgs>()(featuredList);
 export type List = Prisma.ListingGetPayload<typeof ListType>;
+
+const VisitSourceEnum = enums(["URL", "FEATURED"]);
 
 const updateListingVisited = async (
   listingId: string,
@@ -99,64 +127,49 @@ export const listingRouter = router({
       return list;
     }),
   getFeatured: publicProcedure.query(async () => {
-    const topKLists = 3;
-    let featured: any[] = [];
-    let daysAgo = 5;
-    let kDaysAgo;
+    const kDaysAgo = new Date();
+    kDaysAgo.setDate(kDaysAgo.getDate() - DAYS_AGO);
 
-    kDaysAgo = new Date(new Date().setDate(new Date().getDate() - daysAgo));
-
-    featured = await prisma.listing.findMany({
-      select: {
-        label: true,
-        title: true,
-        items: {
-          select: {
-            id: true,
-            value: true,
+    const getFeatured = async (kDaysAgo: Date) => {
+      const featured = await prisma.listing.findMany({
+        ...FeaturedLists,
+        orderBy: {
+          visits: {
+            _count: "desc",
           },
         },
-      },
-      orderBy: {
-        visits: {
-          _count: "desc",
-        },
-      },
-      where: {
-        createdAt: {
-          gte: kDaysAgo,
-        },
-        visits: {
-          some: {
-            createdAt: {
-              gte: kDaysAgo,
+        where: {
+          createdAt: {
+            gte: kDaysAgo,
+          },
+          visits: {
+            some: {
+              createdAt: {
+                gte: kDaysAgo,
+              },
             },
           },
         },
-      },
-      take: topKLists,
-    });
-
-    if (featured.length < topKLists) {
-      const totalLists = await prisma.listing.count();
-      const skip = Math.floor(Math.random() * totalLists);
-      featured = await prisma.listing.findMany({
-        select: {
-          label: true,
-          title: true,
-          items: {
-            select: {
-              id: true,
-              value: true,
-            },
-          },
-        },
-        skip,
-        take: 3,
+        take: TOP_K_LISTS,
       });
-    }
 
-    return featured;
+      if (featured?.length < TOP_K_LISTS) {
+        const needed = TOP_K_LISTS - featured.length;
+        const excluded = featured.map((list) => list.label);
+        const randomListings = await prisma.listing.findManyRandom(needed, {
+          ...FeaturedLists,
+          where: {
+            label: {
+              notIn: excluded,
+            },
+          },
+        });
+
+        return [...featured, ...randomListings];
+      }
+    };
+
+    return await getFeatured(kDaysAgo);
   }),
   create: publicProcedure
     .input(
