@@ -15,39 +15,51 @@ const TOP_K_LISTS = 3;
 const DAYS_AGO = 5;
 
 const RedisExpireTime: number = 7 * (60 * 60 * 24); // expire time in days from seconds
-
 const redis = new Redis(process.env.REDIS_URL as string, {
   retryStrategy: (times) => Math.min(times * 50, 15000),
 })
   .on("error", (err) => console.error("Redis error: ", err.message))
   .on("connect", () => console.log("Redis is connected."));
 
-const FeaturedLists = Prisma.validator<Prisma.ListingDefaultArgs>()({
-  select: {
-    label: true,
-    title: true,
-    items: {
-      select: {
-        id: true,
-        value: true,
-      },
-    },
-  },
-});
-
-const ListType = Prisma.validator<Prisma.ListingDefaultArgs>()({
+const baseList = {
   select: {
     label: true,
     title: true,
     visits: true,
   },
   include: {
-    items: { select: { value: true } },
+    items: {
+      select: {
+        value: true,
+      },
+    },
   },
-});
-const VisitSourceEnum = enums(["URL", "FEATURED"]);
+} as const;
 
+const featuredList = {
+  ...baseList,
+  select: {
+    ...baseList.select,
+    updatedAt: true,
+    createdAt: true,
+    items: {
+      select: {
+        ...baseList.include.items.select,
+        id: true,
+      },
+    },
+  },
+  include: {
+    ...baseList.include,
+  },
+} as const;
+
+export const ListType = Prisma.validator<Prisma.ListingDefaultArgs>()(baseList);
+export const FeaturedLists =
+  Prisma.validator<Prisma.ListingDefaultArgs>()(featuredList);
 export type List = Prisma.ListingGetPayload<typeof ListType>;
+
+const VisitSourceEnum = enums(["URL", "FEATURED"]);
 
 const updateListingVisited = async (
   listingId: string,

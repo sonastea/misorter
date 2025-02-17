@@ -150,10 +150,11 @@ const FeaturedLists = ({
             <div className={styles.buttonContainer}>
               <button
                 onClick={() => {
-                  updateList(
-                    data?.find((list) => list.label === selectedList),
-                    true
+                  const list = data?.find(
+                    (list) => list.label === selectedList
                   );
+                  if (!list) return;
+                  updateList(list, true);
                   toggleOpen();
                   router.push("/?list=" + selectedList, undefined, {
                     shallow: true,
