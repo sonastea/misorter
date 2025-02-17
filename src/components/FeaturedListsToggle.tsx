@@ -5,12 +5,12 @@ const FeaturedListsToggle = ({
 }) => {
   return (
     <button
-      className="toggle featuredLists"
+      className="toggle featuredLists group"
       type="button"
       onClick={toggleFeaturedLists}
       title="View current featured lists"
     >
-      <span className="toggleIcon">
+      <span className="toggleIcon group-hover:bg-once-hover">
         <span>🔥</span>
       </span>
     </button>
