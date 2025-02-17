@@ -21,7 +21,7 @@ const redis = new Redis(process.env.REDIS_URL as string, {
   .on("error", (err) => console.error("Redis error: ", err.message))
   .on("connect", () => console.log("Redis is connected."));
 
-const baseList = {
+export const ListType = Prisma.validator<Prisma.ListingDefaultArgs>()({
   select: {
     label: true,
     title: true,
@@ -34,29 +34,24 @@ const baseList = {
       },
     },
   },
-} as const;
+});
 
-const featuredList = {
-  ...baseList,
+export const FeaturedLists = Prisma.validator<Prisma.ListingDefaultArgs>()({
   select: {
-    ...baseList.select,
-    updatedAt: true,
+    label: true,
+    title: true,
     createdAt: true,
+    updatedAt: true,
+    visits: true,
     items: {
       select: {
-        ...baseList.include.items.select,
         id: true,
+        value: true,
       },
     },
   },
-  include: {
-    ...baseList.include,
-  },
-} as const;
+});
 
-export const ListType = Prisma.validator<Prisma.ListingDefaultArgs>()(baseList);
-export const FeaturedLists =
-  Prisma.validator<Prisma.ListingDefaultArgs>()(featuredList);
 export type List = Prisma.ListingGetPayload<typeof ListType>;
 
 const VisitSourceEnum = enums(["URL", "FEATURED"]);
