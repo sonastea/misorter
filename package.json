@@ -1,6 +1,6 @@
 {
   "name": "misorter",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "private": true,
   "scripts": {
     "dev": "rm public/sw.js & next dev",
@@ -28,6 +28,7 @@
     "ioredis": "^5.5.0",
     "next": "^15.1.7",
     "next-axiom": "^1.9.1",
+    "prisma-extension-random": "^0.2.2",
     "react-toastify": "^11.0.3",
     "superjson": "^2.2.2",
     "superstruct": "^2.0.2",
