@@ -1,6 +1,6 @@
 {
   "name": "misorter",
-  "version": "1.7.2",
+  "version": "1.7.3",
   "private": true,
   "scripts": {
     "dev": "rm public/sw.js & next dev",
@@ -13,8 +13,8 @@
     "@ducanh2912/next-pwa": "^10.2.9",
     "@headlessui/react": "^2.2.0",
     "@headlessui/tailwindcss": "^0.2.2",
-    "@prisma/client": "^6.4.0",
-    "@tanstack/react-query": "^5.66.7",
+    "@prisma/client": "^6.4.1",
+    "@tanstack/react-query": "^5.66.8",
     "@trpc/client": "^11.0.0-rc.795",
     "@trpc/next": "^11.0.0-rc.795",
     "@trpc/react-query": "^11.0.0-rc.795",
@@ -50,7 +50,7 @@
     "nanoid": "^5.1.0",
     "postcss": "^8.5.3",
     "prettier": "^3.5.1",
-    "prisma": "^6.4.0",
+    "prisma": "^6.4.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwindcss": "^4.0.6",
