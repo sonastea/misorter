@@ -1,6 +1,6 @@
 {
   "name": "misorter",
-  "version": "1.7.6",
+  "version": "1.7.7",
   "private": true,
   "scripts": {
     "dev": "rm public/sw.js & next dev",
@@ -26,7 +26,7 @@
     "crypto-random-string": "^5.0.0",
     "dom-to-image-more": "^3.5.0",
     "ioredis": "^5.5.0",
-    "next": "^15.1.7",
+    "next": "^15.2.0",
     "next-axiom": "^1.9.1",
     "prisma-extension-random": "^0.2.2",
     "react-toastify": "^11.0.5",
@@ -37,15 +37,15 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.0",
     "@eslint/js": "^9.21.0",
-    "@tailwindcss/postcss": "^4.0.8",
+    "@tailwindcss/postcss": "^4.0.9",
     "@types/dom-to-image": "^2.6.7",
     "@types/node": "^22.13.5",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@types/uuid": "^10.0.0",
     "eslint": "^9.21.0",
-    "eslint-config-next": "^15.1.7",
-    "eslint-config-prettier": "^10.0.1",
+    "eslint-config-next": "^15.2.0",
+    "eslint-config-prettier": "^10.0.2",
     "eslint-plugin-prettier": "^5.2.3",
     "nanoid": "^5.1.2",
     "postcss": "^8.5.3",
@@ -53,7 +53,7 @@
     "prisma": "^6.4.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "tailwindcss": "^4.0.8",
+    "tailwindcss": "^4.0.9",
     "typescript": "^5.7.3"
   }
 }
