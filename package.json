@@ -1,6 +1,6 @@
 {
   "name": "misorter",
-  "version": "1.7.9",
+  "version": "1.7.10",
   "private": true,
   "scripts": {
     "dev": "rm public/sw.js & next dev",
@@ -39,7 +39,7 @@
     "@eslint/js": "^9.21.0",
     "@tailwindcss/postcss": "^4.0.9",
     "@types/dom-to-image": "^2.6.7",
-    "@types/node": "^22.13.7",
+    "@types/node": "^22.13.8",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@types/uuid": "^10.0.0",
