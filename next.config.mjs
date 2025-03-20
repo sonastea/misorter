@@ -1,9 +1,11 @@
+// @ts-check
 import { withAxiom } from "next-axiom";
 
-const nextConfig = withAxiom(
-  withPWA({
-    reactStrictMode: true,
-  })
-);
+/**
+ * @type {import('next').NextConfig}
+ */
+const nextConfig = {
+  reactStrictMode: true,
+};
 
-export default nextConfig;
+export default withAxiom(nextConfig);
