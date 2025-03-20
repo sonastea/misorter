@@ -1,7 +1,9 @@
 import { withAxiom } from "next-axiom";
 
-module.exports = withAxiom(
+const nextConfig = withAxiom(
   withPWA({
     reactStrictMode: true,
   })
 );
+
+export default nextConfig;
