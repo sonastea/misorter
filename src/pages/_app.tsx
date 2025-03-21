@@ -39,4 +39,5 @@ function MyApp({ Component, pageProps }: AppProps) {
   );
 }
 
+export { withAxiom } from "next-axiom";
 export default trpc.withTRPC(MyApp);
