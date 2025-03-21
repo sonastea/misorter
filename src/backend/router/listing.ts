@@ -5,6 +5,7 @@ import Redis from "ioredis";
 import { customAlphabet } from "nanoid";
 import { publicProcedure, router } from "src/backend/trpc";
 import { array, enums, object, string } from "superstruct";
+import { log } from "next-axiom";
 
 const nanoid = customAlphabet(
   "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
@@ -198,6 +199,8 @@ export const listingRouter = router({
         })
         .finally(async () => await updateListingVisited(newLabel, "FEATURED"));
 
+      log.info("created list", { label: newLabel, title: input.title });
+
       return list;
     }),
   createVisit: publicProcedure
@@ -209,6 +212,11 @@ export const listingRouter = router({
     )
     .mutation(async ({ input }) => {
       const result = await updateListingVisited(input.label, input.source);
+
+      log.info("visited list", {
+        label: input.label,
+        visit_source: input.source,
+      });
 
       if (!result.id || result.id === -1) {
         return { success: false };
@@ -223,7 +231,7 @@ export const listingRouter = router({
         title: string(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const updatedList = await prisma.listing.update({
         where: { label: input.label },
         data: { title: input.title },
@@ -236,6 +244,8 @@ export const listingRouter = router({
         },
       });
       await redis.set(input.label, JSON.stringify(updatedList), "KEEPTTL");
+
+      log.info("update list title", { label: input.label, title: input.title });
 
       return updatedList;
     }),
