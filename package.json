@@ -1,6 +1,6 @@
 {
   "name": "misorter",
-  "version": "1.7.17",
+  "version": "1.7.18",
   "private": true,
   "scripts": {
     "dev": "rm public/sw.js & next dev",
@@ -35,9 +35,9 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.23.0",
-    "@tailwindcss/postcss": "^4.0.16",
+    "@tailwindcss/postcss": "^4.0.17",
     "@types/dom-to-image": "^2.6.7",
-    "@types/node": "^22.13.13",
+    "@types/node": "^22.13.14",
     "@types/react": "^19.0.12",
     "@types/react-dom": "^19.0.4",
     "@types/uuid": "^10.0.0",
@@ -52,7 +52,7 @@
     "prisma": "^6.5.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "tailwindcss": "^4.0.16",
+    "tailwindcss": "^4.0.17",
     "typescript": "^5.8.2"
   }
 }
