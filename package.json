@@ -1,6 +1,6 @@
 {
   "name": "misorter",
-  "version": "1.7.41",
+  "version": "1.7.42",
   "private": true,
   "scripts": {
     "dev": "rm public/sw.js & next dev",
@@ -37,7 +37,7 @@
     "@eslint/js": "^9.29.0",
     "@tailwindcss/postcss": "^4.1.10",
     "@types/dom-to-image": "^2.6.7",
-    "@types/node": "^24.0.3",
+    "@types/node": "^24.0.4",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@types/uuid": "^10.0.0",
@@ -48,7 +48,7 @@
     "nanoid": "^5.1.5",
     "next-axiom": "^1.9.1",
     "postcss": "^8.5.6",
-    "prettier": "^3.5.3",
+    "prettier": "^3.6.0",
     "prisma": "^6.10.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
