@@ -1,6 +1,6 @@
 {
   "name": "misorter",
-  "version": "1.7.51",
+  "version": "1.7.52",
   "private": true,
   "scripts": {
     "dev": "rm public/sw.js & next dev",
@@ -20,7 +20,7 @@
     "@trpc/server": "^11.4.3",
     "@upstash/ratelimit": "^2.0.5",
     "@upstash/redis": "^1.35.1",
-    "@vercel/functions": "^2.2.3",
+    "@vercel/functions": "^2.2.4",
     "cookies-next": "^6.1.0",
     "crypto-random-string": "^5.0.0",
     "dom-to-image-more": "^3.6.0",
