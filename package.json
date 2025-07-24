@@ -1,6 +1,6 @@
 {
   "name": "misorter",
-  "version": "1.7.54",
+  "version": "1.7.55",
   "private": true,
   "scripts": {
     "dev": "rm public/sw.js & next dev",
@@ -10,7 +10,7 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
-    "@headlessui/react": "^2.2.4",
+    "@headlessui/react": "^2.2.5",
     "@headlessui/tailwindcss": "^0.2.2",
     "@prisma/client": "^6.12.0",
     "@tanstack/react-query": "^5.83.0",
