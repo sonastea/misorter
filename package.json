@@ -1,6 +1,6 @@
 {
   "name": "misorter",
-  "version": "1.7.56",
+  "version": "1.7.57",
   "private": true,
   "scripts": {
     "dev": "rm public/sw.js & next dev",
@@ -20,7 +20,7 @@
     "@trpc/server": "^11.4.3",
     "@upstash/ratelimit": "^2.0.6",
     "@upstash/redis": "^1.35.1",
-    "@vercel/functions": "^2.2.4",
+    "@vercel/functions": "^2.2.5",
     "cookies-next": "^6.1.0",
     "crypto-random-string": "^5.0.0",
     "dom-to-image-more": "^3.6.0",
@@ -34,14 +34,14 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
-    "@eslint/js": "^9.31.0",
+    "@eslint/js": "^9.32.0",
     "@tailwindcss/postcss": "^4.1.11",
     "@types/dom-to-image": "^2.6.7",
     "@types/node": "^24.1.0",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@types/uuid": "^10.0.0",
-    "eslint": "^9.31.0",
+    "eslint": "^9.32.0",
     "eslint-config-next": "^15.4.4",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.3",
