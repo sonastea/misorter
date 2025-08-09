@@ -1,6 +1,6 @@
 {
   "name": "misorter",
-  "version": "1.7.63",
+  "version": "1.7.64",
   "private": true,
   "scripts": {
     "dev": "rm public/sw.js & next dev",
@@ -13,7 +13,7 @@
     "@headlessui/react": "^2.2.7",
     "@headlessui/tailwindcss": "^0.2.2",
     "@prisma/client": "^6.13.0",
-    "@tanstack/react-query": "^5.84.1",
+    "@tanstack/react-query": "^5.84.2",
     "@trpc/client": "^11.4.4",
     "@trpc/next": "^11.4.4",
     "@trpc/react-query": "^11.4.4",
@@ -23,7 +23,7 @@
     "@vercel/functions": "^2.2.8",
     "cookies-next": "^6.1.0",
     "crypto-random-string": "^5.0.0",
-    "dom-to-image-more": "^3.6.0",
+    "dom-to-image-more": "^3.6.3",
     "ioredis": "^5.7.0",
     "next": "^15.4.6",
     "prisma-extension-random": "^0.2.2",
@@ -34,10 +34,10 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
-    "@eslint/js": "^9.32.0",
+    "@eslint/js": "^9.33.0",
     "@tailwindcss/postcss": "^4.1.11",
     "@types/dom-to-image": "^2.6.7",
-    "@types/node": "^24.2.0",
+    "@types/node": "^24.2.1",
     "@types/react": "^19.1.9",
     "@types/react-dom": "^19.1.7",
     "@types/uuid": "^10.0.0",
