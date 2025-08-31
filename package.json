@@ -1,6 +1,6 @@
 {
   "name": "misorter",
-  "version": "1.8.4",
+  "version": "1.8.5",
   "private": true,
   "scripts": {
     "dev": "rm public/sw.js & next dev",
@@ -13,7 +13,7 @@
     "@headlessui/react": "^2.2.7",
     "@headlessui/tailwindcss": "^0.2.2",
     "@prisma/client": "^6.15.0",
-    "@tanstack/react-query": "^5.85.5",
+    "@tanstack/react-query": "^5.85.6",
     "@trpc/client": "^11.5.0",
     "@trpc/next": "^11.5.0",
     "@trpc/react-query": "^11.5.0",
