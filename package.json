@@ -1,6 +1,6 @@
 {
   "name": "misorter",
-  "version": "1.8.6",
+  "version": "1.8.7",
   "private": true,
   "scripts": {
     "dev": "rm public/sw.js & next dev",
@@ -13,11 +13,11 @@
     "@headlessui/react": "^2.2.7",
     "@headlessui/tailwindcss": "^0.2.2",
     "@prisma/client": "^6.15.0",
-    "@tanstack/react-query": "^5.85.9",
-    "@trpc/client": "^11.5.0",
-    "@trpc/next": "^11.5.0",
-    "@trpc/react-query": "^11.5.0",
-    "@trpc/server": "^11.5.0",
+    "@tanstack/react-query": "^5.87.1",
+    "@trpc/client": "^11.5.1",
+    "@trpc/next": "^11.5.1",
+    "@trpc/react-query": "^11.5.1",
+    "@trpc/server": "^11.5.1",
     "@upstash/ratelimit": "^2.0.6",
     "@upstash/redis": "^1.35.3",
     "@vercel/functions": "^3.0.0",
@@ -30,18 +30,18 @@
     "react-toastify": "^11.0.5",
     "superjson": "^2.2.2",
     "superstruct": "^2.0.2",
-    "uuid": "^11.1.0"
+    "uuid": "^12.0.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
-    "@eslint/js": "^9.34.0",
-    "@tailwindcss/postcss": "^4.1.12",
+    "@eslint/js": "^9.35.0",
+    "@tailwindcss/postcss": "^4.1.13",
     "@types/dom-to-image": "^2.6.7",
-    "@types/node": "^24.3.0",
+    "@types/node": "^24.3.1",
     "@types/react": "^19.1.12",
     "@types/react-dom": "^19.1.9",
     "@types/uuid": "^10.0.0",
-    "eslint": "^9.34.0",
+    "eslint": "^9.35.0",
     "eslint-config-next": "^15.5.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
@@ -52,7 +52,7 @@
     "prisma": "^6.15.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "tailwindcss": "^4.1.12",
+    "tailwindcss": "^4.1.13",
     "typescript": "^5.9.2"
   }
 }
