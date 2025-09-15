@@ -1,6 +1,6 @@
 {
   "name": "misorter",
-  "version": "1.8.8",
+  "version": "1.8.9",
   "private": true,
   "scripts": {
     "dev": "rm public/sw.js & next dev",
@@ -10,7 +10,7 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
-    "@headlessui/react": "^2.2.7",
+    "@headlessui/react": "^2.2.8",
     "@headlessui/tailwindcss": "^0.2.2",
     "@prisma/client": "^6.16.1",
     "@tanstack/react-query": "^5.87.4",
@@ -37,8 +37,8 @@
     "@eslint/js": "^9.35.0",
     "@tailwindcss/postcss": "^4.1.13",
     "@types/dom-to-image": "^2.6.7",
-    "@types/node": "^24.3.1",
-    "@types/react": "^19.1.12",
+    "@types/node": "^24.4.0",
+    "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
     "@types/uuid": "^10.0.0",
     "eslint": "^9.35.0",
