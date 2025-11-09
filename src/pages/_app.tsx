@@ -4,7 +4,7 @@ import Script from "next/script";
 import ThemeToggle from "src/components/ThemeToggle";
 import ToastContainer from "src/components/ToastContainer";
 import { trpc } from "src/utils/trpc";
-import "../styles/globals.css";
+import "../styles.css";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
