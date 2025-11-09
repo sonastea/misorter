@@ -19,7 +19,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       </Head>
       <Script
         async
-        src="https://umami-sonastea.vercel.app/script.js"
+        src="https://analytics.sonastea.com/script.js"
         data-cache="true"
         data-domains="www.misorter.com,misorter.com"
         data-website-id="9147fb3a-6922-4859-8bb8-d98d54ebc2fa"
