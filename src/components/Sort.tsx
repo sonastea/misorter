@@ -42,6 +42,7 @@ const Sort = ({
   const [option1, setOption1] = useState<string>("");
   const [option2, setOption2] = useState<string>("");
   const ref = useRef<HTMLTableElement>(null);
+  const currentListRef = useRef<ListItem[]>(ogList);
 
   let code: string | null = "";
 
@@ -144,217 +145,130 @@ const Sort = ({
   function initList() {
     let n = 0;
     let mid;
-    let i;
 
-    //The sequence that you should sort
-    lstMember[n] = [];
+    // Clear previous state completely
+    lstMember.length = 0;
+    parent.length = 0;
+    equal.length = 0;
+    rec.length = 0;
 
-    for (i = 0; i < ogList.length; i++) {
-      lstMember[n][i] = i;
-    }
-
+    // The sequence that you should sort
+    lstMember[n] = Array.from({ length: ogList.length }, (_, i) => i);
     parent[n] = -1;
-
     totalSize = 0;
-
     n++;
 
-    for (i = 0; i < lstMember.length; i++) {
-      //And element divides it in two/more than two
-      //Increase divided sequence of last in first member
+    for (let i = 0; i < lstMember.length; i++) {
+      // And element divides it in two/more than two
+      // Increase divided sequence of last in first member
       if (lstMember[i].length >= 2) {
         mid = Math.ceil(lstMember[i].length / 2);
 
-        lstMember[n] = [];
-
         lstMember[n] = lstMember[i].slice(0, mid);
-
         totalSize += lstMember[n].length;
-
         parent[n] = i;
-
         n++;
 
-        lstMember[n] = [];
-
-        lstMember[n] = lstMember[i].slice(mid, lstMember[i].length);
-
+        lstMember[n] = lstMember[i].slice(mid);
         totalSize += lstMember[n].length;
-
         parent[n] = i;
-
         n++;
       }
     }
 
-    //Preserve this sequence
-    for (i = 0; i < ogList.length; i++) {
-      rec[i] = 0;
-    }
-
+    // Preserve this sequence
+    rec.length = ogList.length;
+    rec.fill(0);
     nrec = 0;
 
-    //List that keeps your results
+    // List that keeps your results
     // Value of link initial
-    for (i = 0; i <= ogList.length; i++) {
-      equal[i] = -1;
-    }
+    equal.length = ogList.length + 1;
+    equal.fill(-1);
 
     cmp1 = lstMember.length - 2;
-
     cmp2 = lstMember.length - 1;
-
     head1 = 0;
-
     head2 = 0;
-
     numQuestion = 1;
-
     finishSize = 0;
-
     finishFlag = 0;
   }
 
+  // Helper function to add element and its equal chain to rec
+  function addToRecWithEquals(listIndex: number, headRef: { value: number }) {
+    rec[nrec++] =
+      listIndex === 1
+        ? lstMember[cmp1][headRef.value++]
+        : lstMember[cmp2][headRef.value++];
+    finishSize++;
+
+    while (equal[rec[nrec - 1]] !== -1) {
+      rec[nrec++] =
+        listIndex === 1
+          ? lstMember[cmp1][headRef.value++]
+          : lstMember[cmp2][headRef.value++];
+      finishSize++;
+    }
+  }
+
   function sortList(flag: number) {
-    let i;
-    let str;
+    const head1Ref = { value: head1 };
+    const head2Ref = { value: head2 };
 
-    //rec preservation
+    // rec preservation
     if (flag < 0) {
-      rec[nrec] = lstMember[cmp1][head1];
-
-      head1++;
-
-      nrec++;
-
-      finishSize++;
-
-      while (equal[rec[nrec - 1]] !== -1) {
-        rec[nrec] = lstMember[cmp1][head1];
-
-        head1++;
-
-        nrec++;
-
-        finishSize++;
-      }
+      addToRecWithEquals(1, head1Ref);
     } else if (flag > 0) {
-      rec[nrec] = lstMember[cmp2][head2];
-
-      head2++;
-
-      nrec++;
-
-      finishSize++;
-
-      while (equal[rec[nrec - 1]] !== -1) {
-        rec[nrec] = lstMember[cmp2][head2];
-
-        head2++;
-
-        nrec++;
-
-        finishSize++;
-      }
+      addToRecWithEquals(2, head2Ref);
     } else {
-      rec[nrec] = lstMember[cmp1][head1];
-
-      head1++;
-
-      nrec++;
-
-      finishSize++;
-
-      while (equal[rec[nrec - 1]] !== -1) {
-        rec[nrec] = lstMember[cmp1][head1];
-
-        head1++;
-
-        nrec++;
-
-        finishSize++;
-      }
-
-      equal[rec[nrec - 1]] = lstMember[cmp2][head2];
-
-      rec[nrec] = lstMember[cmp2][head2];
-
-      head2++;
-
-      nrec++;
-
-      finishSize++;
-
-      while (equal[rec[nrec - 1]] !== -1) {
-        rec[nrec] = lstMember[cmp2][head2];
-
-        head2++;
-
-        nrec++;
-
-        finishSize++;
-      }
+      addToRecWithEquals(1, head1Ref);
+      equal[rec[nrec - 1]] = lstMember[cmp2][head2Ref.value];
+      addToRecWithEquals(2, head2Ref);
     }
 
-    //Processing after finishing with one list
+    head1 = head1Ref.value;
+    head2 = head2Ref.value;
+
+    // Processing after finishing with one list
     if (head1 < lstMember[cmp1].length && head2 === lstMember[cmp2].length) {
-      //List the remainder of cmp2 copies, list cmp1 copies when finished scanning
+      // List the remainder of cmp2 copies, list cmp1 copies when finished scanning
       while (head1 < lstMember[cmp1].length) {
-        rec[nrec] = lstMember[cmp1][head1];
-
-        head1++;
-
-        nrec++;
-
+        rec[nrec++] = lstMember[cmp1][head1++];
         finishSize++;
       }
     } else if (
       head1 === lstMember[cmp1].length &&
       head2 < lstMember[cmp2].length
     ) {
-      //List the remainder of cmp1 copies, list cmp2 copies when finished scanning
+      // List the remainder of cmp1 copies, list cmp2 copies when finished scanning
       while (head2 < lstMember[cmp2].length) {
-        rec[nrec] = lstMember[cmp2][head2];
-
-        head2++;
-
-        nrec++;
-
+        rec[nrec++] = lstMember[cmp2][head2++];
         finishSize++;
       }
     }
 
-    //When it arrives at the end of both lists
-    //Update a pro list
+    // When it arrives at the end of both lists
+    // Update a pro list
     if (head1 === lstMember[cmp1].length && head2 === lstMember[cmp2].length) {
-      for (i = 0; i < lstMember[cmp1].length + lstMember[cmp2].length; i++) {
-        lstMember[parent[cmp1]][i] = rec[i];
-      }
+      const mergedLength = lstMember[cmp1].length + lstMember[cmp2].length;
+      lstMember[parent[cmp1]] = rec.slice(0, mergedLength);
 
       lstMember.pop();
-
       lstMember.pop();
 
-      cmp1 = cmp1 - 2;
-
-      cmp2 = cmp2 - 2;
-
+      cmp1 -= 2;
+      cmp2 -= 2;
       head1 = 0;
-
       head2 = 0;
 
-      //Initialize the rec before performing the new comparison
-      if (head1 === 0 && head2 === 0) {
-        for (i = 0; i < ogList.length; i++) {
-          rec[i] = 0;
-        }
-
-        nrec = 0;
-      }
+      // Initialize the rec before performing the new comparison
+      rec.fill(0);
+      nrec = 0;
     }
 
     if (cmp1 < 0) {
-      str =
+      const str =
         "battle #" +
         (numQuestion - 1) +
         "<br>" +
@@ -371,7 +285,11 @@ const Sort = ({
     }
   }
 
-  //Populate the boxes with items to compare
+  function toNameFace(n: number) {
+    return ogList[n]?.value;
+  }
+
+  // Populate the boxes with items to compare
   function showSortable() {
     const str0 =
       "battle #" +
@@ -393,15 +311,21 @@ const Sort = ({
     numQuestion++;
   }
 
-  function toNameFace(n: number) {
-    return ogList[n]?.value;
-  }
-
   useEffect(() => {
+    // Update the ref to track current list
+    currentListRef.current = ogList;
+
+    // Reset UI state when list changes
+    setFinishedSort(false);
+    setShowResults(false);
+    setOption1("");
+    setOption2("");
+
     initList();
     showSortable();
+    // We want this to run whenever ogList changes (new featured list selected)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [ogList]);
 
   const ResultsItem = ({
     ranking,
@@ -423,13 +347,36 @@ const Sort = ({
     let sameRank: number = 1;
     const resultsItems: ReactElement<typeof ResultsItem>[] = [];
 
+    // Safety check: ensure data is valid and consistent
+    // lstMember[0] should exist, have the right length, and all indices should be valid
+    if (
+      !lstMember[0] ||
+      lstMember[0].length !== ogList.length ||
+      !finishedSort ||
+      ogList !== currentListRef.current
+    ) {
+      return null;
+    }
+
     for (let i = 0; i < ogList.length; i++) {
+      const itemIndex = lstMember[0][i];
+
+      // Safety check: ensure the index is valid
+      if (itemIndex === undefined || itemIndex >= ogList.length) {
+        console.error(`Invalid index ${itemIndex} at position ${i}`);
+        return null;
+      }
+
+      const item = ogList[itemIndex];
+
+      // Safety check: ensure the item exists
+      if (!item) {
+        console.error(`Item not found at index ${itemIndex}`);
+        return null;
+      }
+
       resultsItems.push(
-        <ResultsItem
-          key={i}
-          ranking={ranking}
-          item={ogList[lstMember[0][i]].value}
-        />
+        <ResultsItem key={i} ranking={ranking} item={item.value} />
       );
 
       if (i < ogList.length - 1) {

@@ -231,7 +231,7 @@ export const listingRouter = router({
         title: string(),
       })
     )
-    .mutation(async ({ input, _ctx }) => {
+    .mutation(async ({ input }) => {
       const updatedList = await prisma.listing.update({
         where: { label: input.label },
         data: { title: input.title },
