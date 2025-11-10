@@ -164,6 +164,8 @@ export const listingRouter = router({
 
         return [...featured, ...randomListings];
       }
+
+      return featured;
     };
 
     return await getFeatured(kDaysAgo);
