@@ -1,6 +1,6 @@
 {
   "name": "misorter",
-  "version": "1.8.9",
+  "version": "1.9.0",
   "private": true,
   "scripts": {
     "dev": "rm public/sw.js & next dev",
