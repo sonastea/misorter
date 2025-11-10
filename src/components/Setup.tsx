@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { useRouter } from "next/router";
 import { ChangeEvent, KeyboardEvent } from "react";
 import { toast } from "react-toastify";
@@ -163,12 +162,30 @@ const Setup = ({
         </button>
         <button className="home-start" onClick={checkList}>
           {creatingList ? (
-            <Image
-              src="/images/oval.svg"
-              height={24}
-              width={24}
-              alt="Loading"
-            />
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 38 38"
+              xmlns="http://www.w3.org/2000/svg"
+              stroke="currentColor"
+              aria-label="Loading"
+            >
+              <g fill="none" fillRule="evenodd">
+                <g transform="translate(1 1)" strokeWidth="2">
+                  <circle strokeOpacity=".5" cx="18" cy="18" r="18" />
+                  <path d="M36 18c0-9.94-8.06-18-18-18">
+                    <animateTransform
+                      attributeName="transform"
+                      type="rotate"
+                      from="0 18 18"
+                      to="360 18 18"
+                      dur="1s"
+                      repeatCount="indefinite"
+                    />
+                  </path>
+                </g>
+              </g>
+            </svg>
           ) : (
             "Start"
           )}
