@@ -31,12 +31,13 @@ const FeaturedLists = ({
 }) => {
   const router = useRouter();
 
-  const { data, isLoading } = trpc.listing.getFeatured.useQuery(undefined, {
-    refetchOnMount: false,
-    refetchInterval: false,
-    refetchOnReconnect: false,
-    refetchOnWindowFocus: false,
-  });
+  const { data, isLoading, refetch, isFetching } =
+    trpc.listing.getFeatured.useQuery(undefined, {
+      refetchOnMount: false,
+      refetchInterval: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
+    });
 
   return (
     <Transition
@@ -70,27 +71,55 @@ const FeaturedLists = ({
           <DialogPanel className="featuredLists-panel">
             <div className="featuredLists-header">
               <DialogTitle className="featuredLists-title">{title}</DialogTitle>
-              <button
-                onClick={toggleOpen}
-                type="button"
-                className="featuredLists-close ui-focus-visible:ring-once-hover dark:ui-focus-visible:ring-once ui-focus-visible:ring-2 focus:outline-hidden"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="featuredLists-closeIcon"
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    refetch({ cancelRefetch: false });
+                  }}
+                  type="button"
+                  className="featuredLists-close ui-focus-visible:ring-once-hover dark:ui-focus-visible:ring-once ui-focus-visible:ring-2 focus:outline-hidden disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Refresh featured lists"
+                  disabled={isFetching}
                 >
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className={`featuredLists-closeIcon ${isFetching ? "animate-spin" : ""}`}
+                  >
+                    <polyline points="23 4 23 10 17 10"></polyline>
+                    <polyline points="1 20 1 14 7 14"></polyline>
+                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                  </svg>
 
-                <span className="sr-only">Close modal</span>
-              </button>
+                  <span className="sr-only">Refresh featured lists</span>
+                </button>
+                <button
+                  onClick={toggleOpen}
+                  type="button"
+                  className="featuredLists-close ui-focus-visible:ring-once-hover dark:ui-focus-visible:ring-once ui-focus-visible:ring-2 focus:outline-hidden"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="featuredLists-closeIcon"
+                  >
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+
+                  <span className="sr-only">Close featured lists modal</span>
+                </button>
+              </div>
             </div>
             <RadioGroup
               className="featuredLists-listContainer"

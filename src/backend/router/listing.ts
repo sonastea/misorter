@@ -13,6 +13,7 @@ const nanoid = customAlphabet(
 );
 
 const TOP_K_LISTS = 3;
+const CANDIDATE_POOL_SIZE = 10;
 const DAYS_AGO = 5;
 
 const RedisExpireTime: number = 7 * (60 * 60 * 24); // expire time in days from seconds
@@ -128,22 +129,14 @@ export const listingRouter = router({
     kDaysAgo.setDate(kDaysAgo.getDate() - DAYS_AGO);
 
     const getFeatured = async (kDaysAgo: Date) => {
-      const featured = await prisma.listing.findMany({
+      const popularCandidates = await prisma.listing.findMany({
         ...FeaturedLists,
-        orderBy: [
-          {
-            visits: {
-              _count: "desc",
-            },
+        orderBy: {
+          visits: {
+            _count: "desc",
           },
-          {
-            id: "desc",
-          },
-        ],
+        },
         where: {
-          createdAt: {
-            gte: kDaysAgo,
-          },
           visits: {
             some: {
               createdAt: {
@@ -152,26 +145,29 @@ export const listingRouter = router({
             },
           },
         },
-        take: TOP_K_LISTS,
-        distinct: ["id"],
+        take: CANDIDATE_POOL_SIZE,
       });
 
-      if (featured?.length < TOP_K_LISTS) {
-        const needed = TOP_K_LISTS - featured.length;
-        const excluded = featured.map((list) => list.label);
-        const randomListings = await prisma.listing.findManyRandom(needed, {
-          ...FeaturedLists,
-          where: {
-            label: {
-              notIn: excluded,
-            },
+      const shuffledPopular = [...popularCandidates].sort(
+        () => Math.random() - 0.5
+      );
+      const popularList = shuffledPopular.slice(
+        0,
+        Math.min(1, popularCandidates.length)
+      );
+
+      const excluded = popularList.map((list) => list.label);
+      const needed = TOP_K_LISTS - popularList.length;
+      const randomLists = await prisma.listing.findManyRandom(needed, {
+        ...FeaturedLists,
+        where: {
+          label: {
+            notIn: excluded,
           },
-        });
+        },
+      });
 
-        return [...featured, ...randomListings];
-      }
-
-      return featured;
+      return [...popularList, ...randomLists];
     };
 
     return await getFeatured(kDaysAgo);
