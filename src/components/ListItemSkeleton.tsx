@@ -1,11 +1,9 @@
-import styles from "../styles/Home.module.css";
-
 const ListItemSkeleton = () => {
   return (
-    <li className={styles.item}>
+    <li className="home-item">
       <p>&#8205;</p>
       <svg
-        className={styles.removeItem}
+        className="home-removeItem"
         style={{ width: "1.75em", height: "1.75em", opacity: "0.1" }}
         viewBox="0 0 24 24"
       >

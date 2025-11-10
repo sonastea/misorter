@@ -1,5 +1,3 @@
-import styles from "../styles/Home.module.css";
-
 const ListTitle = ({
   title,
   setEditTitle,
@@ -8,9 +6,9 @@ const ListTitle = ({
   setEditTitle: Function;
 }) => {
   return (
-    <div className={styles.titleContainer}>
+    <div className="home-titleContainer">
       <span
-        className={styles.title}
+        className="home-title"
         onDoubleClick={() => setEditTitle(true)}
         title={title}
       >
@@ -19,7 +17,7 @@ const ListTitle = ({
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
-        className={styles.editTitleButton}
+        className="home-editTitleButton"
         onClick={() => setEditTitle(true)}
       >
         <path

@@ -5,7 +5,6 @@ import {
   DialogTitle,
 } from "@headlessui/react";
 import { useState } from "react";
-import styles from "../styles/ConfirmModal.module.css";
 
 const ConfirmModal = ({
   title,
@@ -33,31 +32,38 @@ const ConfirmModal = ({
   };
 
   return (
-    <Dialog className={styles.dialog} open={isOpen} onClose={handleCancel}>
+    <Dialog
+      className="confirmModal-dialog"
+      open={isOpen}
+      onClose={handleCancel}
+    >
       {/* The backdrop, rendered as a fixed sibling to the panel container */}
-      <div className={styles.backdrop} aria-hidden="true" />
+      <div className="confirmModal-backdrop" aria-hidden="true" />
 
       {/* Full-screen container to center the panel */}
-      <div className={styles.modal}>
-        <DialogPanel className={styles.panel}>
-          <DialogTitle aria-label={title} className={styles.title}>
+      <div className="confirmModal-modal">
+        <DialogPanel className="confirmModal-panel">
+          <DialogTitle aria-label={title} className="confirmModal-title">
             {title}
           </DialogTitle>
-          <Description aria-label={message} className={styles.description}>
+          <Description
+            aria-label={message}
+            className="confirmModal-description"
+          >
             {message}
           </Description>
 
-          <div className={styles.buttonContainer}>
+          <div className="confirmModal-buttonContainer">
             <button
               aria-label="Cancel Button"
-              className={styles.cancel}
+              className="confirmModal-cancel"
               onClick={handleCancel}
             >
               Cancel
             </button>
             <button
               aria-label="Confirm Button"
-              className={styles.confirm}
+              className="confirmModal-confirm"
               onClick={handleConfirm}
             >
               Yes

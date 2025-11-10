@@ -1,5 +1,4 @@
 import { toast } from "react-toastify";
-import styles from "../styles/Sort.module.css";
 
 const ShareLinkButton = () => {
   const copyLinkToClipboard = async () => {
@@ -16,12 +15,12 @@ const ShareLinkButton = () => {
   return (
     <button
       aria-label="Share a direct link to this list"
-      className={styles.shareContainer}
+      className="sort-shareContainer"
       type="button"
       title="Share a direct link to this list"
     >
       <svg
-        className={styles.share}
+        className="sort-share"
         viewBox="0 0 24 24"
         onClick={() => copyLinkToClipboard()}
       >

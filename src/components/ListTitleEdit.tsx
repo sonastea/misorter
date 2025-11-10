@@ -2,7 +2,6 @@ import { List } from "@router/listing";
 import { ChangeEvent, RefObject } from "react";
 import { toast } from "react-toastify";
 import { trpc } from "src/utils/trpc";
-import styles from "../styles/Home.module.css";
 
 const ListTitleEdit = ({
   title,
@@ -35,7 +34,7 @@ const ListTitleEdit = ({
   return (
     <textarea
       autoFocus
-      className={styles.editTitle}
+      className="home-editTitle"
       value={title}
       ref={textAreaRef}
       onChange={(e: ChangeEvent<HTMLTextAreaElement>) => {

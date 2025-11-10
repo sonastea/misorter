@@ -2,7 +2,6 @@ import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import { deleteCookie, getCookie } from "cookies-next";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import styles from "../styles/Sort.module.css";
 
 const CreatePollButton = ({
   option1,
@@ -59,14 +58,14 @@ const CreatePollButton = ({
 
   return (
     <>
-      <Popover className={styles.pollPopover}>
+      <Popover className="sort-pollPopover">
         <PopoverButton
           aria-label="Create a twitch poll"
-          className={styles.pollContainer}
+          className="sort-pollContainer"
           type="button"
           title="Create a twitch poll"
         >
-          <svg className={styles.poll} viewBox="0 0 24 24">
+          <svg className="sort-poll" viewBox="0 0 24 24">
             <path
               fill="currentColor"
               d="M9 17H7V10H9V17M13 17H11V7H13V17M17 17H15V13H17V17M19 19H5V5H19V19.1M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3Z"
@@ -74,36 +73,36 @@ const CreatePollButton = ({
           </svg>
         </PopoverButton>
 
-        <PopoverPanel className={styles.pollPanel}>
+        <PopoverPanel className="sort-pollPanel">
           {({ close }) => (
-            <form className={styles.pollForm}>
-              <label className={styles.pollLabels}>
+            <form className="sort-pollForm">
+              <label className="sort-pollLabels">
                 Poll Title
                 <input
-                  className={styles.pollInput}
+                  className="sort-pollInput"
                   placeholder={`${option1} vs ${option2}`}
                   value={title}
                   onChange={(e) => setTitle(e.currentTarget.value)}
                 />
               </label>
-              <label className={styles.pollLabels}>
+              <label className="sort-pollLabels">
                 Options
                 <input
-                  className={styles.pollInput}
+                  className="sort-pollInput"
                   value={newOption1}
                   onChange={(e) => setNewOption1(e.target.value)}
                 />
                 <input
-                  className={styles.pollInput}
+                  className="sort-pollInput"
                   value={newOption2}
                   onChange={(e) => setNewOption2(e.target.value)}
                 />
               </label>
-              <label className={styles.pollLabels}>
+              <label className="sort-pollLabels">
                 Duration
                 <input
                   type="number"
-                  className={styles.pollInput}
+                  className="sort-pollInput"
                   step="5"
                   min="0"
                   max="1800"
@@ -123,7 +122,7 @@ const CreatePollButton = ({
               </label>
               <div>
                 <button
-                  className={styles.pollCancel}
+                  className="sort-pollCancel"
                   type="button"
                   aria-label="Cancel creating twitch poll"
                   onClick={() => close()}
@@ -131,7 +130,7 @@ const CreatePollButton = ({
                   Cancel
                 </button>{" "}
                 <button
-                  className={styles.pollConfirm}
+                  className="sort-pollConfirm"
                   type="button"
                   onClick={(e) => {
                     e.preventDefault();

@@ -1,17 +1,16 @@
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { ChangeEvent, KeyboardEvent } from "react";
+import { ChangeEvent, Dispatch, KeyboardEvent, SetStateAction } from "react";
 import { toast } from "react-toastify";
 import { ListItem } from "src/pages";
 import { trpc } from "src/utils/trpc";
 import { v4 as uuidv4 } from "uuid";
-import styles from "../styles/Home.module.css";
 
 interface SetupProps {
   title: string;
   list: ListItem[];
   initialListSize: number;
-  setList: Function;
+  setList: Dispatch<SetStateAction<ListItem[]>>;
   getListOnce: boolean;
   setGetListOnce: (x: boolean) => void;
   newItem: string;
@@ -83,9 +82,9 @@ const Setup = ({
 
   return (
     <>
-      <div className={styles.inputContainer}>
+      <div className="home-inputContainer">
         <input
-          className={styles.listInput}
+          className="home-listInput"
           type="text"
           placeholder="Add an item to the list"
           name="newItem"
@@ -103,11 +102,11 @@ const Setup = ({
         />
         <button
           aria-label="Add item to the list"
-          className={styles.inputButton}
+          className="home-inputButton"
           onClick={() => addItemToList()}
           type="button"
         >
-          <svg className={styles.inputButtonIcon} viewBox="0 0 24 24">
+          <svg className="home-inputButtonIcon" viewBox="0 0 24 24">
             <path
               fill="currentColor"
               d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"
@@ -115,11 +114,11 @@ const Setup = ({
           </svg>
         </button>
       </div>
-      <ul className={styles.listTable}>
+      <ul className="home-listTable">
         {list &&
           list.map((item: ListItem) => {
             return (
-              <li className={styles.item} key={item.id}>
+              <li className="home-item" key={item.id}>
                 <p
                   contentEditable="true"
                   suppressContentEditableWarning={true}
@@ -137,12 +136,12 @@ const Setup = ({
                   {item.value}
                 </p>
                 <svg
-                  className={styles.removeItem}
+                  className="home-removeItem"
                   style={{ width: "1.75em", height: "1.75em" }}
                   viewBox="0 0 24 24"
                   onClick={(e) => {
                     e.currentTarget.parentElement?.classList.add(
-                      styles.removing
+                      "home-removing"
                     );
                     setTimeout(() => {
                       setList(list.filter((it) => it !== item));
@@ -158,11 +157,11 @@ const Setup = ({
             );
           })}
       </ul>
-      <div className={styles.listButtons}>
-        <button className={styles.reset} onClick={resetList}>
+      <div className="home-listButtons">
+        <button className="home-reset" onClick={resetList}>
           Reset
         </button>
-        <button className={styles.start} onClick={checkList}>
+        <button className="home-start" onClick={checkList}>
           {creatingList ? (
             <Image
               src="/images/oval.svg"

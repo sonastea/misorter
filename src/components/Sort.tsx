@@ -2,7 +2,6 @@ import { deleteCookie, getCookie, setCookie } from "cookies-next";
 import dynamic from "next/dynamic";
 import { ReactElement, Suspense, useEffect, useRef, useState } from "react";
 import { ListItem } from "src/pages";
-import styles from "../styles/Sort.module.css";
 import DownloadAsPngSkeleton from "./DownloadAsPngSkeleton";
 import ConfirmModal from "./ConfirmModal";
 
@@ -412,9 +411,9 @@ const Sort = ({
     item: string;
   }) => {
     return (
-      <tr className={styles.itemRow}>
-        <td className={styles.leftItemRow}>{ranking}</td>
-        <td className={styles.rightItemRow}>{item}</td>
+      <tr className="sort-itemRow">
+        <td className="sort-leftItemRow">{ranking}</td>
+        <td className="sort-rightItemRow">{item}</td>
       </tr>
     );
   };
@@ -444,10 +443,10 @@ const Sort = ({
     }
 
     return (
-      <div className={styles.resultsContainer}>
+      <div className="sort-resultsContainer">
         {finishedSort && (
           <button
-            className={styles.toggleResults}
+            className="sort-toggleResults"
             type="button"
             onClick={() => {
               setShowResults((prev) => !prev);
@@ -458,11 +457,11 @@ const Sort = ({
         )}
         {showResults && (
           <>
-            <table id="ResultsTable" className={styles.resultsTable} ref={ref}>
-              <thead className={styles.resultsHeaderContainer}>
+            <table id="ResultsTable" className="sort-resultsTable" ref={ref}>
+              <thead className="sort-resultsHeaderContainer">
                 <tr>
-                  <th className={styles.resultsHeader}>rank</th>
-                  <th className={styles.resultsHeader}>options</th>
+                  <th className="sort-resultsHeader">rank</th>
+                  <th className="sort-resultsHeader">options</th>
                 </tr>
               </thead>
               <tbody>{resultsItems}</tbody>
@@ -482,7 +481,7 @@ const Sort = ({
 
   return (
     <>
-      <div className={styles.container}>
+      <div className="sort-container">
         {goBack && (
           <ConfirmModal
             title="Would you like to return and edit the current list, or create a new one?"
@@ -493,14 +492,14 @@ const Sort = ({
           />
         )}
         <button
-          className={styles.back}
+          className="sort-back"
           type="button"
           onClick={goBackConfirmation}
           title="Back to the list"
         >
           ← Back
         </button>
-        <div id="battleNumber" className={styles.gridHeader}>
+        <div id="battleNumber" className="sort-gridHeader">
           Battle #1
           <br />
           0% sorted.
@@ -512,7 +511,7 @@ const Sort = ({
         />
         <ShareLinkButton />
         <div
-          className={styles.leftField}
+          className="sort-leftField"
           onClick={() => {
             if (finishFlag === 0) {
               sortList(-1);
@@ -522,7 +521,7 @@ const Sort = ({
           <div id="leftField"></div>
         </div>
         <div
-          className={`${styles.both} middleField`}
+          className="sort-both middleField"
           onClick={() => {
             if (finishFlag === 0) {
               sortList(0);
@@ -532,7 +531,7 @@ const Sort = ({
           I like both
         </div>
         <div
-          className={styles.rightField}
+          className="sort-rightField"
           onClick={() => {
             if (finishFlag === 0) {
               sortList(1);
@@ -542,7 +541,7 @@ const Sort = ({
           <div id="rightField"></div>
         </div>
         <div
-          className={`${styles.noOpinion} middleField`}
+          className="sort-noOpinion middleField"
           onClick={() => {
             if (finishFlag === 0) {
               sortList(0);
