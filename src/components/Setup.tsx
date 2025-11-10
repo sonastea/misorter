@@ -10,7 +10,7 @@ interface SetupProps {
   title: string;
   list: ListItem[];
   initialListSize: number;
-  setList: (x: string) => void;
+  setList: (x: ListItem[] | ((prev: ListItem[]) => ListItem[])) => void;
   getListOnce: boolean;
   setGetListOnce: (x: boolean) => void;
   newItem: string;
