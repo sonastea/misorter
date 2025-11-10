@@ -130,11 +130,16 @@ export const listingRouter = router({
     const getFeatured = async (kDaysAgo: Date) => {
       const featured = await prisma.listing.findMany({
         ...FeaturedLists,
-        orderBy: {
-          visits: {
-            _count: "desc",
+        orderBy: [
+          {
+            visits: {
+              _count: "desc",
+            },
           },
-        },
+          {
+            id: "desc",
+          },
+        ],
         where: {
           createdAt: {
             gte: kDaysAgo,
@@ -148,6 +153,7 @@ export const listingRouter = router({
           },
         },
         take: TOP_K_LISTS,
+        distinct: ["id"],
       });
 
       if (featured?.length < TOP_K_LISTS) {
