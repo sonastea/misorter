@@ -11,7 +11,6 @@ import Setup from "src/components/Setup";
 import Sort from "src/components/Sort";
 import { trpc } from "src/utils/trpc";
 import { v4 as uuidv4 } from "uuid";
-import styles from "../styles/Home.module.css";
 
 const FeaturedLists = dynamic(() => import("../components/FeaturedLists"));
 
@@ -138,7 +137,7 @@ const Home: NextPage = () => {
   }, [title]);
 
   return (
-    <div className={styles.container}>
+    <div className="home-container">
       <Head>
         <meta
           name="title"
@@ -159,7 +158,7 @@ const Home: NextPage = () => {
         <meta name="og:description" content={metaDescription} />
       </Head>
 
-      <main className={styles.main}>
+      <main className="home-main">
         {editTitle ? (
           <ListTitleEdit
             title={title}
@@ -174,8 +173,8 @@ const Home: NextPage = () => {
         ) : (
           <ListTitle title={title} setEditTitle={setEditTitle} />
         )}
-        <div className={styles.tipContainer}>
-          <p className={styles.tip} dangerouslySetInnerHTML={{ __html: tip }} />
+        <div className="home-tipContainer">
+          <p className="home-tip" dangerouslySetInnerHTML={{ __html: tip }} />
         </div>
 
         {isFetching && <ListItemsSkeletonLoader />}

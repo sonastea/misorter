@@ -13,7 +13,6 @@ import { List } from "@router/listing";
 import { useRouter } from "next/router";
 import { Dispatch, Fragment, SetStateAction } from "react";
 import { trpc } from "src/utils/trpc";
-import styles from "../styles/FeaturedLists.module.css";
 
 const FeaturedLists = ({
   open,
@@ -59,18 +58,22 @@ const FeaturedLists = ({
         leaveFrom="transform scale-100 opacity-100"
         leaveTo="transform scale-95 opacity-0"
       >
-        <Dialog open={open} onClose={toggleOpen} className={styles.dialog}>
+        <Dialog
+          open={open}
+          onClose={toggleOpen}
+          className="featuredLists-dialog"
+        >
           <DialogBackdrop
             className="fixed inset-0 bg-white/30 dark:bg-black/30 z-50"
             aria-label="hidden"
           />
-          <DialogPanel className={styles.panel}>
-            <div className={styles.header}>
-              <DialogTitle className={styles.title}>{title}</DialogTitle>
+          <DialogPanel className="featuredLists-panel">
+            <div className="featuredLists-header">
+              <DialogTitle className="featuredLists-title">{title}</DialogTitle>
               <button
                 onClick={toggleOpen}
                 type="button"
-                className={`${styles.close} ui-focus-visible:ring-once-hover dark:ui-focus-visible:ring-once ui-focus-visible:ring-2 focus:outline-hidden`}
+                className="featuredLists-close ui-focus-visible:ring-once-hover dark:ui-focus-visible:ring-once ui-focus-visible:ring-2 focus:outline-hidden"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -80,7 +83,7 @@ const FeaturedLists = ({
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className={styles.closeIcon}
+                  className="featuredLists-closeIcon"
                 >
                   <line x1="18" y1="6" x2="6" y2="18"></line>
                   <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -90,7 +93,7 @@ const FeaturedLists = ({
               </button>
             </div>
             <RadioGroup
-              className={styles.listContainer}
+              className="featuredLists-listContainer"
               value={selectedList}
               onChange={setSelectedList}
             >
@@ -147,7 +150,7 @@ const FeaturedLists = ({
                 ))
               )}
             </RadioGroup>
-            <div className={styles.buttonContainer}>
+            <div className="featuredLists-buttonContainer">
               <button
                 onClick={() => {
                   const list = data?.find(
@@ -160,7 +163,7 @@ const FeaturedLists = ({
                     shallow: true,
                   });
                 }}
-                className={`${styles.try} ui-focus-visible:ring-light-text-primary dark:ui-focus-visible:ring-dark-text-primary ui-focus-visible:ring-2 focus:outline-hidden`}
+                className="featuredLists-try ui-focus-visible:ring-light-text-primary dark:ui-focus-visible:ring-dark-text-primary ui-focus-visible:ring-2 focus:outline-hidden"
                 disabled={isLoading || !selectedList}
               >
                 Try it now

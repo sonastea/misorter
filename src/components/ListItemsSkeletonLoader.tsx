@@ -1,4 +1,3 @@
-import styles from "../styles/Home.module.css";
 import ListItemSkeleton from "./ListItemSkeleton";
 
 const ListOfItems = new Array(9).fill(null);
@@ -6,20 +5,20 @@ const ListOfItems = new Array(9).fill(null);
 const ListItemsSkeletonLoader = () => {
   return (
     <>
-      <div className={styles.inputContainer}>
+      <div className="home-inputContainer">
         <input
-          className={`${styles.listInput} pulse`}
+          className="home-listInput pulse"
           type="text"
           placeholder="Add an item to the list"
           name="newItem"
         />
         <button
           aria-label="Add item to the list"
-          className={`${styles.inputButton} pulse`}
+          className="home-inputButton pulse"
           style={{ opacity: "0.1" }}
           type="button"
         >
-          <svg className={styles.inputButtonIcon} viewBox="0 0 24 24">
+          <svg className="home-inputButtonIcon" viewBox="0 0 24 24">
             <path
               fill="currentColor"
               d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"
@@ -27,16 +26,16 @@ const ListItemsSkeletonLoader = () => {
           </svg>
         </button>
       </div>
-      <ul className={`${styles.listTable} pulse`}>
+      <ul className="home-listTable pulse">
         {ListOfItems.map((_, index) => {
           return <ListItemSkeleton key={index} />;
         })}
       </ul>
-      <div className={`${styles.listButtons} pulse`}>
-        <button className={styles.reset} type="button">
+      <div className="home-listButtons pulse">
+        <button className="home-reset" type="button">
           Reset
         </button>
-        <button className={styles.start} type="button">
+        <button className="home-start" type="button">
           Start
         </button>
       </div>

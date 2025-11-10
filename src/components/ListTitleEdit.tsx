@@ -2,7 +2,6 @@ import { List } from "@router/listing";
 import { ChangeEvent, RefObject } from "react";
 import { toast } from "react-toastify";
 import { trpc } from "src/utils/trpc";
-import styles from "../styles/Home.module.css";
 
 const ListTitleEdit = ({
   title,
@@ -15,13 +14,13 @@ const ListTitleEdit = ({
   setEditTitle,
 }: {
   title: string;
-  setTitle: Function;
+  setTitle: (value: string) => void;
   textAreaRef: RefObject<HTMLTextAreaElement | null>;
   data: Partial<List>;
   listLabel: string;
   oldTitle: string | undefined;
-  setOldTitle: Function;
-  setEditTitle: Function;
+  setOldTitle: (value: string) => void;
+  setEditTitle: (value: boolean) => void;
 }) => {
   const updateTitle = trpc.listing.updateTitle.useMutation({
     onSuccess: () => {
@@ -35,7 +34,7 @@ const ListTitleEdit = ({
   return (
     <textarea
       autoFocus
-      className={styles.editTitle}
+      className="home-editTitle"
       value={title}
       ref={textAreaRef}
       onChange={(e: ChangeEvent<HTMLTextAreaElement>) => {

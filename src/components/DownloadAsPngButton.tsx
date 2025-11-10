@@ -1,12 +1,11 @@
 import domtoimage from "dom-to-image-more";
-import styles from "../styles/Sort.module.css";
 
 export const DownloadAsPngButton = () => {
   const exportToPng = () => {
     domtoimage
       .toPng(document.getElementById("ResultsTable"))
       .then((dataUrl: string) => {
-        let link = document.createElement("a");
+        const link = document.createElement("a");
         link.download = `misorter-results-${new Date().toLocaleString(
           "default",
           {
@@ -22,7 +21,7 @@ export const DownloadAsPngButton = () => {
 
   return (
     <button
-      className={styles.export}
+      className="sort-export"
       type="button"
       onClick={() => {
         if (typeof window !== "undefined") {

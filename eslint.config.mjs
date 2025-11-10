@@ -1,36 +1,29 @@
-import prettier from "eslint-plugin-prettier";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import js from "@eslint/js";
-import { FlatCompat } from "@eslint/eslintrc";
+import next from "eslint-config-next";
+import nextTs from "eslint-config-next/typescript";
+import prettier from "eslint-config-prettier/flat";
+import { defineConfig } from "eslint/config";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommendedConfig: js.configs.recommended,
-  allConfig: js.configs.all,
-});
-
-const config = [
+const eslintConfig = defineConfig([
+  ...next,
+  ...nextTs,
+  prettier,
   {
-    ignores: ["**/dist", "**/node_modules"],
-  },
-  ...compat.extends("next/core-web-vitals", "plugin:prettier/recommended"),
-  {
-    plugins: {
-      prettier,
-    },
-
     rules: {
       "react/no-unknown-property": [
         1,
-        {
-          ignore: ["key", "xmlns", "viewBox", "fill", "d"],
-        },
+        { ignore: ["key", "xmlns", "viewBox", "fill", "d"] },
       ],
     },
   },
-];
+  {
+    ignores: [
+      "node_modules/**",
+      ".next/**",
+      "out/**",
+      "build/**",
+      "next-env.d.ts",
+    ],
+  },
+]);
 
-export default config;
+export default eslintConfig;
