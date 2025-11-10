@@ -8,7 +8,7 @@ const ratelimit = new Ratelimit({
   limiter: Ratelimit.fixedWindow(50, "10 s"),
 });
 
-export default async function middleware(
+export default async function proxy(
   request: NextRequest,
   event: NextFetchEvent
 ): Promise<Response | undefined> {
