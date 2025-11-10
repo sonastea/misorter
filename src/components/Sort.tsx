@@ -5,10 +5,10 @@ import { ListItem } from "src/pages";
 import DownloadAsPngSkeleton from "./DownloadAsPngSkeleton";
 import ConfirmModal from "./ConfirmModal";
 
-let lstMember = new Array();
-let parent = new Array();
-let equal = new Array();
-let rec = new Array();
+const lstMember: number[][] = [];
+const parent: number[] = [];
+const equal: number[] = [];
+const rec: number[] = [];
 
 let cmp1: number, cmp2: number;
 let head1: number, head2: number;
@@ -33,7 +33,7 @@ const Sort = ({
   setStartSort,
 }: {
   ogList: ListItem[];
-  setStartSort: Function;
+  setStartSort: (value: boolean) => void;
 }) => {
   const [isLoggedIn, setLoggedIn] = useState<boolean>(false);
   const [finishedSort, setFinishedSort] = useState<boolean>(false);
@@ -84,7 +84,7 @@ const Sort = ({
         });
         setLoggedIn(false);
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
     }
   };
@@ -147,7 +147,7 @@ const Sort = ({
     let i;
 
     //The sequence that you should sort
-    lstMember[n] = new Array();
+    lstMember[n] = [];
 
     for (i = 0; i < ogList.length; i++) {
       lstMember[n][i] = i;
@@ -165,7 +165,7 @@ const Sort = ({
       if (lstMember[i].length >= 2) {
         mid = Math.ceil(lstMember[i].length / 2);
 
-        lstMember[n] = new Array();
+        lstMember[n] = [];
 
         lstMember[n] = lstMember[i].slice(0, mid);
 
@@ -175,7 +175,7 @@ const Sort = ({
 
         n++;
 
-        lstMember[n] = new Array();
+        lstMember[n] = [];
 
         lstMember[n] = lstMember[i].slice(mid, lstMember[i].length);
 
@@ -373,15 +373,15 @@ const Sort = ({
 
   //Populate the boxes with items to compare
   function showSortable() {
-    let str0 =
+    const str0 =
       "battle #" +
       numQuestion +
       "<br>" +
       Math.floor((finishSize * 100) / totalSize) +
       "% sorted.";
 
-    let str1 = "" + toNameFace(lstMember[cmp1][head1]);
-    let str2 = "" + toNameFace(lstMember[cmp2][head2]);
+    const str1 = "" + toNameFace(lstMember[cmp1][head1]);
+    const str2 = "" + toNameFace(lstMember[cmp2][head2]);
 
     document.getElementById("battleNumber")!.innerHTML = str0;
     document.getElementById("leftField")!.innerHTML = str1;
@@ -421,7 +421,7 @@ const Sort = ({
   const Results = () => {
     let ranking: number = 1;
     let sameRank: number = 1;
-    let resultsItems: ReactElement<typeof ResultsItem>[] = [];
+    const resultsItems: ReactElement<typeof ResultsItem>[] = [];
 
     for (let i = 0; i < ogList.length; i++) {
       resultsItems.push(

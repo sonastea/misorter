@@ -3,7 +3,7 @@ const ListTitle = ({
   setEditTitle,
 }: {
   title: string;
-  setEditTitle: Function;
+  setEditTitle: (value: boolean) => void;
 }) => {
   return (
     <div className="home-titleContainer">

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { ChangeEvent, Dispatch, KeyboardEvent, SetStateAction } from "react";
+import { ChangeEvent, KeyboardEvent } from "react";
 import { toast } from "react-toastify";
 import { ListItem } from "src/pages";
 import { trpc } from "src/utils/trpc";
@@ -10,7 +10,7 @@ interface SetupProps {
   title: string;
   list: ListItem[];
   initialListSize: number;
-  setList: Dispatch<SetStateAction<ListItem[]>>;
+  setList: (x: string) => void;
   getListOnce: boolean;
   setGetListOnce: (x: boolean) => void;
   newItem: string;

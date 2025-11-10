@@ -14,13 +14,13 @@ const ListTitleEdit = ({
   setEditTitle,
 }: {
   title: string;
-  setTitle: Function;
+  setTitle: (value: string) => void;
   textAreaRef: RefObject<HTMLTextAreaElement | null>;
   data: Partial<List>;
   listLabel: string;
   oldTitle: string | undefined;
-  setOldTitle: Function;
-  setEditTitle: Function;
+  setOldTitle: (value: string) => void;
+  setEditTitle: (value: boolean) => void;
 }) => {
   const updateTitle = trpc.listing.updateTitle.useMutation({
     onSuccess: () => {
