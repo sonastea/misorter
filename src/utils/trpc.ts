@@ -6,10 +6,10 @@ import superjson from "superjson";
 
 function getUrl() {
   const base = (() => {
-    if (typeof window !== "undefined") return "";
-
     if (import.meta.env.VITE_API_URL)
       return `https://${import.meta.env.VITE_API_URL}`;
+
+    if (typeof window !== "undefined") return "";
 
     return "http://localhost:3000";
   })();
