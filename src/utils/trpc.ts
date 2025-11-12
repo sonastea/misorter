@@ -5,9 +5,15 @@ import type { AppRouter } from "@router/_app";
 import superjson from "superjson";
 
 function getUrl() {
-  // In production (Workers), frontend and API are on same domain, use relative URL
-  // In development, Vite proxy handles routing to localhost:4000
-  const base = typeof window !== "undefined" ? "" : "http://localhost:4000";
+  const base = (() => {
+    if (import.meta.env.VITE_API_URL) {
+      return `https://${import.meta.env.VITE_API_URL}`;
+    }
+
+    if (typeof window !== "undefined") return "";
+
+    return "http://localhost:4000";
+  })();
 
   return `${base}/trpc`;
 }
