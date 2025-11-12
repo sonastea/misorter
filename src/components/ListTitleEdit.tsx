@@ -1,4 +1,5 @@
 import { List } from "@router/listing";
+import { useMutation } from "@tanstack/react-query";
 import { ChangeEvent, RefObject } from "react";
 import { toast } from "react-toastify";
 import { trpc } from "src/utils/trpc";
@@ -22,7 +23,8 @@ const ListTitleEdit = ({
   setOldTitle: (value: string) => void;
   setEditTitle: (value: boolean) => void;
 }) => {
-  const updateTitle = trpc.listing.updateTitle.useMutation({
+  const updateTitle = useMutation({
+    ...trpc.listing.updateTitle.mutationOptions(),
     onSuccess: () => {
       toast.success("Successfully updated link to list.");
     },

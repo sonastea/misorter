@@ -1,34 +1,45 @@
-import { AppRouter } from "@router/_app";
-import { httpBatchLink, loggerLink } from "@trpc/client";
-import { createTRPCNext } from "@trpc/next";
+import { QueryClient } from "@tanstack/react-query";
+import { createTRPCClient, httpBatchLink, loggerLink } from "@trpc/client";
+import { createTRPCOptionsProxy } from "@trpc/tanstack-react-query";
+import type { AppRouter } from "@router/_app";
 import superjson from "superjson";
 
-function getBaseUrl() {
-  if (typeof window === "undefined") return ""; // Browser should use current path
-  if (process.env.NEXT_PUBLIC_VERCEL_URL)
-    return `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`; // SSR should use vercel url
+function getUrl() {
+  const base = (() => {
+    if (typeof window !== "undefined") return "";
 
-  return `http://${window.location.hostname}:${process.env.PORT ?? 3000}`; // dev SSR should use localhost
+    if (process.env.CLOUDFLARE_URL)
+      return `https://${process.env.CLOUDFLARE_URL}`;
+
+    return "http://localhost:3000";
+  })();
+
+  return `${base}/api/trpc`;
 }
 
-export const trpc = createTRPCNext<AppRouter>({
-  config() {
-    const url = `${getBaseUrl()}/api/trpc`;
-
-    return {
-      links: [
-        loggerLink({
-          enabled: (opts) =>
-            process.env.NODE_ENV === "development" ||
-            (opts.direction === "down" && opts.result instanceof Error),
-        }),
-        httpBatchLink({
-          url,
-          transformer: superjson,
-        }),
-      ],
-    };
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60 * 1000,
+    },
   },
-  ssr: false,
-  transformer: superjson,
+});
+
+const trpcClient = createTRPCClient<AppRouter>({
+  links: [
+    loggerLink({
+      enabled: (opts) =>
+        import.meta.env.MODE === "development" ||
+        (opts.direction === "down" && opts.result instanceof Error),
+    }),
+    httpBatchLink({
+      transformer: superjson,
+      url: getUrl(),
+    }),
+  ],
+});
+
+export const trpc = createTRPCOptionsProxy<AppRouter>({
+  client: trpcClient,
+  queryClient,
 });

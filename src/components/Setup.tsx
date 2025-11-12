@@ -1,7 +1,8 @@
-import { useRouter } from "next/router";
+import { useMutation } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { ChangeEvent, KeyboardEvent } from "react";
 import { toast } from "react-toastify";
-import { ListItem } from "src/pages";
+import { ListItem } from "src/routes/index";
 import { trpc } from "src/utils/trpc";
 import { v4 as uuidv4 } from "uuid";
 
@@ -16,6 +17,7 @@ interface SetupProps {
   setEditTitle: (x: boolean) => void;
   setNewItem: (x: string) => void;
   setStartSort: (x: boolean) => void;
+  label?: string;
 }
 
 const Setup = ({
@@ -30,11 +32,12 @@ const Setup = ({
   setNewItem,
   setStartSort,
 }: SetupProps) => {
-  const router = useRouter();
+  const navigate = useNavigate();
 
-  const createList = trpc.listing.create.useMutation({
-    onSuccess: (data: { label: string }) => {
-      router.push(`/?list=${data.label}`, undefined, { shallow: true });
+  const createList = useMutation({
+    ...trpc.listing.create.mutationOptions(),
+    onSuccess: (data) => {
+      navigate({ to: "/", search: { list: data.label } });
       setGetListOnce(true);
       setStartSort(true);
       toast.success("Successfully created link to list.");

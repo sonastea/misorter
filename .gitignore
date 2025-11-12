@@ -8,9 +8,12 @@
 # testing
 /coverage
 
-# next.js
-/.next/
-/out/
+# vite
+/dist
+.vite
+
+# TanStack Router
+/src/routeTree.gen.ts
 
 # production
 /build
@@ -28,9 +31,6 @@ yarn-error.log*
 # local env files
 .env
 .env*.local
-
-# vercel
-.vercel
 
 # typescript
 *.tsbuildinfo
