@@ -8,8 +8,8 @@ function getUrl() {
   const base = (() => {
     if (typeof window !== "undefined") return "";
 
-    if (process.env.CLOUDFLARE_URL)
-      return `https://${process.env.CLOUDFLARE_URL}`;
+    if (import.meta.env.VITE_API_URL)
+      return `https://${import.meta.env.VITE_API_URL}`;
 
     return "http://localhost:3000";
   })();
