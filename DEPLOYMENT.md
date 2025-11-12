@@ -56,7 +56,16 @@ Edit `wrangler.toml` and update:
 
 ### Step 2: Set Environment Variables
 
-Set secrets using Wrangler:
+**Option A: Using the helper script (Recommended)**
+
+```bash
+# Make sure you have a .env file with all your secrets
+./scripts/deploy-secrets.sh
+```
+
+**Option B: Manual setup**
+
+Set secrets one by one using Wrangler (you'll be prompted to paste each value):
 
 ```bash
 # Database
@@ -67,6 +76,35 @@ wrangler secret put DIRECT_URL
 wrangler secret put REDIS_URL
 wrangler secret put UPSTASH_REDIS_REST_URL
 wrangler secret put UPSTASH_REDIS_REST_TOKEN
+
+# OAuth (if needed by Worker)
+wrangler secret put VITE_CLIENT_ID
+wrangler secret put VITE_CLIENT_SECRET
+```
+
+**Option C: From .env file (one-liners)**
+
+```bash
+# Load from .env and pipe to wrangler
+source .env && echo "$DATABASE_URL" | wrangler secret put DATABASE_URL
+source .env && echo "$DIRECT_URL" | wrangler secret put DIRECT_URL
+source .env && echo "$REDIS_URL" | wrangler secret put REDIS_URL
+source .env && echo "$UPSTASH_REDIS_REST_URL" | wrangler secret put UPSTASH_REDIS_REST_URL
+source .env && echo "$UPSTASH_REDIS_REST_TOKEN" | wrangler secret put UPSTASH_REDIS_REST_TOKEN
+source .env && echo "$VITE_CLIENT_ID" | wrangler secret put VITE_CLIENT_ID
+source .env && echo "$VITE_CLIENT_SECRET" | wrangler secret put VITE_CLIENT_SECRET
+```
+
+To view existing secrets:
+
+```bash
+wrangler secret list
+```
+
+To delete a secret:
+
+```bash
+wrangler secret delete SECRET_NAME
 ```
 
 ### Step 3: Deploy the Worker
@@ -96,7 +134,39 @@ curl https://misorter-api.your-account.workers.dev/
 
 ### Step 1: Configure Environment Variables
 
-Create a `.env.production` file:
+Cloudflare Pages needs environment variables set in the dashboard or via CLI.
+
+**Option A: Using Wrangler CLI**
+
+First, create your Pages project if you haven't:
+
+```bash
+wrangler pages project create misorter
+```
+
+Then set environment variables for production:
+
+```bash
+# Get your Pages project name
+wrangler pages project list
+
+# Set variables for production environment
+echo "https://api.your-domain.com" | wrangler pages secret put VITE_API_URL --project-name=misorter --env=production
+```
+
+**Option B: Via Cloudflare Dashboard**
+
+1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com/)
+2. Navigate to **Workers & Pages** → Your Pages project
+3. Go to **Settings** → **Environment variables**
+4. Add variables:
+   - `VITE_API_URL` = `https://api.your-domain.com`
+5. Select **Production** environment
+6. Save
+
+**Option C: Local .env file (for local builds only)**
+
+Create a `.env.production` file (this won't be used by Pages deployments):
 
 ```bash
 # Point to your deployed Cloudflare Worker

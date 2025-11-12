@@ -14,7 +14,7 @@ function getUrl() {
     return "http://localhost:3000";
   })();
 
-  return `${base}/api/trpc`;
+  return `${base}/trpc`;
 }
 
 export const queryClient = new QueryClient({

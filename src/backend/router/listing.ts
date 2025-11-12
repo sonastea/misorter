@@ -16,11 +16,18 @@ const CANDIDATE_POOL_SIZE = 10;
 const DAYS_AGO = 5;
 
 const RedisExpireTime: number = 7 * (60 * 60 * 24); // expire time in days from seconds
-const redis = new Redis(process.env.REDIS_URL as string, {
-  retryStrategy: (times) => Math.min(times * 50, 15000),
-})
-  .on("error", (err) => console.error("Redis error: ", err.message))
-  .on("connect", () => console.log("Redis is connected."));
+
+let redis: Redis | null = null;
+const getRedis = (): Redis => {
+  if (!redis) {
+    redis = new Redis(process.env.REDIS_URL as string, {
+      retryStrategy: (times) => Math.min(times * 50, 15000),
+    })
+      .on("error", (err) => console.error("Redis error: ", err.message))
+      .on("connect", () => console.log("Redis is connected."));
+  }
+  return redis;
+};
 
 export const ListType = Prisma.validator<Prisma.ListingDefaultArgs>()({
   select: {
@@ -101,7 +108,8 @@ export const listingRouter = router({
 
       await updateListingVisited(input.label, "URL");
 
-      await redis.get(input.label).then(async (result) => {
+      const redisClient = getRedis();
+      await redisClient.get(input.label).then(async (result) => {
         if (result != null) {
           list = JSON.parse(result);
         } else {
@@ -116,8 +124,8 @@ export const listingRouter = router({
               },
             },
           });
-          await redis.set(input.label, JSON.stringify(list));
-          await redis.expire(input.label, RedisExpireTime);
+          await redisClient.set(input.label, JSON.stringify(list));
+          await redisClient.expire(input.label, RedisExpireTime);
         }
       });
 
@@ -246,7 +254,7 @@ export const listingRouter = router({
           },
         },
       });
-      await redis.set(input.label, JSON.stringify(updatedList), "KEEPTTL");
+      await getRedis().set(input.label, JSON.stringify(updatedList), "KEEPTTL");
 
       // TODO: axiom log.info("update list title", { label: input.label, title: input.title });
 
