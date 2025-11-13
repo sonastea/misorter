@@ -1,6 +1,32 @@
 {
-  "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "misorter",
-  "pages_build_output_dir": "./dist",
-  "compatibility_date": "2025-11-12"
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "misorter-api",
+  "main": "./src/server/server.ts",
+  "compatibility_date": "2025-11-12",
+  "compatibility_flags": ["nodejs_compat"],
+  "routes": [
+    {
+      "pattern": "v2.misorter.com/trpc/*",
+      "zone_name": "misorter.com",
+    },
+  ],
+  "env": {
+    "preview": {
+      "name": "misorter-api-preview",
+      "routes": [
+        {
+          "pattern": "preview-api.misorter.com/trpc/*",
+          "zone_name": "misorter.com",
+        },
+      ],
+    },
+  },
+  "observability": {
+    "logs": {
+      "enabled": false,
+      "head_sampling_rate": 1,
+      "invocation_logs": true,
+      "persist": true,
+    },
+  },
 }
