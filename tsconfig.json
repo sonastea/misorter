@@ -17,7 +17,7 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": "./",
     "paths": {
-      "@db/*": ["src/backend/prisma/*"],
+      "@/db/*": ["src/db/*"],
       "@router/*": ["src/backend/router/*"],
       "@utils/*": ["src/utils/*"],
       "@/*": ["src/*"]

@@ -1,9 +1,10 @@
-import { prisma } from "@db/client";
-import { Prisma } from "@prisma/client";
+import { publicProcedure, router } from "@/backend/trpc";
+import { db } from "@/db/client";
+import { items, listings, visits } from "@/db/schema";
 import { TRPCError } from "@trpc/server";
+import { and, desc, eq, gte, inArray, notInArray, sql } from "drizzle-orm";
 import Redis from "ioredis";
 import { customAlphabet } from "nanoid";
-import { publicProcedure, router } from "@/backend/trpc";
 import { array, enums, object, string } from "superstruct";
 
 const nanoid = customAlphabet(
@@ -29,71 +30,61 @@ const getRedis = (): Redis => {
   return redis;
 };
 
-export const ListType = Prisma.validator<Prisma.ListingDefaultArgs>()({
-  select: {
-    label: true,
-    title: true,
-    visits: true,
-  },
-  include: {
-    items: {
-      select: {
-        value: true,
-      },
-    },
-  },
-});
+export type List = {
+  label: string;
+  title: string;
+  items: { value: string }[];
+  visits?: {
+    id: number;
+    createdAt: Date;
+    listingLabel: string;
+    source: string | null;
+  }[];
+};
 
-export const FeaturedLists = Prisma.validator<Prisma.ListingDefaultArgs>()({
-  select: {
-    id: true,
-    label: true,
-    title: true,
-    createdAt: true,
-    updatedAt: true,
-    visits: true,
-    items: {
-      select: {
-        id: true,
-        value: true,
-      },
-    },
-  },
-});
+export type FeaturedList = {
+  id: number;
+  label: string;
+  title: string;
+  createdAt: Date;
+  updatedAt: Date;
+  items: { id: number; value: string }[];
+  visits: {
+    id: number;
+    createdAt: Date;
+    listingLabel: string;
+    source: string | null;
+  }[];
+};
 
-export type List = Prisma.ListingGetPayload<typeof ListType>;
-
-const VisitSourceEnum = enums(["URL", "FEATURED"]);
+const VisitSource = enums(["URL", "FEATURED"]);
 
 const updateListingVisited = async (
   listingId: string,
-  source: typeof VisitSourceEnum.TYPE
+  source: typeof VisitSource.TYPE
 ) => {
   const date = new Date();
 
   try {
-    // Update the updatedAt field and connect a new Visit record
-    const result = await prisma.listing.update({
-      where: { label: listingId },
-      data: {
-        updatedAt: date,
-        visits: {
-          create: { createdAt: date, source },
-        },
-      },
-    });
-    return result;
+    await db
+      .update(listings)
+      .set({ updatedAt: date })
+      .where(eq(listings.label, listingId));
+
+    const result = await db
+      .insert(visits)
+      .values({ createdAt: date, listingLabel: listingId, source })
+      .returning({ id: visits.id });
+
+    return result[0] || { id: -1 };
   } catch (e) {
-    if (e instanceof Prisma.PrismaClientKnownRequestError) {
-      console.error("Prisma Error: ", e.code);
-      throw new TRPCError({
-        code: "BAD_REQUEST",
-        message: "Invalid listing label.",
-        cause: e,
-      });
-    }
+    console.error("Database Error: ", e);
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Invalid listing label.",
+      cause: e,
+    });
   }
-  return { id: -1 };
 };
 
 export const listingRouter = router({
@@ -113,17 +104,21 @@ export const listingRouter = router({
         if (result != null) {
           list = JSON.parse(result);
         } else {
-          list = await prisma.listing.findUnique({
-            where: { label: input.label },
-            select: {
+          const listing = await db.query.listings.findFirst({
+            where: eq(listings.label, input.label),
+            columns: {
               label: true,
               title: true,
+            },
+            with: {
               items: {
-                orderBy: { id: "asc" },
-                select: { value: true },
+                columns: { value: true },
+                orderBy: (items, { asc }) => [asc(items.id)],
               },
             },
           });
+
+          list = listing || null;
           await redisClient.set(input.label, JSON.stringify(list));
           await redisClient.expire(input.label, RedisExpireTime);
         }
@@ -136,24 +131,26 @@ export const listingRouter = router({
     kDaysAgo.setDate(kDaysAgo.getDate() - DAYS_AGO);
 
     const getFeatured = async (kDaysAgo: Date) => {
-      const popularCandidates = await prisma.listing.findMany({
-        ...FeaturedLists,
-        orderBy: {
-          visits: {
-            _count: "desc",
-          },
-        },
-        where: {
-          visits: {
-            some: {
-              createdAt: {
-                gte: kDaysAgo,
-              },
-            },
-          },
-        },
-        take: CANDIDATE_POOL_SIZE,
-      });
+      const popularCandidates = await db
+        .select({
+          id: listings.id,
+          label: listings.label,
+          title: listings.title,
+          createdAt: listings.createdAt,
+          updatedAt: listings.updatedAt,
+          visitCount: sql<number>`count(${visits.id})::int`,
+        })
+        .from(listings)
+        .leftJoin(
+          visits,
+          and(
+            eq(visits.listingLabel, listings.label),
+            gte(visits.createdAt, kDaysAgo)
+          )
+        )
+        .groupBy(listings.id)
+        .orderBy(desc(sql`count(${visits.id})`))
+        .limit(CANDIDATE_POOL_SIZE);
 
       const shuffledPopular = [...popularCandidates].sort(
         () => Math.random() - 0.5
@@ -165,16 +162,61 @@ export const listingRouter = router({
 
       const excluded = popularList.map((list) => list.label);
       const needed = TOP_K_LISTS - popularList.length;
-      const randomLists = await prisma.listing.findManyRandom(needed, {
-        ...FeaturedLists,
-        where: {
-          label: {
-            notIn: excluded,
-          },
-        },
-      });
 
-      return [...popularList, ...randomLists];
+      const randomListings = await db
+        .select()
+        .from(listings)
+        .where(
+          excluded.length > 0 ? notInArray(listings.label, excluded) : undefined
+        )
+        .orderBy(sql`RANDOM()`)
+        .limit(needed);
+
+      const selectedListings = [...popularList, ...randomListings];
+      const selectedLabels = selectedListings.map((l) => l.label);
+
+      if (selectedLabels.length === 0) {
+        return [];
+      }
+
+      const [allItems, allVisits] = await Promise.all([
+        db
+          .select({
+            id: items.id,
+            value: items.value,
+            listingLabel: items.listingLabel,
+          })
+          .from(items)
+          .where(inArray(items.listingLabel, selectedLabels)),
+        db
+          .select()
+          .from(visits)
+          .where(inArray(visits.listingLabel, selectedLabels)),
+      ]);
+
+      const itemsByLabel = allItems.reduce(
+        (acc, item) => {
+          if (!acc[item.listingLabel]) acc[item.listingLabel] = [];
+          acc[item.listingLabel].push({ id: item.id, value: item.value });
+          return acc;
+        },
+        {} as Record<string, { id: number; value: string }[]>
+      );
+
+      const visitsByLabel = allVisits.reduce(
+        (acc, visit) => {
+          if (!acc[visit.listingLabel]) acc[visit.listingLabel] = [];
+          acc[visit.listingLabel].push(visit);
+          return acc;
+        },
+        {} as Record<string, typeof allVisits>
+      );
+
+      return selectedListings.map((listing) => ({
+        ...listing,
+        items: itemsByLabel[listing.label] || [],
+        visits: visitsByLabel[listing.label] || [],
+      }));
     };
 
     return await getFeatured(kDaysAgo);
@@ -192,33 +234,46 @@ export const listingRouter = router({
     )
     .mutation(async ({ input }) => {
       const newLabel = nanoid();
-      const list = await prisma.listing
-        .create({
-          data: {
+
+      const result = await db.transaction(async (tx) => {
+        const [listing] = await tx
+          .insert(listings)
+          .values({
             label: newLabel,
             title: input.title,
-            items: { create: input.items },
-          },
-          select: {
-            label: true,
-            title: true,
-            items: {
-              orderBy: { id: "asc" },
-              select: { value: true },
-            },
-          },
-        })
-        .finally(async () => await updateListingVisited(newLabel, "FEATURED"));
+          })
+          .returning({ label: listings.label, title: listings.title });
+
+        const insertedItems =
+          input.items.length > 0
+            ? await tx
+                .insert(items)
+                .values(
+                  input.items.map((item) => ({
+                    value: item.value,
+                    listingLabel: newLabel,
+                  }))
+                )
+                .returning({ value: items.value })
+            : [];
+
+        return {
+          ...listing,
+          items: insertedItems,
+        };
+      });
+
+      await updateListingVisited(newLabel, "FEATURED");
 
       // TODO: axiom log.info("created list", { label: newLabel, title: input.title });
 
-      return list;
+      return result;
     }),
   createVisit: publicProcedure
     .input(
       object({
         label: string(),
-        source: VisitSourceEnum,
+        source: VisitSource,
       })
     )
     .mutation(async ({ input }) => {
@@ -243,17 +298,22 @@ export const listingRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      const updatedList = await prisma.listing.update({
-        where: { label: input.label },
-        data: { title: input.title },
-        select: {
-          label: true,
-          title: true,
-          items: {
-            select: { value: true },
-          },
-        },
+      const [listing] = await db
+        .update(listings)
+        .set({ title: input.title })
+        .where(eq(listings.label, input.label))
+        .returning({ label: listings.label, title: listings.title });
+
+      const listingItems = await db.query.items.findMany({
+        where: eq(items.listingLabel, input.label),
+        columns: { value: true },
       });
+
+      const updatedList = {
+        ...listing,
+        items: listingItems,
+      };
+
       await getRedis().set(input.label, JSON.stringify(updatedList), "KEEPTTL");
 
       // TODO: axiom log.info("update list title", { label: input.label, title: input.title });
