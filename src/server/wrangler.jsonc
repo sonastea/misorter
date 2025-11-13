@@ -6,7 +6,7 @@
   "compatibility_flags": ["nodejs_compat"],
   "routes": [
     {
-      "pattern": "api.misorter.com/*",
+      "pattern": "v2.misorter.com/trpc/*",
       "zone_name": "misorter.com",
     },
   ],
@@ -15,7 +15,7 @@
       "name": "misorter-api-preview",
       "routes": [
         {
-          "pattern": "preview-api.misorter.com/*",
+          "pattern": "preview-api.misorter.com/trpc/*",
           "zone_name": "misorter.com",
         },
       ],
