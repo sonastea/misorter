@@ -1,7 +1,6 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "misorter-api",
-  "main": "src/server/server.ts",
-  "compatibility_date": "2025-11-12",
-  "compatibility_flags": ["nodejs_compat"],
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "misorter",
+  "pages_build_output_dir": "./dist",
+  "compatibility_date": "2025-11-12"
 }

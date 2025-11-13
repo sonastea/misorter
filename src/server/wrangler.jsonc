@@ -1,0 +1,23 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "misorter-api",
+  "main": "src/server/server.ts",
+  "compatibility_date": "2025-11-12",
+  "compatibility_flags": ["nodejs_compat"],
+  "route": [
+    {
+      "pattern": "api.misorter.com/*",
+      "zone_name": "misorter.com",
+    },
+  ],
+  "env": {
+    "staging": {
+      "route": [
+        {
+          "pattern": "preview-api.misorter.com/*",
+          "zone_name": "misorter.com",
+        },
+      ],
+    },
+  },
+}
