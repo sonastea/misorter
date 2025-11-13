@@ -12,7 +12,7 @@ function getUrl() {
 
     if (typeof window !== "undefined") return "";
 
-    return "http://localhost:4000";
+    return "http://localhost:8787";
   })();
 
   return `${base}/trpc`;
