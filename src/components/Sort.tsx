@@ -395,15 +395,17 @@ const Sort = ({
         )}
         {showResults && (
           <>
-            <table id="ResultsTable" className="sort-resultsTable" ref={ref}>
-              <thead className="sort-resultsHeaderContainer">
-                <tr>
-                  <th className="sort-resultsHeader">rank</th>
-                  <th className="sort-resultsHeader">options</th>
-                </tr>
-              </thead>
-              <tbody>{resultsItems}</tbody>
-            </table>
+            <div id="ResultsContainer" className="sort-resultsContainer">
+              <table id="ResultsTable" className="sort-resultsTable" ref={ref}>
+                <thead className="sort-resultsHeaderContainer">
+                  <tr>
+                    <th className="sort-resultsHeader">rank</th>
+                    <th className="sort-resultsHeader">options</th>
+                  </tr>
+                </thead>
+                <tbody>{resultsItems}</tbody>
+              </table>
+            </div>
             <Suspense fallback={<DownloadAsPngSkeleton />}>
               <DownloadAsPng />
             </Suspense>

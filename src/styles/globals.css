@@ -1409,6 +1409,11 @@ html[data-theme="dark"] .home-tip {
     font-size: 1rem;
   }
 
+  .sort-resultsContainer {
+    padding: 0.5rem;
+    border: none;
+  }
+
   .sort-resultsTable {
     width: 100%;
     max-width: 98vw;
