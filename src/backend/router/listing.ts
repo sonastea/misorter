@@ -1,9 +1,8 @@
 import { publicProcedure, router } from "@/backend/trpc";
-import { db } from "@/db/client";
+import { getDb } from "@/db/client";
 import { items, listings, visits } from "@/db/schema";
-import { TRPCError } from "@trpc/server";
+import { Redis } from "@upstash/redis/cloudflare";
 import { and, desc, eq, gte, inArray, notInArray, sql } from "drizzle-orm";
-import Redis from "ioredis";
 import { customAlphabet } from "nanoid";
 import { array, enums, object, string } from "superstruct";
 
@@ -17,16 +16,26 @@ const CANDIDATE_POOL_SIZE = 10;
 const DAYS_AGO = 5;
 
 const RedisExpireTime: number = 7 * (60 * 60 * 24); // expire time in days from seconds
-
 let redis: Redis | null = null;
-const getRedis = (): Redis => {
-  if (!redis) {
-    redis = new Redis(process.env.REDIS_URL as string, {
-      retryStrategy: (times) => Math.min(times * 50, 15000),
-    })
-      .on("error", (err) => console.error("Redis error: ", err.message))
-      .on("connect", () => console.log("Redis is connected."));
+
+const getRedis = () => {
+  const upstashUrl = process.env.UPSTASH_REDIS_REST_URL;
+  if (!upstashUrl) {
+    throw new Error("ENV var UPSTASH_REDIS_REST_URL is not set!");
   }
+
+  const upstashToken = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!upstashToken) {
+    throw new Error("ENV var UPSTASH_REDIS_REST_TOKEN is not set!");
+  }
+
+  if (!redis) {
+    redis = new Redis({
+      url: upstashUrl,
+      token: upstashToken,
+    });
+  }
+
   return redis;
 };
 
@@ -66,6 +75,7 @@ const updateListingVisited = async (
   const date = new Date();
 
   try {
+    const db = getDb();
     await db
       .update(listings)
       .set({ updatedAt: date })
@@ -78,12 +88,8 @@ const updateListingVisited = async (
 
     return result[0] || { id: -1 };
   } catch (e) {
-    console.error("Database Error: ", e);
-    throw new TRPCError({
-      code: "BAD_REQUEST",
-      message: "Invalid listing label.",
-      cause: e,
-    });
+    console.error("Database Error:", e);
+    return { id: -1 };
   }
 };
 
@@ -100,29 +106,45 @@ export const listingRouter = router({
       await updateListingVisited(input.label, "URL");
 
       const redisClient = getRedis();
-      await redisClient.get(input.label).then(async (result) => {
-        if (result != null) {
-          list = JSON.parse(result);
-        } else {
-          const listing = await db.query.listings.findFirst({
-            where: eq(listings.label, input.label),
-            columns: {
-              label: true,
-              title: true,
-            },
-            with: {
-              items: {
-                columns: { value: true },
-                orderBy: (items, { asc }) => [asc(items.id)],
-              },
-            },
-          });
+      const cachedResult = await redisClient
+        .get<string>(input.label)
+        .catch((e) => {
+          console.error("Redis get error:", e);
+          return null;
+        });
 
-          list = listing || null;
-          await redisClient.set(input.label, JSON.stringify(list));
-          await redisClient.expire(input.label, RedisExpireTime);
+      if (cachedResult != null && typeof cachedResult === "string") {
+        try {
+          list = JSON.parse(cachedResult);
+        } catch (e) {
+          console.error(e, input.label, "value:", cachedResult);
+          await redisClient.del(input.label);
+          list = null;
         }
-      });
+      }
+
+      if (!list || Object.keys(list).length === 0) {
+        const db = getDb();
+        const listing = await db.query.listings.findFirst({
+          where: eq(listings.label, input.label),
+          columns: {
+            label: true,
+            title: true,
+          },
+          with: {
+            items: {
+              columns: { value: true },
+              orderBy: (items, { asc }) => [asc(items.id)],
+            },
+          },
+        });
+
+        list = listing || null;
+
+        await redisClient.set(input.label, JSON.stringify(list), {
+          ex: RedisExpireTime,
+        });
+      }
 
       return list;
     }),
@@ -131,6 +153,7 @@ export const listingRouter = router({
     kDaysAgo.setDate(kDaysAgo.getDate() - DAYS_AGO);
 
     const getFeatured = async (kDaysAgo: Date) => {
+      const db = getDb();
       const popularCandidates = await db
         .select({
           id: listings.id,
@@ -235,6 +258,7 @@ export const listingRouter = router({
     .mutation(async ({ input }) => {
       const newLabel = nanoid();
 
+      const db = getDb();
       const result = await db.transaction(async (tx) => {
         const [listing] = await tx
           .insert(listings)
@@ -298,6 +322,7 @@ export const listingRouter = router({
       })
     )
     .mutation(async ({ input }) => {
+      const db = getDb();
       const [listing] = await db
         .update(listings)
         .set({ title: input.title })
@@ -314,7 +339,9 @@ export const listingRouter = router({
         items: listingItems,
       };
 
-      await getRedis().set(input.label, JSON.stringify(updatedList), "KEEPTTL");
+      await getRedis().set(input.label, JSON.stringify(updatedList), {
+        keepTtl: true,
+      });
 
       // TODO: axiom log.info("update list title", { label: input.label, title: input.title });
 
