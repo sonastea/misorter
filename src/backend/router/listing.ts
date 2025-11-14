@@ -118,7 +118,9 @@ export const listingRouter = router({
           list = JSON.parse(cachedResult);
         } catch (e) {
           console.error(e, input.label, "value:", cachedResult);
-          await redisClient.del(input.label);
+          await redisClient.del(input.label).catch((delError) => {
+            console.error("Redis del error:", delError);
+          });
           list = null;
         }
       }
@@ -141,9 +143,13 @@ export const listingRouter = router({
 
         list = listing || null;
 
-        await redisClient.set(input.label, JSON.stringify(list), {
-          ex: RedisExpireTime,
-        });
+        await redisClient
+          .set(input.label, JSON.stringify(list), {
+            ex: RedisExpireTime,
+          })
+          .catch((e) => {
+            console.error("Redis set error:", e);
+          });
       }
 
       return list;
@@ -339,9 +345,13 @@ export const listingRouter = router({
         items: listingItems,
       };
 
-      await getRedis().set(input.label, JSON.stringify(updatedList), {
-        keepTtl: true,
-      });
+      await getRedis()
+        .set(input.label, JSON.stringify(updatedList), {
+          keepTtl: true,
+        })
+        .catch((e) => {
+          console.error("Redis set error on updateTitle:", e);
+        });
 
       // TODO: axiom log.info("update list title", { label: input.label, title: input.title });
 
