@@ -50,6 +50,7 @@ function Home() {
   const [startSort, setStartSort] = useState<boolean>(false);
   const [getListOnce, setGetListOnce] = useState<boolean>(false);
   const [initialListSize, setInititalListSize] = useState<number>(-1);
+  const [currentListData, setCurrentListData] = useState<Partial<List>>({});
 
   // Featured Lists
   const [selectedList, setSelectedList] = useState<string>("");
@@ -73,22 +74,31 @@ function Home() {
     setOpen(!open);
   };
 
-  const updateList = useCallback((data: List, featured: boolean) => {
-    if (featured) {
-      // if we picked a featured list, add a visit to the db
-      createVisit.mutate({ label: data.label, source: "FEATURED" });
-      setGetListOnce(true);
-    }
+  const updateList = useCallback(
+    (data: List, featured: boolean, fromUrl: boolean) => {
+      if (featured) {
+        // if we picked a featured list, add a visit to the db
+        createVisit.mutate({ label: data.label, source: "FEATURED" });
+        setGetListOnce(true);
+      } else if (fromUrl) {
+        // if we loaded a list from URL, add a URL visit to the db
+        createVisit.mutate({ label: data.label, source: "URL" });
+      }
 
-    setList([]);
-    setInititalListSize(data.items?.length);
-    data.items.map((item) => {
-      setList((prev) => [...prev, { id: uuidv4(), value: item.value }]);
-    });
-    setTitle(data.title);
-    setOldTitle(data.title);
+      // Store the current list data so it's available for title editing
+      setCurrentListData(data);
+
+      setList([]);
+      setInititalListSize(data.items?.length);
+      data.items.map((item) => {
+        setList((prev) => [...prev, { id: uuidv4(), value: item.value }]);
+      });
+      setTitle(data.title);
+      setOldTitle(data.title);
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    []
+  );
 
   useEffect(() => {
     const backUrl = sessionStorage.getItem("back-url");
@@ -115,7 +125,7 @@ function Home() {
   useEffect(() => {
     if (data && data.items) {
       setInititalListSize(data.items.length);
-      updateList(data as List, false);
+      updateList(data as List, false, true);
     }
   }, [data, data?.items, data?.title, updateList]);
 
@@ -137,7 +147,7 @@ function Home() {
             title={title}
             setTitle={setTitle}
             textAreaRef={textAreaRef}
-            data={data ?? {}}
+            data={currentListData}
             listLabel={listLabel ?? ""}
             oldTitle={oldTitle}
             setOldTitle={setOldTitle}

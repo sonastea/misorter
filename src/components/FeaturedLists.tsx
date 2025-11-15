@@ -28,7 +28,7 @@ const FeaturedLists = ({
   selectedList: string;
   setSelectedList: Dispatch<SetStateAction<string>>;
   title: string;
-  updateList: (data: List, featured: boolean) => void;
+  updateList: (data: List, featured: boolean, fromUrl: boolean) => void;
 }) => {
   const navigate = useNavigate();
 
@@ -187,7 +187,7 @@ const FeaturedLists = ({
                     (list) => list.label === selectedList
                   );
                   if (!list) return;
-                  updateList(list, true);
+                  updateList(list, true, false);
                   toggleOpen();
                   navigate({ to: "/", search: { list: selectedList } });
                 }}

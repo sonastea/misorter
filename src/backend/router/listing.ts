@@ -4,7 +4,7 @@ import { items, listings, visits } from "@/db/schema";
 import { Redis } from "@upstash/redis/cloudflare";
 import { and, desc, eq, gte, inArray, notInArray, sql } from "drizzle-orm";
 import { customAlphabet } from "nanoid";
-import { array, enums, object, string } from "superstruct";
+import { z } from "zod";
 
 const nanoid = customAlphabet(
   "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
@@ -66,12 +66,10 @@ export type FeaturedList = {
   }[];
 };
 
-const VisitSource = enums(["URL", "FEATURED"]);
+const VisitSourceSchema = z.enum(["URL", "FEATURED", "NEW"]);
+type VisitSource = z.infer<typeof VisitSourceSchema>;
 
-const updateListingVisited = async (
-  listingId: string,
-  source: typeof VisitSource.TYPE
-) => {
+const updateListingVisited = async (listingId: string, source: VisitSource) => {
   const date = new Date();
 
   try {
@@ -96,14 +94,12 @@ const updateListingVisited = async (
 export const listingRouter = router({
   get: publicProcedure
     .input(
-      object({
-        label: string(),
+      z.object({
+        label: z.string(),
       })
     )
     .query(async ({ input }) => {
       let list: Partial<List> | null = {};
-
-      await updateListingVisited(input.label, "URL");
 
       const redisClient = getRedis();
       const cachedResult = await redisClient
@@ -252,11 +248,11 @@ export const listingRouter = router({
   }),
   create: publicProcedure
     .input(
-      object({
-        title: string(),
-        items: array(
-          object({
-            value: string(),
+      z.object({
+        title: z.string(),
+        items: z.array(
+          z.object({
+            value: z.string(),
           })
         ),
       })
@@ -274,18 +270,15 @@ export const listingRouter = router({
           })
           .returning({ label: listings.label, title: listings.title });
 
-        const insertedItems =
-          input.items.length > 0
-            ? await tx
-                .insert(items)
-                .values(
-                  input.items.map((item) => ({
-                    value: item.value,
-                    listingLabel: newLabel,
-                  }))
-                )
-                .returning({ value: items.value })
-            : [];
+        const insertedItems = await tx
+          .insert(items)
+          .values(
+            input.items.map((item) => ({
+              value: item.value,
+              listingLabel: newLabel,
+            }))
+          )
+          .returning({ value: items.value });
 
         return {
           ...listing,
@@ -293,17 +286,15 @@ export const listingRouter = router({
         };
       });
 
-      await updateListingVisited(newLabel, "FEATURED");
-
       // TODO: axiom log.info("created list", { label: newLabel, title: input.title });
 
       return result;
     }),
   createVisit: publicProcedure
     .input(
-      object({
-        label: string(),
-        source: VisitSource,
+      z.object({
+        label: z.string(),
+        source: VisitSourceSchema.default("NEW"),
       })
     )
     .mutation(async ({ input }) => {
@@ -322,9 +313,9 @@ export const listingRouter = router({
     }),
   updateTitle: publicProcedure
     .input(
-      object({
-        label: string(),
-        title: string(),
+      z.object({
+        label: z.string(),
+        title: z.string(),
       })
     )
     .mutation(async ({ input }) => {

@@ -34,12 +34,16 @@ const Setup = ({
 }: SetupProps) => {
   const navigate = useNavigate();
 
+  const createVisit = useMutation(trpc.listing.createVisit.mutationOptions());
+
   const createList = useMutation({
     ...trpc.listing.create.mutationOptions(),
     onSuccess: (data) => {
       navigate({ to: "/", search: { list: data.label } });
       setGetListOnce(true);
       setStartSort(true);
+      // Create a visit for the newly created list
+      createVisit.mutate({ label: data.label, source: "NEW" });
       toast.success("Successfully created link to list.");
     },
     onError: () => {
@@ -163,7 +167,11 @@ const Setup = ({
         <button className="home-reset" onClick={resetList}>
           Reset
         </button>
-        <button className="home-start" onClick={checkList}>
+        <button
+          className="home-start"
+          onClick={checkList}
+          disabled={creatingList}
+        >
           {creatingList ? (
             <svg
               width="24"

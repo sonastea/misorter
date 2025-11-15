@@ -56,12 +56,11 @@ const ListTitleEdit = ({
           if (title === "") {
             setTitle("misorter");
           }
-          if (data && data.label) {
-            // only update title of the list if we've fetched and changed the title from the original
-            if (listLabel && title !== oldTitle) {
-              updateTitle.mutate({ label: data.label, title });
-              setOldTitle(title);
-            }
+          // Try to use data.label first, fall back to listLabel if data not loaded
+          const labelToUse = data && data.label ? data.label : listLabel;
+          if (labelToUse && title !== oldTitle) {
+            updateTitle.mutate({ label: labelToUse, title });
+            setOldTitle(title);
           }
           setEditTitle(false);
         }
