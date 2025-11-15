@@ -56,43 +56,32 @@ Edit `wrangler.toml` and update:
 
 ### Step 2: Set Environment Variables
 
-**Option A: Using the helper script (Recommended)**
+The backend API requires:
 
-```bash
-# Make sure you have a .env file with all your secrets
-./scripts/deploy-secrets.sh
-```
+- `DATABASE_URL` - PostgreSQL connection string
+- `UPSTASH_REDIS_REST_URL` - Upstash Redis REST URL
+- `UPSTASH_REDIS_REST_TOKEN` - Upstash Redis REST token
 
-**Option B: Manual setup**
+**Option A: Manual setup**
 
 Set secrets one by one using Wrangler (you'll be prompted to paste each value):
 
 ```bash
 # Database
 wrangler secret put DATABASE_URL
-wrangler secret put DIRECT_URL
 
 # Redis
-wrangler secret put REDIS_URL
 wrangler secret put UPSTASH_REDIS_REST_URL
 wrangler secret put UPSTASH_REDIS_REST_TOKEN
-
-# OAuth (if needed by Worker)
-wrangler secret put VITE_CLIENT_ID
-wrangler secret put VITE_CLIENT_SECRET
 ```
 
-**Option C: From .env file (one-liners)**
+**Option B: From .env file (one-liners)**
 
 ```bash
 # Load from .env and pipe to wrangler
 source .env && echo "$DATABASE_URL" | wrangler secret put DATABASE_URL
-source .env && echo "$DIRECT_URL" | wrangler secret put DIRECT_URL
-source .env && echo "$REDIS_URL" | wrangler secret put REDIS_URL
 source .env && echo "$UPSTASH_REDIS_REST_URL" | wrangler secret put UPSTASH_REDIS_REST_URL
 source .env && echo "$UPSTASH_REDIS_REST_TOKEN" | wrangler secret put UPSTASH_REDIS_REST_TOKEN
-source .env && echo "$VITE_CLIENT_ID" | wrangler secret put VITE_CLIENT_ID
-source .env && echo "$VITE_CLIENT_SECRET" | wrangler secret put VITE_CLIENT_SECRET
 ```
 
 To view existing secrets:
@@ -134,35 +123,26 @@ curl https://misorter-api.your-account.workers.dev/
 
 ### Step 1: Configure Environment Variables
 
-Cloudflare Pages needs environment variables set in the dashboard or via CLI.
+The frontend requires:
 
-**Option A: Using Wrangler CLI**
+- `VITE_API_URL` - URL to your deployed backend API
+- `VITE_CLIENT_ID` - OAuth client ID
+- `VITE_CLIENT_SECRET` - OAuth client secret
 
-First, create your Pages project if you haven't:
-
-```bash
-wrangler pages project create misorter
-```
-
-Then set environment variables for production:
-
-```bash
-# Get your Pages project name
-wrangler pages project list
-
-# Set variables for production environment
-echo "https://api.your-domain.com" | wrangler pages secret put VITE_API_URL --project-name=misorter --env=production
-```
-
-**Option B: Via Cloudflare Dashboard**
+**Option A: Via Cloudflare Dashboard**
 
 1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com/)
 2. Navigate to **Workers & Pages** → Your Pages project
 3. Go to **Settings** → **Environment variables**
-4. Add variables:
+4. Add variables for **Production** environment:
    - `VITE_API_URL` = `https://api.your-domain.com`
-5. Select **Production** environment
-6. Save
+   - `VITE_CLIENT_ID` = `your_client_id`
+   - `VITE_CLIENT_SECRET` = `your_client_secret`
+5. Save
+
+**Option B: Via GitHub Integration**
+
+When setting up GitHub integration (see Step 3, Option C), add these environment variables during the setup process.
 
 **Option C: Local .env file (for local builds only)**
 
@@ -172,7 +152,7 @@ Create a `.env.production` file (this won't be used by Pages deployments):
 # Point to your deployed Cloudflare Worker
 VITE_API_URL=https://api.your-domain.com
 
-# Twitch OAuth
+# OAuth for twitch integration with polls
 VITE_CLIENT_ID=your_client_id
 VITE_CLIENT_SECRET=your_client_secret
 ```
@@ -325,7 +305,7 @@ Cloudflare Dashboard → **Workers & Pages** → Your Pages project → **Deploy
 
 ### Database connection issues
 
-- Ensure `DATABASE_URL` and `DIRECT_URL` are set
+- Ensure `DATABASE_URL` is set
 - Verify your database accepts connections from Cloudflare IPs
 - Consider using Cloudflare Workers database (D1) or connection pooling
 
