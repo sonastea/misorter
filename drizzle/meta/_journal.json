@@ -8,6 +8,13 @@
       "when": 1763009526364,
       "tag": "0000_light_tattoo",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1763009526365,
+      "tag": "0001_fix_sequences",
+      "breakpoints": true
     }
   ]
 }

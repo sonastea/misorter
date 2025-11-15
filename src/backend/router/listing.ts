@@ -270,6 +270,10 @@ export const listingRouter = router({
           })
           .returning({ label: listings.label, title: listings.title });
 
+        if (listing.label !== newLabel) {
+          tx.rollback();
+        }
+
         const insertedItems = await tx
           .insert(items)
           .values(
@@ -279,6 +283,10 @@ export const listingRouter = router({
             }))
           )
           .returning({ value: items.value });
+
+        if (insertedItems.length !== input.items.length) {
+          tx.rollback();
+        }
 
         return {
           ...listing,
