@@ -1,11 +1,10 @@
-import { prisma } from "@db/client";
-import { Prisma } from "@prisma/client";
-import { TRPCError } from "@trpc/server";
-import Redis from "ioredis";
+import { publicProcedure, router } from "@/backend/trpc";
+import { getDb } from "@/db/client";
+import { items, listings, visits } from "@/db/schema";
+import { Redis } from "@upstash/redis/cloudflare";
+import { and, desc, eq, gte, inArray, notInArray, sql } from "drizzle-orm";
 import { customAlphabet } from "nanoid";
-import { publicProcedure, router } from "src/backend/trpc";
-import { array, enums, object, string } from "superstruct";
-import { log } from "next-axiom";
+import { z } from "zod";
 
 const nanoid = customAlphabet(
   "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
@@ -17,110 +16,139 @@ const CANDIDATE_POOL_SIZE = 10;
 const DAYS_AGO = 5;
 
 const RedisExpireTime: number = 7 * (60 * 60 * 24); // expire time in days from seconds
-const redis = new Redis(process.env.REDIS_URL as string, {
-  retryStrategy: (times) => Math.min(times * 50, 15000),
-})
-  .on("error", (err) => console.error("Redis error: ", err.message))
-  .on("connect", () => console.log("Redis is connected."));
+let redis: Redis | null = null;
 
-export const ListType = Prisma.validator<Prisma.ListingDefaultArgs>()({
-  select: {
-    label: true,
-    title: true,
-    visits: true,
-  },
-  include: {
-    items: {
-      select: {
-        value: true,
-      },
-    },
-  },
-});
+const getRedis = () => {
+  const upstashUrl = process.env.UPSTASH_REDIS_REST_URL;
+  if (!upstashUrl) {
+    throw new Error("ENV var UPSTASH_REDIS_REST_URL is not set!");
+  }
 
-export const FeaturedLists = Prisma.validator<Prisma.ListingDefaultArgs>()({
-  select: {
-    id: true,
-    label: true,
-    title: true,
-    createdAt: true,
-    updatedAt: true,
-    visits: true,
-    items: {
-      select: {
-        id: true,
-        value: true,
-      },
-    },
-  },
-});
+  const upstashToken = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!upstashToken) {
+    throw new Error("ENV var UPSTASH_REDIS_REST_TOKEN is not set!");
+  }
 
-export type List = Prisma.ListingGetPayload<typeof ListType>;
+  if (!redis) {
+    redis = new Redis({
+      url: upstashUrl,
+      token: upstashToken,
+    });
+  }
 
-const VisitSourceEnum = enums(["URL", "FEATURED"]);
+  return redis;
+};
 
-const updateListingVisited = async (
-  listingId: string,
-  source: typeof VisitSourceEnum.TYPE
-) => {
+export type List = {
+  label: string;
+  title: string;
+  items: { value: string }[];
+  visits?: {
+    id: number;
+    createdAt: Date;
+    listingLabel: string;
+    source: string | null;
+  }[];
+};
+
+export type FeaturedList = {
+  id: number;
+  label: string;
+  title: string;
+  createdAt: Date;
+  updatedAt: Date;
+  items: { id: number; value: string }[];
+  visits: {
+    id: number;
+    createdAt: Date;
+    listingLabel: string;
+    source: string | null;
+  }[];
+};
+
+const VisitSourceSchema = z.enum(["URL", "FEATURED", "NEW"]);
+type VisitSource = z.infer<typeof VisitSourceSchema>;
+
+const updateListingVisited = async (listingId: string, source: VisitSource) => {
   const date = new Date();
 
   try {
-    // Update the updatedAt field and connect a new Visit record
-    const result = await prisma.listing.update({
-      where: { label: listingId },
-      data: {
-        updatedAt: date,
-        visits: {
-          create: { createdAt: date, source },
-        },
-      },
-    });
-    return result;
+    const db = getDb();
+    await db
+      .update(listings)
+      .set({ updatedAt: date })
+      .where(eq(listings.label, listingId));
+
+    const result = await db
+      .insert(visits)
+      .values({ createdAt: date, listingLabel: listingId, source })
+      .returning({ id: visits.id });
+
+    return result[0] || { id: -1 };
   } catch (e) {
-    if (e instanceof Prisma.PrismaClientKnownRequestError) {
-      console.error("Prisma Error: ", e.code);
-      throw new TRPCError({
-        code: "BAD_REQUEST",
-        message: "Invalid listing label.",
-        cause: e,
-      });
-    }
+    console.error("Database Error:", e);
+    return { id: -1 };
   }
-  return { id: -1 };
 };
 
 export const listingRouter = router({
   get: publicProcedure
     .input(
-      object({
-        label: string(),
+      z.object({
+        label: z.string(),
       })
     )
     .query(async ({ input }) => {
       let list: Partial<List> | null = {};
 
-      await updateListingVisited(input.label, "URL");
+      const redisClient = getRedis();
+      const cachedResult = await redisClient
+        .get<string>(input.label)
+        .catch((e) => {
+          console.error("Redis get error:", e);
+          return null;
+        });
 
-      await redis.get(input.label).then(async (result) => {
-        if (result != null) {
-          list = JSON.parse(result);
-        } else {
-          list = await prisma.listing.findUnique({
-            where: { label: input.label },
-            select: {
-              label: true,
-              title: true,
-              items: {
-                orderBy: { id: "asc" },
-                select: { value: true },
-              },
-            },
+      if (cachedResult != null && typeof cachedResult === "string") {
+        try {
+          list = JSON.parse(cachedResult);
+        } catch (e) {
+          console.error(e, input.label, "value:", cachedResult);
+          await redisClient.del(input.label).catch((delError) => {
+            console.error("Redis del error:", delError);
           });
-          await redis.set(input.label, JSON.stringify(list));
-          await redis.expire(input.label, RedisExpireTime);
+          list = null;
         }
-      });
+      }
+
+      if (!list || Object.keys(list).length === 0) {
+        const db = getDb();
+        const listing = await db.query.listings.findFirst({
+          where: eq(listings.label, input.label),
+          columns: {
+            label: true,
+            title: true,
+          },
+          with: {
+            items: {
+              columns: { value: true },
+              orderBy: (items, { asc }) => [asc(items.id)],
+            },
+          },
+        });
+
+        list = listing || null;
+
+        if (listing) {
+          await redisClient
+            .set(input.label, JSON.stringify(list), {
+              ex: RedisExpireTime,
+            })
+            .catch((e) => {
+              console.error("Redis set error:", e);
+            });
+        }
+      }
 
       return list;
     }),
@@ -129,24 +157,27 @@ export const listingRouter = router({
     kDaysAgo.setDate(kDaysAgo.getDate() - DAYS_AGO);
 
     const getFeatured = async (kDaysAgo: Date) => {
-      const popularCandidates = await prisma.listing.findMany({
-        ...FeaturedLists,
-        orderBy: {
-          visits: {
-            _count: "desc",
-          },
-        },
-        where: {
-          visits: {
-            some: {
-              createdAt: {
-                gte: kDaysAgo,
-              },
-            },
-          },
-        },
-        take: CANDIDATE_POOL_SIZE,
-      });
+      const db = getDb();
+      const popularCandidates = await db
+        .select({
+          id: listings.id,
+          label: listings.label,
+          title: listings.title,
+          createdAt: listings.createdAt,
+          updatedAt: listings.updatedAt,
+          visitCount: sql<number>`count(${visits.id})::int`,
+        })
+        .from(listings)
+        .leftJoin(
+          visits,
+          and(
+            eq(visits.listingLabel, listings.label),
+            gte(visits.createdAt, kDaysAgo)
+          )
+        )
+        .groupBy(listings.id)
+        .orderBy(desc(sql`count(${visits.id})`))
+        .limit(CANDIDATE_POOL_SIZE);
 
       const shuffledPopular = [...popularCandidates].sort(
         () => Math.random() - 0.5
@@ -158,69 +189,131 @@ export const listingRouter = router({
 
       const excluded = popularList.map((list) => list.label);
       const needed = TOP_K_LISTS - popularList.length;
-      const randomLists = await prisma.listing.findManyRandom(needed, {
-        ...FeaturedLists,
-        where: {
-          label: {
-            notIn: excluded,
-          },
-        },
-      });
 
-      return [...popularList, ...randomLists];
+      const randomListings = await db
+        .select()
+        .from(listings)
+        .where(
+          excluded.length > 0 ? notInArray(listings.label, excluded) : undefined
+        )
+        .orderBy(sql`RANDOM()`)
+        .limit(needed);
+
+      const selectedListings = [...popularList, ...randomListings];
+      const selectedLabels = selectedListings.map((l) => l.label);
+
+      if (selectedLabels.length === 0) {
+        return [];
+      }
+
+      const [allItems, allVisits] = await Promise.all([
+        db
+          .select({
+            id: items.id,
+            value: items.value,
+            listingLabel: items.listingLabel,
+          })
+          .from(items)
+          .where(inArray(items.listingLabel, selectedLabels)),
+        db
+          .select()
+          .from(visits)
+          .where(inArray(visits.listingLabel, selectedLabels)),
+      ]);
+
+      const itemsByLabel = allItems.reduce(
+        (acc, item) => {
+          if (!acc[item.listingLabel]) acc[item.listingLabel] = [];
+          acc[item.listingLabel].push({ id: item.id, value: item.value });
+          return acc;
+        },
+        {} as Record<string, { id: number; value: string }[]>
+      );
+
+      const visitsByLabel = allVisits.reduce(
+        (acc, visit) => {
+          if (!acc[visit.listingLabel]) acc[visit.listingLabel] = [];
+          acc[visit.listingLabel].push(visit);
+          return acc;
+        },
+        {} as Record<string, typeof allVisits>
+      );
+
+      return selectedListings.map((listing) => ({
+        ...listing,
+        items: itemsByLabel[listing.label] || [],
+        visits: visitsByLabel[listing.label] || [],
+      }));
     };
 
     return await getFeatured(kDaysAgo);
   }),
   create: publicProcedure
     .input(
-      object({
-        title: string(),
-        items: array(
-          object({
-            value: string(),
+      z.object({
+        title: z.string(),
+        items: z.array(
+          z.object({
+            value: z.string(),
           })
         ),
       })
     )
     .mutation(async ({ input }) => {
       const newLabel = nanoid();
-      const list = await prisma.listing
-        .create({
-          data: {
+
+      const db = getDb();
+      const result = await db.transaction(async (tx) => {
+        const [listing] = await tx
+          .insert(listings)
+          .values({
             label: newLabel,
             title: input.title,
-            items: { create: input.items },
-          },
-          select: {
-            label: true,
-            title: true,
-            items: {
-              orderBy: { id: "asc" },
-              select: { value: true },
-            },
-          },
-        })
-        .finally(async () => await updateListingVisited(newLabel, "FEATURED"));
+          })
+          .returning({ label: listings.label, title: listings.title });
 
-      log.info("created list", { label: newLabel, title: input.title });
+        if (listing.label !== newLabel) {
+          tx.rollback();
+        }
 
-      return list;
+        const insertedItems = await tx
+          .insert(items)
+          .values(
+            input.items.map((item) => ({
+              value: item.value,
+              listingLabel: newLabel,
+            }))
+          )
+          .returning({ value: items.value });
+
+        if (insertedItems.length !== input.items.length) {
+          tx.rollback();
+        }
+
+        return {
+          ...listing,
+          items: insertedItems,
+        };
+      });
+
+      // TODO: axiom log.info("created list", { label: newLabel, title: input.title });
+
+      return result;
     }),
   createVisit: publicProcedure
     .input(
-      object({
-        label: string(),
-        source: VisitSourceEnum,
+      z.object({
+        label: z.string(),
+        source: VisitSourceSchema.default("NEW"),
       })
     )
     .mutation(async ({ input }) => {
       const result = await updateListingVisited(input.label, input.source);
 
-      log.info("visited list", {
-        label: input.label,
-        visit_source: input.source,
-      });
+      // TODO: axiom log.info("visited list", {
+      //   label: input.label,
+      //   visit_source: input.source,
+      // });
 
       if (!result.id || result.id === -1) {
         return { success: false };
@@ -230,26 +323,38 @@ export const listingRouter = router({
     }),
   updateTitle: publicProcedure
     .input(
-      object({
-        label: string(),
-        title: string(),
+      z.object({
+        label: z.string(),
+        title: z.string(),
       })
     )
     .mutation(async ({ input }) => {
-      const updatedList = await prisma.listing.update({
-        where: { label: input.label },
-        data: { title: input.title },
-        select: {
-          label: true,
-          title: true,
-          items: {
-            select: { value: true },
-          },
-        },
-      });
-      await redis.set(input.label, JSON.stringify(updatedList), "KEEPTTL");
+      const db = getDb();
+      const [listing] = await db
+        .update(listings)
+        .set({ title: input.title })
+        .where(eq(listings.label, input.label))
+        .returning({ label: listings.label, title: listings.title });
 
-      log.info("update list title", { label: input.label, title: input.title });
+      const listingItems = await db.query.items.findMany({
+        where: eq(items.listingLabel, input.label),
+        columns: { value: true },
+      });
+
+      const updatedList = {
+        ...listing,
+        items: listingItems,
+      };
+
+      await getRedis()
+        .set(input.label, JSON.stringify(updatedList), {
+          keepTtl: true,
+        })
+        .catch((e) => {
+          console.error("Redis set error on updateTitle:", e);
+        });
+
+      // TODO: axiom log.info("update list title", { label: input.label, title: input.title });
 
       return updatedList;
     }),

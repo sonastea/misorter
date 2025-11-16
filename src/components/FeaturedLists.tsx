@@ -10,9 +10,10 @@ import {
   TransitionChild,
 } from "@headlessui/react";
 import { List } from "@router/listing";
-import { useRouter } from "next/router";
+import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { Dispatch, Fragment, SetStateAction } from "react";
-import { trpc } from "src/utils/trpc";
+import { trpc } from "@utils/trpc";
 
 const FeaturedLists = ({
   open,
@@ -27,17 +28,17 @@ const FeaturedLists = ({
   selectedList: string;
   setSelectedList: Dispatch<SetStateAction<string>>;
   title: string;
-  updateList: (data: List, featured: boolean) => void;
+  updateList: (data: List, featured: boolean, fromUrl: boolean) => void;
 }) => {
-  const router = useRouter();
+  const navigate = useNavigate();
 
-  const { data, isLoading, refetch, isFetching } =
-    trpc.listing.getFeatured.useQuery(undefined, {
-      refetchOnMount: false,
-      refetchInterval: false,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-    });
+  const { data, isLoading, refetch, isFetching } = useQuery({
+    ...trpc.listing.getFeatured.queryOptions(),
+    refetchOnMount: false,
+    refetchInterval: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
+  });
 
   return (
     <Transition
@@ -186,11 +187,9 @@ const FeaturedLists = ({
                     (list) => list.label === selectedList
                   );
                   if (!list) return;
-                  updateList(list, true);
+                  updateList(list, true, false);
                   toggleOpen();
-                  router.push("/?list=" + selectedList, undefined, {
-                    shallow: true,
-                  });
+                  navigate({ to: "/", search: { list: selectedList } });
                 }}
                 className="featuredLists-try ui-focus-visible:ring-light-text-primary dark:ui-focus-visible:ring-dark-text-primary ui-focus-visible:ring-2 focus:outline-hidden"
                 disabled={isLoading || !selectedList}

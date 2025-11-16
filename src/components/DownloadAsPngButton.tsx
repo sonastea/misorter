@@ -3,7 +3,7 @@ import domtoimage from "dom-to-image-more";
 export const DownloadAsPngButton = () => {
   const exportToPng = () => {
     domtoimage
-      .toPng(document.getElementById("ResultsTable"))
+      .toPng(document.getElementById("ResultsContainer"))
       .then((dataUrl: string) => {
         const link = document.createElement("a");
         link.download = `misorter-results-${new Date().toLocaleString(

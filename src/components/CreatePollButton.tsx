@@ -1,7 +1,7 @@
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
-import { deleteCookie, getCookie } from "cookies-next";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { deleteCookie, getCookie } from "@utils/cookies";
 
 const CreatePollButton = ({
   option1,
@@ -17,7 +17,7 @@ const CreatePollButton = ({
 
   const handleCreatePoll = async () => {
     const userId = sessionStorage.getItem("twitch_user_id");
-    const clientId = process.env.NEXT_PUBLIC_clientId!;
+    const clientId = import.meta.env.VITE_CLIENT_ID!;
     const choices: { title: string }[] = [
       { title: newOption1 },
       { title: newOption2 },

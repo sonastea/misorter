@@ -1,6 +1,6 @@
 import cryptoRandomString from "crypto-random-string";
 
-const clientId = process.env.NEXT_PUBLIC_clientId;
+const clientId = import.meta.env.VITE_CLIENT_ID;
 const secret = cryptoRandomString({ length: 9, type: "url-safe" });
 
 const CreatePollUnauthorizedButton = ({

@@ -1,9 +1,21 @@
-import { deleteCookie, getCookie, setCookie } from "cookies-next";
-import dynamic from "next/dynamic";
-import { ReactElement, Suspense, useEffect, useRef, useState } from "react";
-import { ListItem } from "src/pages";
+import {
+  ReactElement,
+  Suspense,
+  lazy,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { ListItem } from "src/routes/index";
+import { deleteCookie, getCookie, setCookie } from "@utils/cookies";
 import DownloadAsPngSkeleton from "./DownloadAsPngSkeleton";
 import ConfirmModal from "./ConfirmModal";
+
+const DownloadAsPng = lazy(() => import("../components/DownloadAsPngButton"));
+const TwitchPollButton = lazy(
+  () => import("../components/CreatePollButtonContainer")
+);
+const ShareLinkButton = lazy(() => import("../components/ShareLinkButton"));
 
 const lstMember: number[][] = [];
 const parent: number[] = [];
@@ -20,12 +32,12 @@ let finishFlag: number;
 let clientId: string = "";
 let clientSecret: string = "";
 
-if (process.env.NEXT_PUBLIC_clientId) {
-  clientId = process.env.NEXT_PUBLIC_clientId;
+if (import.meta.env.VITE_CLIENT_ID) {
+  clientId = import.meta.env.VITE_CLIENT_ID;
 }
 
-if (process.env.NEXT_PUBLIC_clientSecret) {
-  clientSecret = process.env.NEXT_PUBLIC_clientSecret;
+if (import.meta.env.VITE_CLIENT_SECRET) {
+  clientSecret = import.meta.env.VITE_CLIENT_SECRET;
 }
 
 const Sort = ({
@@ -46,27 +58,6 @@ const Sort = ({
 
   let code: string | null = "";
 
-  const DownloadAsPng = dynamic(
-    () => import("../components/DownloadAsPngButton"),
-    {
-      ssr: false,
-    }
-  );
-
-  const TwitchPollButton = dynamic(
-    () => import("../components/CreatePollButtonContainer"),
-    {
-      ssr: false,
-    }
-  );
-
-  const ShareLinkButton = dynamic(
-    () => import("../components/ShareLinkButton"),
-    {
-      ssr: false,
-    }
-  );
-
   const validate = async () => {
     try {
       const data = await fetch("https://id.twitch.tv/oauth2/validate", {
@@ -81,7 +72,7 @@ const Sort = ({
       } else if (data.status === 401) {
         deleteCookie("Authorization", {
           secure: true,
-          sameSite: true,
+          sameSite: "strict",
         });
         setLoggedIn(false);
       }
@@ -121,7 +112,7 @@ const Sort = ({
             if (data && data.access_token) {
               setCookie("Authorization", `Bearer ${data.access_token}`, {
                 secure: true,
-                sameSite: true,
+                sameSite: "strict",
               });
               sessionStorage.removeItem("twitch_auth_code");
               setLoggedIn(true);
@@ -404,15 +395,17 @@ const Sort = ({
         )}
         {showResults && (
           <>
-            <table id="ResultsTable" className="sort-resultsTable" ref={ref}>
-              <thead className="sort-resultsHeaderContainer">
-                <tr>
-                  <th className="sort-resultsHeader">rank</th>
-                  <th className="sort-resultsHeader">options</th>
-                </tr>
-              </thead>
-              <tbody>{resultsItems}</tbody>
-            </table>
+            <div id="ResultsContainer" className="sort-resultsContainer">
+              <table id="ResultsTable" className="sort-resultsTable" ref={ref}>
+                <thead className="sort-resultsHeaderContainer">
+                  <tr>
+                    <th className="sort-resultsHeader">rank</th>
+                    <th className="sort-resultsHeader">options</th>
+                  </tr>
+                </thead>
+                <tbody>{resultsItems}</tbody>
+              </table>
+            </div>
             <Suspense fallback={<DownloadAsPngSkeleton />}>
               <DownloadAsPng />
             </Suspense>
@@ -451,12 +444,16 @@ const Sort = ({
           <br />
           0% sorted.
         </div>
-        <TwitchPollButton
-          isLoggedIn={isLoggedIn}
-          option1={option1}
-          option2={option2}
-        />
-        <ShareLinkButton />
+        <Suspense fallback={<div />}>
+          <TwitchPollButton
+            isLoggedIn={isLoggedIn}
+            option1={option1}
+            option2={option2}
+          />
+        </Suspense>
+        <Suspense fallback={<div />}>
+          <ShareLinkButton />
+        </Suspense>
         <div
           className="sort-leftField"
           onClick={() => {

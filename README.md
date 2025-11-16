@@ -1,34 +1,112 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# misorter
+
+A ranking and sorting application built with React, Vite, TanStack Router, and tRPC.
+
+## Tech Stack
+
+- **Frontend**: React 19, Vite, TanStack Router
+- **Backend**: tRPC, Prisma
+- **Database**: PostgreSQL
+- **Styling**: TailwindCSS
+- **State Management**: TanStack Query (React Query)
 
 ## Getting Started
 
-First, run the development server:
+First, install dependencies:
+
+```bash
+npm install
+```
+
+### Development Mode
+
+For local development, you need to run both frontend and backend:
 
 ```bash
 npm run dev
-# or
-yarn dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+This will start:
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+- **Frontend** (Vite): [http://localhost:3000](http://localhost:3000) - React app with hot reload
+- **Worker** (Wrangler): [http://localhost:8787](http://localhost:8787) - Cloudflare Worker runtime
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+You can also run them separately:
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+```bash
+# Run only the frontend
+npm run dev:client
 
-## Learn More
+# Run only the worker
+npm run dev:worker
+```
 
-To learn more about Next.js, take a look at the following resources:
+**Note:** The development setup uses Wrangler to run your Worker locally in the edge runtime, matching production exactly. The Vite dev server proxies `/trpc` requests to the Worker.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+You can start editing the page by modifying `src/routes/index.tsx`. The page auto-updates as you edit the file.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+## Build
 
-## Deploy on Vercel
+To create a production build:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npm run build
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+To preview the production build:
+
+```bash
+npm run preview
+```
+
+## Environment Variables
+
+Copy `.env.example` to `.env` and fill in the required values:
+
+### Frontend (Client-side)
+
+- `VITE_API_URL` - (Optional) API endpoint URL for production. If not set, uses relative URLs
+- `VITE_CLIENT_ID` - Twitch API client ID
+- `VITE_CLIENT_SECRET` - Twitch API client secret
+
+### Backend (Worker)
+
+- `DATABASE_URL` - PostgreSQL database URL
+- `REDIS_URL` - Redis connection URL
+- `UPSTASH_REDIS_REST_URL` - Upstash Redis REST URL
+- `UPSTASH_REDIS_REST_TOKEN` - Upstash Redis token
+
+## Deployment
+
+### Production Options
+
+#### Option 1: Cloudflare Workers + Pages (Recommended)
+
+This project is configured for Cloudflare deployment.
+
+**Deploy to Cloudflare:**
+
+```bash
+# Deploy production (worker + pages)
+npm run deploy
+
+# Deploy preview/staging
+npm run deploy:preview
+```
+
+This deploys:
+
+- **Worker**: Your tRPC API to `misorter.com/trpc/*` (or `preview.misorter.com/trpc/*` for preview)
+- **Pages**: Your frontend to `misorter.com`
+
+**Benefits:**
+
+- ✅ No server management
+- ✅ Global edge deployment
+- ✅ Automatic scaling
+- ✅ No CORS issues (same subdomain)
+- ✅ Pay per use
+
+See `DEPLOYMENT.md` for detailed deployment instructions.
+
+**Note:** This project is optimized for Cloudflare deployment. For other platforms, you may need to adapt the Worker code accordingly.

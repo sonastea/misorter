@@ -1,22 +1,17 @@
 import { List } from "@router/listing";
-import type { NextPage } from "next";
-import dynamic from "next/dynamic";
-import Head from "next/head";
-import { useRouter } from "next/router";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import ListItemsSkeletonLoader from "src/components/ListItemsSkeletonLoader";
 import ListTitle from "src/components/ListTitle";
 import ListTitleEdit from "src/components/ListTitleEdit";
 import Setup from "src/components/Setup";
 import Sort from "src/components/Sort";
-import { trpc } from "src/utils/trpc";
+import FeaturedLists from "src/components/FeaturedLists";
+import FeaturedListsToggle from "src/components/FeaturedListsToggle";
+import Footer from "src/components/Footer";
+import { trpc } from "@utils/trpc";
 import { v4 as uuidv4 } from "uuid";
-
-const FeaturedLists = dynamic(() => import("../components/FeaturedLists"));
-
-const metaTitle = "misorter";
-const metaDescription =
-  "Sort list of items to create a ranking based on the results. Sorter, Rankings, Favorites";
 
 const tip =
   "hitting <b>no opinion</b>  or  <b>I like both</b> frequently will negatively affect your results.";
@@ -28,7 +23,25 @@ export type ListItem = {
   value: string;
 };
 
-const Home: NextPage = () => {
+type IndexSearch = {
+  list?: string;
+  code?: string;
+  state?: string;
+};
+
+export const Route = createFileRoute("/")({
+  component: Home,
+  validateSearch: (search: Record<string, unknown>): IndexSearch => ({
+    list: search.list as string | undefined,
+    code: search.code as string | undefined,
+    state: search.state as string | undefined,
+  }),
+});
+
+function Home() {
+  const { list: listLabel, code, state } = Route.useSearch();
+  const navigate = useNavigate();
+
   const [editTitle, setEditTitle] = useState<boolean>(false);
   const [title, setTitle] = useState<string>("misorter");
   const [oldTitle, setOldTitle] = useState<string>();
@@ -37,6 +50,7 @@ const Home: NextPage = () => {
   const [startSort, setStartSort] = useState<boolean>(false);
   const [getListOnce, setGetListOnce] = useState<boolean>(false);
   const [initialListSize, setInititalListSize] = useState<number>(-1);
+  const [currentListData, setCurrentListData] = useState<Partial<List>>({});
 
   // Featured Lists
   const [selectedList, setSelectedList] = useState<string>("");
@@ -44,72 +58,61 @@ const Home: NextPage = () => {
 
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
-  const router = useRouter();
-  const listLabel = router.query["list"] as string;
-
-  const { data, isFetching, refetch } = trpc.listing.get.useQuery<List>(
-    { label: listLabel },
-    {
-      refetchOnMount: false,
-      refetchInterval: false,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-      retry: false,
-      enabled: false,
-      trpc: {},
-    }
-  );
-
-  const createVisit = trpc.listing.createVisit.useMutation();
-
-  const FeaturedListsToggle = dynamic(
-    () => import("../components/FeaturedListsToggle"),
-    {
-      ssr: false,
-    }
-  );
-
-  const DynamicFooter = dynamic(() => import("../components/Footer"), {
-    ssr: false,
+  const { data, isFetching, refetch } = useQuery({
+    ...trpc.listing.get.queryOptions({ label: listLabel ?? "" }),
+    refetchOnMount: false,
+    refetchInterval: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
+    retry: false,
+    enabled: false,
   });
+
+  const createVisit = useMutation(trpc.listing.createVisit.mutationOptions());
 
   const toggleFeaturedLists = () => {
     setOpen(!open);
   };
 
-  const updateList = useCallback((data: List, featured: boolean) => {
-    if (featured) {
-      // if we picked a featured list, add a visit to the db
-      createVisit.mutate({ label: data.label, source: "FEATURED" });
-      setGetListOnce(true);
-    }
+  const updateList = useCallback(
+    (data: List, featured: boolean, fromUrl: boolean) => {
+      if (featured) {
+        // if we picked a featured list, add a visit to the db
+        createVisit.mutate({ label: data.label, source: "FEATURED" });
+        setGetListOnce(true);
+      } else if (fromUrl) {
+        // if we loaded a list from URL, add a URL visit to the db
+        createVisit.mutate({ label: data.label, source: "URL" });
+      }
 
-    setList([]);
-    setInititalListSize(data.items?.length);
-    data.items.map((item) => {
-      setList((prev) => [...prev, { id: uuidv4(), value: item.value }]);
-    });
-    setTitle(data.title);
-    setOldTitle(data.title);
+      // Store the current list data so it's available for title editing
+      setCurrentListData(data);
+
+      setList([]);
+      setInititalListSize(data.items?.length);
+      data.items.map((item) => {
+        setList((prev) => [...prev, { id: uuidv4(), value: item.value }]);
+      });
+      setTitle(data.title);
+      setOldTitle(data.title);
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    []
+  );
 
   useEffect(() => {
     const backUrl = sessionStorage.getItem("back-url");
-    if (router.query["code"] && router.query["state"]) {
-      if (router.query["state"] === sessionStorage.getItem("state")) {
-        sessionStorage.setItem(
-          "twitch_auth_code",
-          router.query["code"].toString()
-        );
+    if (code && state) {
+      if (state === sessionStorage.getItem("state")) {
+        sessionStorage.setItem("twitch_auth_code", code.toString());
         sessionStorage.removeItem("state");
       }
       if (backUrl) {
-        router.push(backUrl);
+        navigate({ to: backUrl });
         sessionStorage.removeItem("back-url");
       }
     }
-  }, [router, router.query]);
+  }, [code, state, navigate]);
 
   useEffect(() => {
     if (listLabel && !getListOnce) {
@@ -120,9 +123,9 @@ const Home: NextPage = () => {
   }, [listLabel, refetch]);
 
   useEffect(() => {
-    if (data) {
-      setInititalListSize(data.items?.length);
-      updateList(data, false);
+    if (data && data.items) {
+      setInititalListSize(data.items.length);
+      updateList(data as List, false, true);
     }
   }, [data, data?.items, data?.title, updateList]);
 
@@ -138,34 +141,14 @@ const Home: NextPage = () => {
 
   return (
     <div className="home-container">
-      <Head>
-        <meta
-          name="title"
-          content={`${metaTitle}${data?.title && " | " + data.title}`}
-        />
-        <title>
-          {data?.title ? "misorter | " + data.title + " list" : "misorter"}
-        </title>
-        <meta charSet="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="description" content={metaDescription} />
-        <meta
-          name="keywords"
-          content="sort, list, kpop, rank, ranking, tournament, sorter, song, movie, show, character"
-        />
-        <meta name="twitter:creator" content="@teadroplets" />
-        <meta name="og:title" content={metaTitle} />
-        <meta name="og:description" content={metaDescription} />
-      </Head>
-
       <main className="home-main">
         {editTitle ? (
           <ListTitleEdit
             title={title}
             setTitle={setTitle}
             textAreaRef={textAreaRef}
-            data={data ?? {}}
-            listLabel={listLabel}
+            data={currentListData}
+            listLabel={listLabel ?? ""}
             oldTitle={oldTitle}
             setOldTitle={setOldTitle}
             setEditTitle={setEditTitle}
@@ -211,9 +194,7 @@ const Home: NextPage = () => {
         updateList={updateList}
       />
 
-      <DynamicFooter />
+      <Footer />
     </div>
   );
-};
-
-export default Home;
+}
