@@ -139,13 +139,15 @@ export const listingRouter = router({
 
         list = listing || null;
 
-        await redisClient
-          .set(input.label, JSON.stringify(list), {
-            ex: RedisExpireTime,
-          })
-          .catch((e) => {
-            console.error("Redis set error:", e);
-          });
+        if (listing) {
+          await redisClient
+            .set(input.label, JSON.stringify(list), {
+              ex: RedisExpireTime,
+            })
+            .catch((e) => {
+              console.error("Redis set error:", e);
+            });
+        }
       }
 
       return list;
