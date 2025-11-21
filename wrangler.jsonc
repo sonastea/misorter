@@ -6,7 +6,7 @@
   "compatibility_flags": ["nodejs_compat"],
   "routes": [
     {
-      "pattern": "v2.misorter.com/trpc/*",
+      "pattern": "misorter.com/trpc/*",
       "zone_name": "misorter.com",
     },
   ],
