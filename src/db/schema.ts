@@ -5,8 +5,13 @@ import {
   text,
   timestamp,
   index,
+  pgEnum,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
+
+export const noticeTypes = ["info", "warning", "error", "success"] as const;
+export type NoticeType = (typeof noticeTypes)[number];
+export const noticeTypeEnum = pgEnum("notice_type", noticeTypes);
 
 export const listings = pgTable("Listing", {
   id: serial("id").primaryKey(),
@@ -37,6 +42,16 @@ export const visits = pgTable(
   },
   (table) => [index("Visit_listingLabel_idx").on(table.listingLabel)]
 );
+
+export const notices = pgTable("Notice", {
+  id: serial("id").primaryKey(),
+  message: text("message").notNull(),
+  type: noticeTypeEnum("type").default("info").notNull(),
+  isActive: timestamp("isActive", { mode: "date" }),
+  expiresAt: timestamp("expiresAt", { mode: "date" }),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
+});
 
 // Relations
 export const listingsRelations = relations(listings, ({ many }) => ({
