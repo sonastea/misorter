@@ -179,13 +179,35 @@ export const listingRouter = router({
         .orderBy(desc(sql`count(${visits.id})`))
         .limit(CANDIDATE_POOL_SIZE);
 
-      const shuffledPopular = [...popularCandidates].sort(
-        () => Math.random() - 0.5
-      );
-      const popularList = shuffledPopular.slice(
+      let popularList = popularCandidates.slice(
         0,
-        Math.min(1, popularCandidates.length)
+        Math.min(TOP_K_LISTS, popularCandidates.length)
       );
+
+      if (
+        popularList.length === TOP_K_LISTS &&
+        popularCandidates.length >= TOP_K_LISTS
+      ) {
+        const allSameVisits = popularList.every(
+          (candidate) => candidate.visitCount === popularList[0].visitCount
+        );
+
+        if (allSameVisits) {
+          // if first 3 have same visit count, use offset-based rotation for variety
+          // rotate through different sets every hour
+          const hourOfDay = new Date().getHours();
+          const maxOffset = Math.min(popularCandidates.length - TOP_K_LISTS, 3);
+          const offset = hourOfDay % (maxOffset + 1);
+
+          if (offset > 0 && popularCandidates.length > TOP_K_LISTS) {
+            // use offset to get next set (e.g., items 3-5 instead of 0-2)
+            popularList = popularCandidates.slice(offset, offset + TOP_K_LISTS);
+          } else {
+            // shuffle the first 3 for variety when offset is 0
+            popularList = [...popularList].sort(() => Math.random() - 0.5);
+          }
+        }
+      }
 
       const excluded = popularList.map((list) => list.label);
       const needed = TOP_K_LISTS - popularList.length;
