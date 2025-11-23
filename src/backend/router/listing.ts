@@ -11,8 +11,8 @@ const nanoid = customAlphabet(
   16
 );
 
-const TOP_K_LISTS = 3;
-const CANDIDATE_POOL_SIZE = 10;
+const TOP_K_LISTS = 5;
+const CANDIDATE_POOL_SIZE = 40;
 const DAYS_AGO = 5;
 
 const RedisExpireTime: number = 7 * (60 * 60 * 24); // expire time in days from seconds
@@ -179,33 +179,17 @@ export const listingRouter = router({
         .orderBy(desc(sql`count(${visits.id})`))
         .limit(CANDIDATE_POOL_SIZE);
 
-      let popularList = popularCandidates.slice(
-        0,
-        Math.min(TOP_K_LISTS, popularCandidates.length)
-      );
+      // always show top list at position 1, and shuffle from candidates for next 4
+      const popularList = [];
 
-      if (
-        popularList.length === TOP_K_LISTS &&
-        popularCandidates.length >= TOP_K_LISTS
-      ) {
-        const allSameVisits = popularList.every(
-          (candidate) => candidate.visitCount === popularList[0].visitCount
-        );
+      if (popularCandidates.length > 0) {
+        popularList.push(popularCandidates[0]);
 
-        if (allSameVisits) {
-          // if first 3 have same visit count, use offset-based rotation for variety
-          // rotate through different sets every hour
-          const hourOfDay = new Date().getHours();
-          const maxOffset = Math.min(popularCandidates.length - TOP_K_LISTS, 3);
-          const offset = hourOfDay % (maxOffset + 1);
-
-          if (offset > 0 && popularCandidates.length > TOP_K_LISTS) {
-            // use offset to get next set (e.g., items 3-5 instead of 0-2)
-            popularList = popularCandidates.slice(offset, offset + TOP_K_LISTS);
-          } else {
-            // shuffle the first 3 for variety when offset is 0
-            popularList = [...popularList].sort(() => Math.random() - 0.5);
-          }
+        if (popularCandidates.length > 1) {
+          const remaining = popularCandidates.slice(1);
+          const shuffled = [...remaining].sort(() => Math.random() - 0.5);
+          const additionalCount = Math.min(TOP_K_LISTS - 1, shuffled.length);
+          popularList.push(...shuffled.slice(0, additionalCount));
         }
       }
 
