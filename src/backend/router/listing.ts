@@ -205,14 +205,20 @@ export const listingRouter = router({
       const excluded = popularList.map((list) => list.label);
       const needed = TOP_K_LISTS - popularList.length;
 
-      const randomListings = await db
-        .select()
-        .from(listings)
-        .where(
-          excluded.length > 0 ? notInArray(listings.label, excluded) : undefined
-        )
-        .orderBy(sql`RANDOM()`)
-        .limit(needed);
+      // Only query random listings if we actually need more
+      const randomListings =
+        needed > 0
+          ? await db
+              .select()
+              .from(listings)
+              .where(
+                excluded.length > 0
+                  ? notInArray(listings.label, excluded)
+                  : undefined
+              )
+              .orderBy(sql`RANDOM()`)
+              .limit(needed)
+          : [];
 
       const selectedListings = [...popularList, ...randomListings];
       const selectedLabels = selectedListings.map((l) => l.label);
@@ -221,20 +227,15 @@ export const listingRouter = router({
         return [];
       }
 
-      const [allItems, allVisits] = await Promise.all([
-        db
-          .select({
-            id: items.id,
-            value: items.value,
-            listingLabel: items.listingLabel,
-          })
-          .from(items)
-          .where(inArray(items.listingLabel, selectedLabels)),
-        db
-          .select()
-          .from(visits)
-          .where(inArray(visits.listingLabel, selectedLabels)),
-      ]);
+      // Fetch only items (visits not needed for frontend display)
+      const allItems = await db
+        .select({
+          id: items.id,
+          value: items.value,
+          listingLabel: items.listingLabel,
+        })
+        .from(items)
+        .where(inArray(items.listingLabel, selectedLabels));
 
       const itemsByLabel = allItems.reduce(
         (acc, item) => {
@@ -245,19 +246,10 @@ export const listingRouter = router({
         {} as Record<string, { id: number; value: string }[]>
       );
 
-      const visitsByLabel = allVisits.reduce(
-        (acc, visit) => {
-          if (!acc[visit.listingLabel]) acc[visit.listingLabel] = [];
-          acc[visit.listingLabel].push(visit);
-          return acc;
-        },
-        {} as Record<string, typeof allVisits>
-      );
-
       return selectedListings.map((listing) => ({
         ...listing,
         items: itemsByLabel[listing.label] || [],
-        visits: visitsByLabel[listing.label] || [],
+        visits: [],
       }));
     };
 
@@ -349,20 +341,39 @@ export const listingRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       const db = getDb();
-      const [listing] = await db
-        .update(listings)
-        .set({ title: input.title })
-        .where(eq(listings.label, input.label))
-        .returning({ label: listings.label, title: listings.title });
 
-      const listingItems = await db.query.items.findMany({
-        where: eq(items.listingLabel, input.label),
-        columns: { value: true },
+      // Use a single query with relation to get both listing and items
+      const updatedListing = await db.query.listings.findFirst({
+        where: eq(listings.label, input.label),
+        columns: {
+          label: true,
+          title: true,
+        },
+        with: {
+          items: {
+            columns: { value: true },
+            orderBy: (items, { asc }) => [asc(items.id)],
+          },
+        },
       });
 
+      if (!updatedListing) {
+        throw new Error("Listing not found");
+      }
+
+      // Update title (doesn't need to block since we already have the data)
+      ctx.waitUntil(
+        db
+          .update(listings)
+          .set({ title: input.title })
+          .where(eq(listings.label, input.label))
+          .catch((e) => console.error("Failed to update title:", e))
+      );
+
       const updatedList = {
-        ...listing,
-        items: listingItems,
+        label: updatedListing.label,
+        title: input.title,
+        items: updatedListing.items,
       };
 
       ctx.waitUntil(

@@ -17,7 +17,7 @@ export const createContext = async (
   return {
     req,
     resHeaders,
-    waitUntil: ctx.waitUntil,
+    waitUntil: ctx.waitUntil.bind(ctx),
   } as const;
 };
 
