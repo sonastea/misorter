@@ -74,17 +74,22 @@ const updateListingVisited = async (listingId: string, source: VisitSource) => {
 
   try {
     const db = getDb();
-    await db
-      .update(listings)
-      .set({ updatedAt: date })
-      .where(eq(listings.label, listingId));
 
-    const result = await db
-      .insert(visits)
-      .values({ createdAt: date, listingLabel: listingId, source })
-      .returning({ id: visits.id });
+    const result = await db.transaction(async (tx) => {
+      await tx
+        .update(listings)
+        .set({ updatedAt: date })
+        .where(eq(listings.label, listingId));
 
-    return result[0] || { id: -1 };
+      const visitResult = await tx
+        .insert(visits)
+        .values({ createdAt: date, listingLabel: listingId, source })
+        .returning({ id: visits.id });
+
+      return visitResult[0] || { id: -1 };
+    });
+
+    return result;
   } catch (e) {
     console.error("Database Error:", e);
     return { id: -1 };
@@ -98,7 +103,7 @@ export const listingRouter = router({
         label: z.string(),
       })
     )
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       let list: Partial<List> | null = {};
 
       const redisClient = getRedis();
@@ -114,9 +119,11 @@ export const listingRouter = router({
           list = JSON.parse(cachedResult);
         } catch (e) {
           console.error(e, input.label, "value:", cachedResult);
-          await redisClient.del(input.label).catch((delError) => {
-            console.error("Redis del error:", delError);
-          });
+          ctx.waitUntil(
+            redisClient.del(input.label).catch((delError) => {
+              console.error("Redis del error:", delError);
+            })
+          );
           list = null;
         }
       }
@@ -140,13 +147,15 @@ export const listingRouter = router({
         list = listing || null;
 
         if (listing) {
-          await redisClient
-            .set(input.label, JSON.stringify(list), {
-              ex: RedisExpireTime,
-            })
-            .catch((e) => {
-              console.error("Redis set error:", e);
-            });
+          ctx.waitUntil(
+            redisClient
+              .set(input.label, JSON.stringify(list), {
+                ex: RedisExpireTime,
+              })
+              .catch((e) => {
+                console.error("Redis set error:", e);
+              })
+          );
         }
       }
 
@@ -196,14 +205,20 @@ export const listingRouter = router({
       const excluded = popularList.map((list) => list.label);
       const needed = TOP_K_LISTS - popularList.length;
 
-      const randomListings = await db
-        .select()
-        .from(listings)
-        .where(
-          excluded.length > 0 ? notInArray(listings.label, excluded) : undefined
-        )
-        .orderBy(sql`RANDOM()`)
-        .limit(needed);
+      // Only query random listings if we actually need more
+      const randomListings =
+        needed > 0
+          ? await db
+              .select()
+              .from(listings)
+              .where(
+                excluded.length > 0
+                  ? notInArray(listings.label, excluded)
+                  : undefined
+              )
+              .orderBy(sql`RANDOM()`)
+              .limit(needed)
+          : [];
 
       const selectedListings = [...popularList, ...randomListings];
       const selectedLabels = selectedListings.map((l) => l.label);
@@ -212,20 +227,15 @@ export const listingRouter = router({
         return [];
       }
 
-      const [allItems, allVisits] = await Promise.all([
-        db
-          .select({
-            id: items.id,
-            value: items.value,
-            listingLabel: items.listingLabel,
-          })
-          .from(items)
-          .where(inArray(items.listingLabel, selectedLabels)),
-        db
-          .select()
-          .from(visits)
-          .where(inArray(visits.listingLabel, selectedLabels)),
-      ]);
+      // Fetch only items (visits not needed for frontend display)
+      const allItems = await db
+        .select({
+          id: items.id,
+          value: items.value,
+          listingLabel: items.listingLabel,
+        })
+        .from(items)
+        .where(inArray(items.listingLabel, selectedLabels));
 
       const itemsByLabel = allItems.reduce(
         (acc, item) => {
@@ -236,19 +246,10 @@ export const listingRouter = router({
         {} as Record<string, { id: number; value: string }[]>
       );
 
-      const visitsByLabel = allVisits.reduce(
-        (acc, visit) => {
-          if (!acc[visit.listingLabel]) acc[visit.listingLabel] = [];
-          acc[visit.listingLabel].push(visit);
-          return acc;
-        },
-        {} as Record<string, typeof allVisits>
-      );
-
       return selectedListings.map((listing) => ({
         ...listing,
         items: itemsByLabel[listing.label] || [],
-        visits: visitsByLabel[listing.label] || [],
+        visits: [],
       }));
     };
 
@@ -313,17 +314,21 @@ export const listingRouter = router({
         source: VisitSourceSchema.default("NEW"),
       })
     )
-    .mutation(async ({ input }) => {
-      const result = await updateListingVisited(input.label, input.source);
+    .mutation(async ({ input, ctx }) => {
+      ctx.waitUntil(
+        updateListingVisited(input.label, input.source).catch((e) => {
+          console.error("Failed to update visit:", e);
+        })
+      );
 
       // TODO: axiom log.info("visited list", {
       //   label: input.label,
       //   visit_source: input.source,
       // });
 
-      if (!result.id || result.id === -1) {
-        return { success: false };
-      }
+      // if (!result.id || result.id === -1) {
+      //   return { success: false };
+      // }
 
       return { success: true };
     }),
@@ -334,31 +339,52 @@ export const listingRouter = router({
         title: z.string(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const db = getDb();
-      const [listing] = await db
-        .update(listings)
-        .set({ title: input.title })
-        .where(eq(listings.label, input.label))
-        .returning({ label: listings.label, title: listings.title });
 
-      const listingItems = await db.query.items.findMany({
-        where: eq(items.listingLabel, input.label),
-        columns: { value: true },
+      // Use a single query with relation to get both listing and items
+      const updatedListing = await db.query.listings.findFirst({
+        where: eq(listings.label, input.label),
+        columns: {
+          label: true,
+          title: true,
+        },
+        with: {
+          items: {
+            columns: { value: true },
+            orderBy: (items, { asc }) => [asc(items.id)],
+          },
+        },
       });
 
+      if (!updatedListing) {
+        throw new Error("Listing not found");
+      }
+
+      // Update title (doesn't need to block since we already have the data)
+      ctx.waitUntil(
+        db
+          .update(listings)
+          .set({ title: input.title })
+          .where(eq(listings.label, input.label))
+          .catch((e) => console.error("Failed to update title:", e))
+      );
+
       const updatedList = {
-        ...listing,
-        items: listingItems,
+        label: updatedListing.label,
+        title: input.title,
+        items: updatedListing.items,
       };
 
-      await getRedis()
-        .set(input.label, JSON.stringify(updatedList), {
-          keepTtl: true,
-        })
-        .catch((e) => {
-          console.error("Redis set error on updateTitle:", e);
-        });
+      ctx.waitUntil(
+        getRedis()
+          .set(input.label, JSON.stringify(updatedList), {
+            keepTtl: true,
+          })
+          .catch((e) => {
+            console.error("Redis set error on updateTitle:", e);
+          })
+      );
 
       // TODO: axiom log.info("update list title", { label: input.label, title: input.title });
 
