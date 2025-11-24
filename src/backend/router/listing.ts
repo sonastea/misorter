@@ -74,17 +74,22 @@ const updateListingVisited = async (listingId: string, source: VisitSource) => {
 
   try {
     const db = getDb();
-    await db
-      .update(listings)
-      .set({ updatedAt: date })
-      .where(eq(listings.label, listingId));
 
-    const result = await db
-      .insert(visits)
-      .values({ createdAt: date, listingLabel: listingId, source })
-      .returning({ id: visits.id });
+    const result = await db.transaction(async (tx) => {
+      await tx
+        .update(listings)
+        .set({ updatedAt: date })
+        .where(eq(listings.label, listingId));
 
-    return result[0] || { id: -1 };
+      const visitResult = await tx
+        .insert(visits)
+        .values({ createdAt: date, listingLabel: listingId, source })
+        .returning({ id: visits.id });
+
+      return visitResult[0] || { id: -1 };
+    });
+
+    return result;
   } catch (e) {
     console.error("Database Error:", e);
     return { id: -1 };
@@ -98,7 +103,7 @@ export const listingRouter = router({
         label: z.string(),
       })
     )
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       let list: Partial<List> | null = {};
 
       const redisClient = getRedis();
@@ -114,9 +119,11 @@ export const listingRouter = router({
           list = JSON.parse(cachedResult);
         } catch (e) {
           console.error(e, input.label, "value:", cachedResult);
-          await redisClient.del(input.label).catch((delError) => {
-            console.error("Redis del error:", delError);
-          });
+          ctx.waitUntil(
+            redisClient.del(input.label).catch((delError) => {
+              console.error("Redis del error:", delError);
+            })
+          );
           list = null;
         }
       }
@@ -140,13 +147,15 @@ export const listingRouter = router({
         list = listing || null;
 
         if (listing) {
-          await redisClient
-            .set(input.label, JSON.stringify(list), {
-              ex: RedisExpireTime,
-            })
-            .catch((e) => {
-              console.error("Redis set error:", e);
-            });
+          ctx.waitUntil(
+            redisClient
+              .set(input.label, JSON.stringify(list), {
+                ex: RedisExpireTime,
+              })
+              .catch((e) => {
+                console.error("Redis set error:", e);
+              })
+          );
         }
       }
 
@@ -313,17 +322,21 @@ export const listingRouter = router({
         source: VisitSourceSchema.default("NEW"),
       })
     )
-    .mutation(async ({ input }) => {
-      const result = await updateListingVisited(input.label, input.source);
+    .mutation(async ({ input, ctx }) => {
+      ctx.waitUntil(
+        updateListingVisited(input.label, input.source).catch((e) => {
+          console.error("Failed to update visit:", e);
+        })
+      );
 
       // TODO: axiom log.info("visited list", {
       //   label: input.label,
       //   visit_source: input.source,
       // });
 
-      if (!result.id || result.id === -1) {
-        return { success: false };
-      }
+      // if (!result.id || result.id === -1) {
+      //   return { success: false };
+      // }
 
       return { success: true };
     }),
@@ -334,7 +347,7 @@ export const listingRouter = router({
         title: z.string(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const db = getDb();
       const [listing] = await db
         .update(listings)
@@ -352,13 +365,15 @@ export const listingRouter = router({
         items: listingItems,
       };
 
-      await getRedis()
-        .set(input.label, JSON.stringify(updatedList), {
-          keepTtl: true,
-        })
-        .catch((e) => {
-          console.error("Redis set error on updateTitle:", e);
-        });
+      ctx.waitUntil(
+        getRedis()
+          .set(input.label, JSON.stringify(updatedList), {
+            keepTtl: true,
+          })
+          .catch((e) => {
+            console.error("Redis set error on updateTitle:", e);
+          })
+      );
 
       // TODO: axiom log.info("update list title", { label: input.label, title: input.title });
 
