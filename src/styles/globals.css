@@ -1295,16 +1295,14 @@ html[data-theme="dark"] .home-tip {
   max-width: 45rem;
   font-size: 1.1rem;
   line-height: 120%;
-  border: 1px solid #000;
+  border: 1px solid hsl(0, 0%, 29%);
   border-collapse: collapse;
+  border-spacing: 0;
   text-align: center;
 }
 
 .sort-resultsHeaderContainer {
   background: var(--color-bg-once-dark-faded-hover);
-  border-top: 1px solid hsl(0, 0%, 29%);
-  border-right: 1px solid hsl(0, 0%, 29%);
-  border-left: 1px solid hsl(0, 0%, 29%);
 }
 
 .sort-resultsHeader {
@@ -1313,17 +1311,30 @@ html[data-theme="dark"] .home-tip {
 }
 
 .sort-itemRow {
-  border: 1px solid hsl(0, 0%, 29%);
   text-align: center;
 }
 
 .sort-leftItemRow {
-  border-right: 1px solid hsl(0, 0%, 29%);
   text-align: center;
 }
 
 .sort-rightItemRow {
   padding: 5px;
+}
+
+.sort-resultsTable th,
+.sort-resultsTable td {
+  border-right: 1px solid hsl(0, 0%, 29%);
+  border-bottom: 1px solid hsl(0, 0%, 29%);
+}
+
+.sort-resultsTable th:last-child,
+.sort-resultsTable td:last-child {
+  border-right: transparent;
+}
+
+.sort-resultsTable tr:last-child td {
+  border-bottom: transparent;
 }
 
 .sort-export {
@@ -1579,6 +1590,13 @@ html[data-theme="dark"] .sort-resultsHeader {
 
 html[data-theme="dark"] .sort-resultsTable {
   background: var(--color-bg-secondary);
+  border-color: var(--color-bg-tertiary);
+}
+
+html[data-theme="dark"] .sort-resultsTable th,
+html[data-theme="dark"] .sort-resultsTable td {
+  border-right: 1px solid var(--color-bg-tertiary);
+  border-bottom: 1px solid var(--color-bg-tertiary);
 }
 
 .notice-banner {
