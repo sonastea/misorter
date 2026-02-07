@@ -54,6 +54,7 @@ export default [
       "dist/**",
       "build/**",
       ".vite/**",
+      ".wrangler/**",
       "src/routeTree.gen.ts",
     ],
   },
