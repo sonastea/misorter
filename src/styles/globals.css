@@ -197,9 +197,11 @@ html[data-theme="light"] {
 
 html[data-theme="dark"] {
   --color-text-primary: hsl(0, 0%, 95%);
+  --color-text-secondary: hsl(0, 0%, 70%);
   --color-bg-primary: #121212;
   --color-bg-secondary: #202020;
   --color-bg-tertiary: #313131;
+  --color-bg-icon: #333333;
   --md-shadow-dp1:
     0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12),
     0 1px 5px 0 rgba(0, 0, 0, 0.2);
@@ -558,17 +560,28 @@ html[data-theme="dark"] .featuredLists-try:hover {
 
 .home-editTitleButton {
   color: var(--color-bg-primary);
-  height: 1.75rem;
-  width: 1.75rem;
+  height: 2.5rem;
+  width: 2.5rem;
   position: absolute;
-  top: 0;
+  top: 50%;
   right: 0;
-  translate: 100%;
+  translate: 100% -50%;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem;
+  border-radius: 0.65rem;
 }
 
 .home-titleContainer:hover > .home-editTitleButton:hover {
   background: var(--color-bg-secondary);
+}
+
+.home-title-wrapper {
+  margin: 0;
+  padding: 0;
+  display: inline-block;
 }
 
 .home-title {
@@ -576,7 +589,34 @@ html[data-theme="dark"] .featuredLists-try:hover {
   font-size: 2.25rem;
   margin: 0;
   line-height: 1.5;
-  cursor: text;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid transparent;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.5rem;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
+  display: inline-block;
+  text-align: center;
+}
+
+.home-title:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.home-title:focus-visible {
+  outline: 2px solid var(--color-text-once);
+  outline-offset: 2px;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.home-editTitleButton:focus-visible {
+  outline: 2px solid var(--color-text-once);
+  outline-offset: 2px;
+  border-radius: 0.65rem;
+  opacity: 1;
+  translate: 100%;
 }
 
 .home-title a:hover,
@@ -591,6 +631,107 @@ html[data-theme="dark"] .featuredLists-try:hover {
   text-align: center;
 }
 
+.home-editTitleForm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 75%;
+}
+
+.home-inputWrapper {
+  width: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.home-editTitleInput {
+  font-size: 2.25rem;
+  margin: 0;
+  border: 1px solid var(--color-bg-secondary);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  border-radius: 0.65rem;
+  width: 100%;
+  padding: 0.25rem 0.5rem;
+  outline: none;
+  text-align: center;
+  font-family: inherit;
+}
+
+.home-editTitleInput:focus {
+  border-color: var(--color-text-once);
+  box-shadow: 0 0 0 2px rgba(255, 95, 162, 0.2);
+}
+
+.home-inputError {
+  border-color: #cd7e81;
+}
+
+.home-inputErrorMessage {
+  color: #cd7e81;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+  font-weight: 500;
+}
+
+.home-editActions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.home-editAction {
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition:
+    opacity 0.2s,
+    transform 0.1s;
+  min-width: 44px; /* Accessible touch target */
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-editAction:active {
+  transform: scale(0.96);
+}
+
+.home-editSave {
+  background: var(--color-text-once);
+  color: white;
+}
+
+.home-editSave:hover {
+  background: var(--color-once-hover);
+}
+
+.home-editCancel {
+  background: transparent;
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-bg-icon);
+}
+
+.home-editCancel:hover {
+  background: var(--color-bg-icon);
+}
+
+.home-editHelper {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+  opacity: 0.8;
+}
+
+/* Remove old textarea styles if no longer used, or keep for safety */
 .home-editTitle {
   font-size: 2.25rem;
   margin: 0;
@@ -812,11 +953,27 @@ html[data-theme="light"] .home-listInput {
     max-width: 99vw;
   }
 
-  .home-editTitleButton {
-    height: 1rem;
-    width: 1rem;
+  .home-editHelper {
+    display: none;
   }
 
+  .home-editTitleButton {
+    height: 2.75rem;
+    width: 2.75rem;
+    color: var(--color-text-once);
+    opacity: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: -0.6rem;
+  }
+
+  .home-editTitleButton svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .home-editTitleInput,
   .home-editTitle {
     font-size: 1.25rem;
   }
@@ -1734,6 +1891,25 @@ html[data-theme="dark"] .notice-banner-success {
 
 html[data-theme="dark"] .notice-banner-success .notice-banner-dismiss:hover {
   background: rgba(0, 0, 0, 0.1);
+}
+
+html[data-theme="dark"] .home-editTitleInput {
+  color: var(--color-text-primary);
+  background: var(--color-bg-secondary);
+  border-color: var(--color-bg-tertiary);
+}
+
+html[data-theme="dark"] .home-editCancel {
+  color: var(--color-text-primary);
+  border-color: var(--color-text-secondary);
+}
+
+html[data-theme="dark"] .home-editCancel:hover {
+  background: var(--color-bg-tertiary);
+}
+
+html[data-theme="dark"] .home-editHelper {
+  color: var(--color-text-secondary);
 }
 
 @media (max-width: 600px) {
