@@ -14,9 +14,7 @@ import { trpc } from "@utils/trpc";
 import { v4 as uuidv4 } from "uuid";
 
 const tip =
-  "hitting <b>no opinion</b>  or  <b>I like both</b> frequently will negatively affect your results.";
-
-const MIN_TEXTAREA_HEIGHT = 32;
+  "Tap the title to name your list something.<br/>hitting <b>no opinion</b>  or  <b>I like both</b> frequently will negatively affect your results.";
 
 export type ListItem = {
   id: string;
@@ -52,11 +50,11 @@ function Home() {
   const [initialListSize, setInititalListSize] = useState<number>(-1);
   const [currentListData, setCurrentListData] = useState<Partial<List>>({});
 
+  const focusTitleRef = useRef(false);
+
   // Featured Lists
   const [selectedList, setSelectedList] = useState<string>("");
   const [open, setOpen] = useState(false);
-
-  const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
   const { data, isFetching, refetch } = useQuery({
     ...trpc.listing.get.queryOptions({ label: listLabel ?? "" }),
@@ -129,16 +127,6 @@ function Home() {
     }
   }, [data, data?.items, data?.title, updateList]);
 
-  useEffect(() => {
-    if (textAreaRef.current) {
-      textAreaRef.current.style.height = "inherit";
-      textAreaRef.current.style.height = `${Math.max(
-        textAreaRef.current.scrollHeight,
-        MIN_TEXTAREA_HEIGHT
-      )}px`;
-    }
-  }, [title]);
-
   return (
     <div className="home-container">
       <main className="home-main">
@@ -146,7 +134,6 @@ function Home() {
           <ListTitleEdit
             title={title}
             setTitle={setTitle}
-            textAreaRef={textAreaRef}
             data={currentListData}
             listLabel={listLabel ?? ""}
             oldTitle={oldTitle}
@@ -154,7 +141,14 @@ function Home() {
             setEditTitle={setEditTitle}
           />
         ) : (
-          <ListTitle title={title} setEditTitle={setEditTitle} />
+          <ListTitle
+            title={title}
+            setEditTitle={(val) => {
+              if (val) focusTitleRef.current = true;
+              setEditTitle(val);
+            }}
+            focusRef={focusTitleRef}
+          />
         )}
         <div className="home-tipContainer">
           <p className="home-tip" dangerouslySetInnerHTML={{ __html: tip }} />
