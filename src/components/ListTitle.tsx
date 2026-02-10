@@ -1,4 +1,4 @@
-import { MutableRefObject, useEffect, useRef } from "react";
+import { RefObject, useEffect, useRef } from "react";
 
 const ListTitle = ({
   title,
@@ -7,7 +7,7 @@ const ListTitle = ({
 }: {
   title: string;
   setEditTitle: (value: boolean) => void;
-  focusRef?: MutableRefObject<boolean>;
+  focusRef?: RefObject<boolean>;
 }) => {
   const buttonRef = useRef<HTMLButtonElement>(null);
 

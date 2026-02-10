@@ -556,6 +556,7 @@ html[data-theme="dark"] .featuredLists-try:hover {
 .home-titleContainer:hover .home-editTitleButton {
   border-radius: 0.65rem;
   color: var(--color-text-once);
+  opacity: 1;
 }
 
 .home-editTitleButton {
@@ -563,15 +564,17 @@ html[data-theme="dark"] .featuredLists-try:hover {
   height: 2.5rem;
   width: 2.5rem;
   position: absolute;
-  top: 50%;
+  top: 0.25rem;
   right: 0;
-  translate: 100% -50%;
+  translate: 100%;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0.4rem;
   border-radius: 0.65rem;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
 }
 
 .home-titleContainer:hover > .home-editTitleButton:hover {
@@ -1069,6 +1072,10 @@ html[data-theme="dark"] .home-start:hover {
 
 html[data-theme="dark"] .home-title {
   color: hsl(0, 0%, 100%);
+}
+
+html[data-theme="dark"] .home-title:hover {
+  background: var(--color-dark-bg-secondary);
 }
 
 html[data-theme="dark"] .home-tip {
