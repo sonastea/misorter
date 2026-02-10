@@ -2,7 +2,7 @@
   "$schema": "../../node_modules/wrangler/config-schema.json",
   "name": "misorter-api",
   "main": "./src/server/server.ts",
-  "compatibility_date": "2025-11-09",
+  "compatibility_date": "2026-02-09",
   "compatibility_flags": ["nodejs_compat"],
   "routes": [
     {
