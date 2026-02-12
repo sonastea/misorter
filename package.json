@@ -1,6 +1,6 @@
 {
   "name": "misorter",
-  "version": "2.2.4",
+  "version": "2.3.0",
   "private": true,
   "scripts": {
     "dev": "concurrently -n worker,vite -c blue,green \"bun run dev:worker\" \"bun run dev:client\"",
