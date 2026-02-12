@@ -5,12 +5,14 @@ import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis/cloudflare";
 import { TRPCError } from "@trpc/server";
 import { createInsertSchema } from "drizzle-orm/zod";
+import { Resend } from "resend";
 
-const supportInputSchema = createInsertSchema(supportSubmissions);
+const supportSubmissionsInputSchema = createInsertSchema(supportSubmissions);
 type SubmissionEmailPayload = typeof supportSubmissions.$inferInsert;
 
 let redis: Redis | null = null;
 let supportRateLimit: Ratelimit | null = null;
+let resend: Resend | null = null;
 
 const getRedis = () => {
   const upstashUrl = process.env.UPSTASH_REDIS_REST_URL;
@@ -46,6 +48,19 @@ const getSupportRateLimit = () => {
   return supportRateLimit;
 };
 
+const getResend = () => {
+  const resendApiKey = process.env.RESEND_API_KEY;
+  if (!resendApiKey) {
+    throw new Error("ENV var RESEND_API_KEY is not set!");
+  }
+
+  if (!resend) {
+    resend = new Resend(resendApiKey);
+  }
+
+  return resend;
+};
+
 const getRequestIp = (request: Request) => {
   const cloudflareIp = request.headers.get("cf-connecting-ip")?.trim();
   if (cloudflareIp) {
@@ -64,50 +79,55 @@ const getRequestIp = (request: Request) => {
 };
 
 const sendSupportEmail = async (payload: SubmissionEmailPayload) => {
-  const resendApiKey = process.env.RESEND_API_KEY;
   const supportFromEmail = process.env.SUPPORT_FROM_EMAIL;
   const supportToEmail = process.env.SUPPORT_TO_EMAIL;
 
-  if (!resendApiKey || !supportFromEmail || !supportToEmail) {
+  if (!supportFromEmail || !supportToEmail) {
     throw new Error(
-      "Missing one of required env vars: RESEND_API_KEY, SUPPORT_FROM_EMAIL, SUPPORT_TO_EMAIL"
+      "Missing one of required env vars: SUPPORT_FROM_EMAIL, SUPPORT_TO_EMAIL"
     );
   }
 
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${resendApiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: supportFromEmail,
-      to: [supportToEmail],
-      subject: `[misorter] ${payload.type.toUpperCase()} - ${payload.topic}`,
-      text: [
-        `Submission ID: ${payload.id}`,
-        `Type: ${payload.type}`,
-        `Topic: ${payload.topic}`,
-        `Email: ${payload.email ?? "Not provided"}`,
-        `Created At: ${payload.createdAt?.toISOString()}`,
-        "",
-        payload.message,
-      ].join("\n"),
-      reply_to: payload.email ?? undefined,
-    }),
+  const resendClient = getResend();
+
+  const createdAtLocal = payload.createdAt
+    ? payload.createdAt.toLocaleString("en-US", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      })
+    : "Unknown";
+
+  const { error } = await resendClient.emails.send({
+    from: supportFromEmail,
+    to: [supportToEmail],
+    subject: `[misorter] ${payload.type.toUpperCase()} - ${payload.topic}`,
+    text: [
+      `Submission ID: ${payload.id}`,
+      `Type: ${payload.type}`,
+      `Topic: ${payload.topic}`,
+      `Email: ${payload.email ?? "Not provided"}`,
+      `Created At: ${createdAtLocal}`,
+      "",
+      payload.message,
+    ].join("\n"),
+    replyTo: payload.email ?? undefined,
   });
 
-  if (!response.ok) {
-    const errorBody = await response.text();
+  if (error) {
     throw new Error(
-      `Resend email request failed (${response.status}): ${errorBody}`
+      `Resend email request failed: ${error.name} - ${error.message}`
     );
   }
 };
 
 export const supportRouter = router({
   submit: publicProcedure
-    .input(supportInputSchema)
+    .input(supportSubmissionsInputSchema)
     .mutation(async ({ input, ctx }) => {
       const ip = getRequestIp(ctx.req);
       const ratelimitResult = await getSupportRateLimit().limit(
