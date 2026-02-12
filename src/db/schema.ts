@@ -7,11 +7,18 @@ import {
   index,
   pgEnum,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import { defineRelations } from "drizzle-orm";
 
 export const noticeTypes = ["info", "warning", "error", "success"] as const;
 export type NoticeType = (typeof noticeTypes)[number];
 export const noticeTypeEnum = pgEnum("notice_type", noticeTypes);
+
+export const supportSubmissionTypes = ["help", "feedback"] as const;
+export type SupportSubmissionType = (typeof supportSubmissionTypes)[number];
+export const supportSubmissionTypeEnum = pgEnum(
+  "support_submission_type",
+  supportSubmissionTypes
+);
 
 export const listings = pgTable("Listing", {
   id: serial("id").primaryKey(),
@@ -53,22 +60,39 @@ export const notices = pgTable("Notice", {
   updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
 });
 
-// Relations
-export const listingsRelations = relations(listings, ({ many }) => ({
-  items: many(items),
-  visits: many(visits),
-}));
+export const supportSubmissions = pgTable("SupportSubmission", {
+  id: serial("id").primaryKey(),
+  type: supportSubmissionTypeEnum("type").notNull(),
+  topic: varchar("topic", { length: 255 }).notNull(),
+  message: text("message").notNull(),
+  email: varchar("email", { length: 255 }),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+});
 
-export const itemsRelations = relations(items, ({ one }) => ({
-  listing: one(listings, {
-    fields: [items.listingLabel],
-    references: [listings.label],
-  }),
-}));
-
-export const visitsRelations = relations(visits, ({ one }) => ({
-  listing: one(listings, {
-    fields: [visits.listingLabel],
-    references: [listings.label],
-  }),
-}));
+export const relations = defineRelations(
+  { listings, items, visits, notices, supportSubmissions },
+  (r) => ({
+    listings: {
+      items: r.many.items({
+        from: r.listings.label,
+        to: r.items.listingLabel,
+      }),
+      visits: r.many.visits({
+        from: r.listings.label,
+        to: r.visits.listingLabel,
+      }),
+    },
+    items: {
+      listing: r.one.listings({
+        from: r.items.listingLabel,
+        to: r.listings.label,
+      }),
+    },
+    visits: {
+      listing: r.one.listings({
+        from: r.visits.listingLabel,
+        to: r.listings.label,
+      }),
+    },
+  })
+);

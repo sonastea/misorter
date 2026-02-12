@@ -1,4 +1,4 @@
-CREATE TABLE "Notice" (
+CREATE TABLE IF NOT EXISTS "Notice" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"message" text NOT NULL,
 	"type" varchar(50) DEFAULT 'info' NOT NULL,

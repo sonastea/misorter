@@ -1,5 +1,6 @@
 import { QueryClient } from "@tanstack/react-query";
 import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
+import SupportForm from "src/components/SupportForm";
 import ThemeToggle from "src/components/ThemeToggle";
 import ToastContainer from "src/components/ToastContainer";
 import NoticeBanner from "src/components/NoticeBanner";
@@ -17,6 +18,7 @@ function RootComponent() {
     <>
       <NoticeBanner />
       <ThemeToggle />
+      <SupportForm />
       <ToastContainer
         position="top-right"
         autoClose={1000}
