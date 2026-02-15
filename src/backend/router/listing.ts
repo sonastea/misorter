@@ -131,7 +131,9 @@ export const listingRouter = router({
       if (!list || Object.keys(list).length === 0) {
         const db = getDb();
         const listing = await db.query.listings.findFirst({
-          where: eq(listings.label, input.label),
+          where: {
+            label: input.label,
+          },
           columns: {
             label: true,
             title: true,
@@ -344,7 +346,9 @@ export const listingRouter = router({
 
       // Use a single query with relation to get both listing and items
       const updatedListing = await db.query.listings.findFirst({
-        where: eq(listings.label, input.label),
+        where: {
+          label: input.label,
+        },
         columns: {
           label: true,
           title: true,

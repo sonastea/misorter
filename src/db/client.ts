@@ -10,7 +10,7 @@ if (!connectionString) {
 // For Cloudflare Workers, create a new connection per request to avoid I/O context issues
 export const getDb = () => {
   const client = postgres(connectionString, { prepare: false });
-  return drizzle({ client, schema });
+  return drizzle({ client, ...schema });
 };
 
 // Fallback singleton for non-Cloudflare environments (legacy support)
