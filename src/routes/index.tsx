@@ -2,14 +2,16 @@ import { List } from "@router/listing";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import ListItemsSkeletonLoader from "src/components/ListItemsSkeletonLoader";
-import ListTitle from "src/components/ListTitle";
-import ListTitleEdit from "src/components/ListTitleEdit";
-import Setup from "src/components/Setup";
-import Sort from "src/components/Sort";
-import FeaturedLists from "src/components/FeaturedLists";
-import FeaturedListsToggle from "src/components/FeaturedListsToggle";
-import Footer from "src/components/Footer";
+import ListItemsSkeletonLoader from "@/components/ListItemsSkeletonLoader";
+import ListTitle from "@/components/ListTitle";
+import ListTitleEdit from "@/components/ListTitleEdit";
+import Setup from "@/components/Setup";
+import Sort from "@/components/Sort";
+import FeaturedLists from "@/components/FeaturedLists";
+import FeaturedListsToggle from "@/components/FeaturedListsToggle";
+import Footer from "@/components/Footer";
+import NoticeBanner from "@/components/NoticeBanner";
+import SupportForm from "@/components/SupportForm";
 import { trpc } from "@utils/trpc";
 import { v4 as uuidv4 } from "uuid";
 
@@ -128,67 +130,71 @@ function Home() {
   }, [data, data?.items, data?.title, updateList]);
 
   return (
-    <div className="home-container">
-      <main className="home-main">
-        {editTitle ? (
-          <ListTitleEdit
-            title={title}
-            setTitle={setTitle}
-            data={currentListData}
-            listLabel={listLabel ?? ""}
-            oldTitle={oldTitle}
-            setOldTitle={setOldTitle}
-            setEditTitle={setEditTitle}
-          />
-        ) : (
-          <ListTitle
-            title={title}
-            setEditTitle={(val) => {
-              if (val) focusTitleRef.current = true;
-              setEditTitle(val);
-            }}
-            focusRef={focusTitleRef}
-          />
-        )}
-        <div className="home-tipContainer">
-          <p className="home-tip" dangerouslySetInnerHTML={{ __html: tip }} />
-        </div>
+    <>
+      <NoticeBanner />
+      <SupportForm />
+      <div className="home-container">
+        <main className="home-main">
+          {editTitle ? (
+            <ListTitleEdit
+              title={title}
+              setTitle={setTitle}
+              data={currentListData}
+              listLabel={listLabel ?? ""}
+              oldTitle={oldTitle}
+              setOldTitle={setOldTitle}
+              setEditTitle={setEditTitle}
+            />
+          ) : (
+            <ListTitle
+              title={title}
+              setEditTitle={(val) => {
+                if (val) focusTitleRef.current = true;
+                setEditTitle(val);
+              }}
+              focusRef={focusTitleRef}
+            />
+          )}
+          <div className="home-tipContainer">
+            <p className="home-tip" dangerouslySetInnerHTML={{ __html: tip }} />
+          </div>
 
-        {isFetching && <ListItemsSkeletonLoader />}
+          {isFetching && <ListItemsSkeletonLoader />}
 
-        {!isFetching && !startSort && (
-          <Setup
-            {...{
-              label: data?.label,
-              title,
-              initialListSize,
-              list,
-              setList,
-              getListOnce,
-              setGetListOnce,
-              newItem,
-              setEditTitle,
-              setNewItem,
-              setStartSort,
-            }}
-          />
-        )}
+          {!isFetching && !startSort && (
+            <Setup
+              {...{
+                label: data?.label,
+                title,
+                initialListSize,
+                list,
+                setList,
+                getListOnce,
+                setGetListOnce,
+                newItem,
+                setEditTitle,
+                setNewItem,
+                setStartSort,
+              }}
+            />
+          )}
 
-        {startSort && <Sort ogList={list} setStartSort={setStartSort} />}
-      </main>
+          {startSort && <Sort ogList={list} setStartSort={setStartSort} />}
+        </main>
 
-      <FeaturedListsToggle toggleFeaturedLists={toggleFeaturedLists} />
+        <FeaturedListsToggle toggleFeaturedLists={toggleFeaturedLists} />
 
-      <FeaturedLists
-        open={open}
-        toggleOpen={toggleFeaturedLists}
-        selectedList={selectedList}
-        setSelectedList={setSelectedList}
-        title="Featured Lists"
-        updateList={updateList}
-      />
+        <FeaturedLists
+          open={open}
+          toggleOpen={toggleFeaturedLists}
+          selectedList={selectedList}
+          setSelectedList={setSelectedList}
+          title="Featured Lists"
+          updateList={updateList}
+        />
 
-      <Footer />
-    </div>
+        <Footer />
+      </div>
+    </>
   );
 }
