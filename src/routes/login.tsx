@@ -1,24 +1,11 @@
-import { createBrowserClient } from "@supabase/ssr";
 import { Button, Field, Fieldset, Input, Label } from "@headlessui/react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { SubmitEvent, useEffect, useMemo, useState } from "react";
+import { getSupabaseBrowserClient } from "@/utils/supabase/browser";
 
 type LoginSearch = {
   redirect?: string;
 };
-
-function getRequiredEnv(value: string | undefined, name: string): string {
-  if (!value) {
-    throw new Error(`${name} is required to use Supabase auth.`);
-  }
-
-  return value;
-}
-
-const supabase = createBrowserClient(
-  getRequiredEnv(import.meta.env.VITE_SUPABASE_URL, "VITE_SUPABASE_URL"),
-  getRequiredEnv(import.meta.env.VITE_SUPABASE_KEY, "VITE_SUPABASE_KEY")
-);
 
 function getSafeRedirect(path: string | undefined): string {
   if (!path || !path.startsWith("/") || path.startsWith("//")) {
@@ -47,6 +34,7 @@ function RouteComponent() {
 
   useEffect(() => {
     let isMounted = true;
+    const supabase = getSupabaseBrowserClient();
 
     supabase.auth.getUser().then(({ data: { user }, error }) => {
       if (!isMounted || error || !user) {
@@ -66,6 +54,8 @@ function RouteComponent() {
     setErrorMessage(null);
     setIsSubmitting(true);
 
+    const supabase = getSupabaseBrowserClient();
+
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -73,19 +63,6 @@ function RouteComponent() {
 
     if (error) {
       setErrorMessage(error.message);
-      setIsSubmitting(false);
-      return;
-    }
-
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-
-    if (userError || !user) {
-      setErrorMessage(
-        "You are signed in, but we could not confirm your account."
-      );
       setIsSubmitting(false);
       return;
     }
