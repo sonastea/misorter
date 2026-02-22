@@ -53,8 +53,6 @@ function RouteComponent() {
     await navigate({ to: "/login", replace: true });
   };
 
-  Route.useLoaderData();
-
   return (
     <main className="adminDashboard-shell">
       <section className="adminDashboard-card">
