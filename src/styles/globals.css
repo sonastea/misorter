@@ -2059,7 +2059,140 @@ html[data-theme="dark"] .home-editHelper {
   transform: translateY(1rem) scale(0.95);
 }
 
+/* Admin auth and dashboard styles */
+.adminAuth-shell,
+.adminDashboard-shell {
+  --admin-cta-bg: var(--color-text-once);
+  --admin-cta-border: var(--color-text-once);
+  --admin-cta-hover: var(--color-once-hover);
+  min-height: calc(100vh - 2rem);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 2.5rem 1rem;
+  color: var(--color-text-primary);
+}
+
+.adminAuth-card,
+.adminDashboard-card {
+  width: min(100%, 30rem);
+  border: 1px solid var(--color-bg-tertiary);
+  background: var(--color-bg-secondary);
+  border-radius: 0.85rem;
+  box-shadow: var(--md-shadow-dp1);
+  padding: 1.25rem;
+}
+
+.adminAuth-title,
+.adminDashboard-title {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: 1.5rem;
+}
+
+.adminAuth-subtitle,
+.adminDashboard-subtitle {
+  margin: 0.5rem 0 0;
+  color: var(--color-text-secondary);
+  line-height: 1.45;
+}
+
+.adminAuth-form {
+  margin-top: 1rem;
+}
+
+.adminAuth-fieldset {
+  border: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.adminAuth-field {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.adminAuth-label {
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.adminAuth-input {
+  border: 1px solid var(--color-bg-tertiary);
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  border-radius: 0.55rem;
+  width: 100%;
+  padding: 0.62rem 0.72rem;
+  font-size: 0.95rem;
+  font-family: inherit;
+}
+
+.adminAuth-input:focus {
+  border-color: var(--color-text-once);
+  outline: 2px solid rgba(255, 95, 162, 0.25);
+  outline-offset: 1px;
+}
+
+.adminAuth-error,
+.adminDashboard-error {
+  margin: 0.85rem 0 0;
+  color: #cd7e81;
+  font-size: 0.85rem;
+}
+
+.adminAuth-submit,
+.adminDashboard-signOut {
+  margin-top: 1rem;
+  width: 100%;
+  border: 1px solid var(--admin-cta-border);
+  background: var(--admin-cta-bg);
+  color: var(--color-bg-primary);
+  border-radius: 0.55rem;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.adminAuth-submit:hover:not(:disabled),
+.adminDashboard-signOut:hover:not(:disabled) {
+  border-color: var(--admin-cta-hover);
+  background: var(--admin-cta-hover);
+}
+
+.adminAuth-submit:disabled,
+.adminDashboard-signOut:disabled {
+  cursor: not-allowed;
+  opacity: 0.75;
+}
+
+html[data-theme="dark"] .adminAuth-shell,
+html[data-theme="dark"] .adminDashboard-shell {
+  --admin-cta-bg: var(--color-bg-once-dark-faded-hover);
+  --admin-cta-border: var(--color-bg-once-dark-faded-hover);
+  --admin-cta-hover: var(--color-bg-once-dark-hover);
+}
+
 @media (max-width: 600px) {
+  .adminAuth-shell,
+  .adminDashboard-shell {
+    padding: 1rem;
+  }
+
+  .adminAuth-card,
+  .adminDashboard-card {
+    border-radius: 0.7rem;
+    padding: 1rem;
+  }
+
   .toggle {
     padding: 0.25rem 0.5rem;
   }
