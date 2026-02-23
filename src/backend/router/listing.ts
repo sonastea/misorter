@@ -3,7 +3,18 @@ import { getDb } from "@/db/client";
 import { items, listings, visits } from "@/db/schema";
 import { TRPCError } from "@trpc/server";
 import { Redis } from "@upstash/redis/cloudflare";
-import { and, desc, eq, gte, inArray, notInArray, sql } from "drizzle-orm";
+import {
+  and,
+  desc,
+  eq,
+  exists,
+  gte,
+  ilike,
+  inArray,
+  notInArray,
+  or,
+  sql,
+} from "drizzle-orm";
 import { customAlphabet } from "nanoid";
 import { z } from "zod";
 
@@ -400,45 +411,98 @@ export const listingRouter = router({
       z.object({
         limit: z.number().min(1).max(100).default(10),
         offset: z.number().min(0).default(0),
+        query: z.string().trim().optional(),
       })
     )
     .query(async ({ input }) => {
       const db = getDb();
+      const searchQuery = input.query?.trim() || undefined;
+
+      const whereClause = searchQuery
+        ? or(
+            ilike(listings.label, `%${searchQuery}%`),
+            exists(
+              db
+                .select()
+                .from(items)
+                .where(
+                  and(
+                    eq(items.listingLabel, listings.label),
+                    ilike(items.value, `%${searchQuery}%`)
+                  )
+                )
+            )
+          )
+        : undefined;
 
       const [listingsResult, totalCountResult] = await Promise.all([
-        db.query.listings.findMany({
-          limit: input.limit,
-          offset: input.offset,
-          orderBy: (listings, { desc }) => [desc(listings.createdAt)],
-          columns: {
-            id: true,
-            label: true,
-            title: true,
-            createdAt: true,
-            updatedAt: true,
-          },
-          with: {
-            items: {
-              columns: { id: true, value: true },
-              orderBy: (items, { asc }) => [asc(items.id)],
-            },
-            visits: {
-              columns: { id: true },
-            },
-          },
-        }),
+        db
+          .select({
+            id: listings.id,
+            label: listings.label,
+            title: listings.title,
+            createdAt: listings.createdAt,
+            updatedAt: listings.updatedAt,
+          })
+          .from(listings)
+          .where(whereClause)
+          .orderBy(desc(listings.createdAt))
+          .limit(input.limit)
+          .offset(input.offset),
         db
           .select({ count: sql<number>`count(*)::int` })
           .from(listings)
+          .where(whereClause)
           .then((result) => result[0]?.count ?? 0),
       ]);
+
+      const listingLabels = listingsResult.map((l) => l.label);
+
+      const [allItems, visitCounts] = listingLabels.length
+        ? await Promise.all([
+            db
+              .select({
+                id: items.id,
+                value: items.value,
+                listingLabel: items.listingLabel,
+              })
+              .from(items)
+              .where(inArray(items.listingLabel, listingLabels))
+              .orderBy(items.id),
+            db
+              .select({
+                listingLabel: visits.listingLabel,
+                count: sql<number>`count(*)::int`,
+              })
+              .from(visits)
+              .where(inArray(visits.listingLabel, listingLabels))
+              .groupBy(visits.listingLabel),
+          ])
+        : [[], []];
+
+      const itemsByLabel = allItems.reduce(
+        (acc, item) => {
+          if (!acc[item.listingLabel]) acc[item.listingLabel] = [];
+          acc[item.listingLabel].push({ id: item.id, value: item.value });
+          return acc;
+        },
+        {} as Record<string, { id: number; value: string }[]>
+      );
+
+      const visitsByLabel = visitCounts.reduce(
+        (acc, visitCount) => {
+          acc[visitCount.listingLabel] = visitCount.count;
+          return acc;
+        },
+        {} as Record<string, number>
+      );
 
       return {
         listings: listingsResult.map((listing) => ({
           ...listing,
-          itemCount: listing.items.length,
-          visitCount: listing.visits.length,
-          visits: undefined,
+          items: itemsByLabel[listing.label] || [],
+          itemCount: itemsByLabel[listing.label]?.length || 0,
+          visitCount: visitsByLabel[listing.label] || 0,
         })),
         totalCount: totalCountResult,
       };

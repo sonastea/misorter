@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { trpc } from "@/utils/trpc";
@@ -41,13 +41,39 @@ function RouteComponent() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [page, setPage] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
 
-  const { data, isLoading } = useQuery(
-    trpc.listing.getAllPaginated.queryOptions({
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+      setPage(0);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  const { data, isLoading, isFetching } = useQuery({
+    ...trpc.listing.getAllPaginated.queryOptions({
       limit: PAGE_SIZE,
       offset: page * PAGE_SIZE,
-    })
-  );
+      query: debouncedSearchTerm || undefined,
+    }),
+    placeholderData: (previousData) => previousData,
+  });
+
+  const filteredListings = useMemo(() => {
+    const listings = data?.listings;
+    if (!listings) return [];
+    if (!searchTerm) return listings;
+    const lowerSearch = searchTerm.toLowerCase();
+    return listings.filter(
+      (listing) =>
+        listing.label.toLowerCase().includes(lowerSearch) ||
+        listing.items.some((item) =>
+          item.value.toLowerCase().includes(lowerSearch)
+        )
+    );
+  }, [data?.listings, searchTerm]);
 
   const deleteMutation = useMutation(
     trpc.listing.delete.mutationOptions({
@@ -106,15 +132,35 @@ function RouteComponent() {
           </p>
         ) : null}
 
+        <div className="adminDashboard-searchRow">
+          <input
+            type="text"
+            placeholder="Search by label or item name..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="adminDashboard-searchInput"
+          />
+          {searchTerm && (
+            <span className="adminDashboard-searchMeta">
+              Showing {filteredListings.length} of {data?.totalCount ?? 0}
+            </span>
+          )}
+          {isFetching && !isLoading && (
+            <span className="adminDashboard-searchUpdating" aria-live="polite">
+              Updating...
+            </span>
+          )}
+        </div>
+
         <div className="adminDashboard-listingsSection">
-          {isLoading ? (
+          {isLoading && !data ? (
             <p className="adminDashboard-loading">Loading listings...</p>
-          ) : data?.listings.length === 0 ? (
+          ) : filteredListings.length === 0 ? (
             <p className="adminDashboard-noListings">No listings found.</p>
           ) : (
             <>
               <ListingTable
-                listings={data?.listings ?? []}
+                listings={filteredListings}
                 onDelete={handleDelete}
                 isDeleting={deleteMutation.isPending}
               />
