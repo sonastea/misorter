@@ -54,3 +54,13 @@
 
 - For protected routes, validate auth with Supabase `auth.getUser()` instead of cookie existence alone.
 - Preserve redirect intent with `/login?redirect=<path>` when access is denied.
+
+## Adding New Environment Variables
+
+When adding new environment variables:
+
+1. Add them to `.env.example` with a descriptive comment
+2. Update `DEPLOYMENT.md`:
+   - Backend-only vars: add to "Part 1: Deploy Backend" → "Step 2: Set Environment Variables"
+   - Frontend vars: add to "Part 2: Deploy Frontend" → "Step 1: Configure Environment Variables"
+   - Include both wrangler secret commands and Cloudflare Dashboard instructions
