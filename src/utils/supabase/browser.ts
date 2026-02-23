@@ -5,7 +5,9 @@ let supabaseBrowserClient: SupabaseClient | null = null;
 
 function getRequiredEnv(value: string | undefined, name: string): string {
   if (!value) {
-    throw new Error(`${name} is required to use Supabase auth.`);
+    throw new Error(
+      `${name} is not set as an environment variable for the client.`
+    );
   }
 
   return value;
