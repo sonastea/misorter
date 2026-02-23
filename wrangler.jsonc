@@ -1,5 +1,5 @@
 {
-  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "misorter-api",
   "main": "./src/server/server.ts",
   "compatibility_date": "2026-02-22",
@@ -24,9 +24,7 @@
   "observability": {
     "logs": {
       "enabled": true,
-      "head_sampling_rate": 100,
-      "invocation_logs": true,
-      "persist": true,
+      "head_sampling_rate": 1,
     },
   },
 }

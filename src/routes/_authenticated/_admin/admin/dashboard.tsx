@@ -18,7 +18,7 @@ export const Route = createFileRoute("/_authenticated/_admin/admin/dashboard")({
   beforeLoad: async ({ context, location }) => {
     const user = await context.queryClient
       .fetchQuery(trpc.auth.getCurrentUser.queryOptions())
-      .catch(() => null);
+      .catch((err) => console.error("Admin dashboard getCurrentUser: ", err));
 
     if (!user) {
       redirectToLogin(location.pathname);
