@@ -12,6 +12,7 @@
 - Keep Cloudflare Workers runtime constraints in mind (the app is hosted on Workers): avoid long-lived request-bound I/O assumptions, and follow `src/db/client.ts` by using `getDb()` per request.
 - Keep external service clients (for example Redis, Resend, and rate limiters) lazily initialized in module-level getters, and validate required env vars before first use.
 - For non-blocking side effects (cache updates, emails, analytics), prefer `ctx.waitUntil(...)` so mutations can return quickly; log and swallow background failures.
+- For any mutation that changes or deletes cached entities, always invalidate/delete related cache keys (including not-found cleanup paths) to prevent stale data.
 
 ### API and Imports
 

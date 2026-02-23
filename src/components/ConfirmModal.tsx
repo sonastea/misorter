@@ -4,7 +4,7 @@ import {
   DialogPanel,
   DialogTitle,
 } from "@headlessui/react";
-import { useState } from "react";
+import { type ReactNode } from "react";
 
 const ConfirmModal = ({
   title,
@@ -14,29 +14,21 @@ const ConfirmModal = ({
   open,
 }: {
   title: string;
-  message: string;
+  message: ReactNode;
   onCancel: () => void;
   onConfirm: () => void;
   open: boolean;
 }) => {
-  const [isOpen, setIsOpen] = useState(open);
-
   const handleCancel = () => {
     onCancel();
-    setIsOpen(false);
   };
 
   const handleConfirm = () => {
     onConfirm();
-    setIsOpen(false);
   };
 
   return (
-    <Dialog
-      className="confirmModal-dialog"
-      open={isOpen}
-      onClose={handleCancel}
-    >
+    <Dialog className="confirmModal-dialog" open={open} onClose={handleCancel}>
       {/* The backdrop, rendered as a fixed sibling to the panel container */}
       <div className="confirmModal-backdrop" aria-hidden="true" />
 
@@ -46,10 +38,7 @@ const ConfirmModal = ({
           <DialogTitle aria-label={title} className="confirmModal-title">
             {title}
           </DialogTitle>
-          <Description
-            aria-label={message}
-            className="confirmModal-description"
-          >
+          <Description as="div" className="confirmModal-description">
             {message}
           </Description>
 

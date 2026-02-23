@@ -1,6 +1,7 @@
-import { publicProcedure, router } from "@/backend/trpc";
+import { publicProcedure, protectedProcedure, router } from "@/backend/trpc";
 import { getDb } from "@/db/client";
 import { items, listings, visits } from "@/db/schema";
+import { TRPCError } from "@trpc/server";
 import { Redis } from "@upstash/redis/cloudflare";
 import { and, desc, eq, gte, inArray, notInArray, sql } from "drizzle-orm";
 import { customAlphabet } from "nanoid";
@@ -393,5 +394,89 @@ export const listingRouter = router({
       // TODO: axiom log.info("update list title", { label: input.label, title: input.title });
 
       return updatedList;
+    }),
+  getAllPaginated: protectedProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).default(10),
+        offset: z.number().min(0).default(0),
+      })
+    )
+    .query(async ({ input }) => {
+      const db = getDb();
+
+      const [listingsResult, totalCountResult] = await Promise.all([
+        db.query.listings.findMany({
+          limit: input.limit,
+          offset: input.offset,
+          orderBy: (listings, { desc }) => [desc(listings.createdAt)],
+          columns: {
+            id: true,
+            label: true,
+            title: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+          with: {
+            items: {
+              columns: { id: true, value: true },
+              orderBy: (items, { asc }) => [asc(items.id)],
+            },
+            visits: {
+              columns: { id: true },
+            },
+          },
+        }),
+        db
+          .select({ count: sql<number>`count(*)::int` })
+          .from(listings)
+          .then((result) => result[0]?.count ?? 0),
+      ]);
+
+      return {
+        listings: listingsResult.map((listing) => ({
+          ...listing,
+          itemCount: listing.items.length,
+          visitCount: listing.visits.length,
+          visits: undefined,
+        })),
+        totalCount: totalCountResult,
+      };
+    }),
+  delete: protectedProcedure
+    .input(
+      z.object({
+        label: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const db = getDb();
+      const redisClient = getRedis();
+
+      const deleteCachedListing = () =>
+        redisClient.del(input.label).catch((e) => {
+          console.error("Redis del error on listing delete:", e);
+        });
+
+      const listing = await db.query.listings.findFirst({
+        where: {
+          label: input.label,
+        },
+        columns: { label: true },
+      });
+
+      if (!listing) {
+        ctx.waitUntil(deleteCachedListing());
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Listing not found",
+        });
+      }
+
+      await db.delete(listings).where(eq(listings.label, input.label));
+
+      ctx.waitUntil(deleteCachedListing());
+
+      return { success: true, label: input.label };
     }),
 });
