@@ -2402,6 +2402,10 @@ html[data-theme="dark"] .home-editHelper {
   background: var(--color-bg-primary);
 }
 
+.adminDashboard-mobileCards {
+  display: none;
+}
+
 .adminDashboard-tableWrapper {
   min-width: 44rem;
 }
@@ -2806,20 +2810,85 @@ html[data-theme="dark"] .adminDashboard-shell {
   }
 
   .adminDashboard-tableScrollRegion {
-    max-height: none;
-    overflow: visible;
-    border: none;
-    border-radius: 0;
-    background: transparent;
+    display: none;
   }
 
-  .adminDashboard-tableWrapper {
+  .adminDashboard-mobileCards {
+    display: grid;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .adminDashboard-mobileCard {
+    border: 1px solid var(--color-bg-tertiary);
+    border-radius: 0.65rem;
+    overflow: hidden;
+    background: var(--color-bg-primary);
+  }
+
+  .adminDashboard-mobileCardHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid var(--color-bg-tertiary);
+    cursor: pointer;
+  }
+
+  .adminDashboard-mobileCardTitleWrap {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
     min-width: 0;
-    overflow-x: auto;
   }
 
-  .adminDashboard-table th {
-    position: static;
+  .adminDashboard-mobileCardBody {
+    padding: 0.7rem 0.75rem;
+    display: grid;
+    gap: 0.55rem;
+  }
+
+  .adminDashboard-mobileCardListingTitle {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .adminDashboard-mobileCardMetaGrid {
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  .adminDashboard-mobileCardMetaItem {
+    margin: 0;
+  }
+
+  .adminDashboard-mobileCardMetaItem dt {
+    color: var(--color-text-secondary);
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.2rem;
+  }
+
+  .adminDashboard-mobileCardMetaItem dd {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-size: 0.86rem;
+    font-weight: 600;
+  }
+
+  .adminDashboard-mobileExpandedPanel {
+    padding-top: 0.55rem;
+    padding-bottom: 0.6rem;
   }
 
   .toggle {
