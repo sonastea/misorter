@@ -101,6 +101,10 @@ function RouteComponent() {
       return;
     }
 
+    queryClient.invalidateQueries({
+      queryKey: trpc.auth.getCurrentUser.queryKey(),
+    });
+
     await navigate({ to: "/login", replace: true });
   };
 

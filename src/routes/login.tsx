@@ -2,6 +2,8 @@ import { Button, Field, Fieldset, Input, Label } from "@headlessui/react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { SubmitEvent, useEffect, useMemo, useState } from "react";
 import { getSupabaseBrowserClient } from "@/utils/supabase/browser";
+import { queryClient } from "@/utils/trpc";
+import { trpc } from "@/utils/trpc";
 
 type LoginSearch = {
   redirect?: string;
@@ -54,20 +56,27 @@ function RouteComponent() {
     setErrorMessage(null);
     setIsSubmitting(true);
 
-    const supabase = getSupabaseBrowserClient();
+    try {
+      const supabase = getSupabaseBrowserClient();
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (error) {
-      setErrorMessage(error.message);
+      if (error) {
+        setErrorMessage(error.message);
+        return;
+      }
+
+      queryClient.invalidateQueries({
+        queryKey: trpc.auth.getCurrentUser.queryKey(),
+      });
+
+      await navigate({ to: redirectTo, replace: true });
+    } finally {
       setIsSubmitting(false);
-      return;
     }
-
-    await navigate({ to: redirectTo, replace: true });
   };
 
   return (
