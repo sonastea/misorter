@@ -47,6 +47,7 @@ export const Route = createFileRoute("/_authenticated/_admin/admin/dashboard")({
 });
 
 const PAGE_SIZE = 50;
+const numberFormatter = new Intl.NumberFormat();
 
 function RouteComponent() {
   const navigate = useNavigate();
@@ -141,6 +142,30 @@ function RouteComponent() {
   };
 
   const totalPages = data ? Math.ceil(data.totalCount / PAGE_SIZE) : 0;
+  const kpiMetrics = useMemo(() => {
+    const listings = filteredListings;
+    const listingsOnPage = listings.length;
+    const totalItems = listings.reduce(
+      (sum, listing) => sum + listing.itemCount,
+      0
+    );
+    const totalVisits = listings.reduce(
+      (sum, listing) => sum + listing.visitCount,
+      0
+    );
+    const zeroItemListings = listings.reduce(
+      (sum, listing) => sum + (listing.itemCount === 0 ? 1 : 0),
+      0
+    );
+
+    return {
+      totalListings: data?.totalCount ?? 0,
+      listingsOnPage,
+      totalItems,
+      totalVisits,
+      zeroItemListings,
+    };
+  }, [data?.totalCount, filteredListings]);
 
   return (
     <AdminShell
@@ -248,6 +273,45 @@ function RouteComponent() {
           </span>
         )}
       </div>
+
+      <section
+        className="adminDashboard-kpiStrip"
+        aria-label="Inventory metrics"
+      >
+        <article className="adminDashboard-kpiCard">
+          <p className="adminDashboard-kpiLabel">Total Listings</p>
+          <p className="adminDashboard-kpiValue">
+            {numberFormatter.format(kpiMetrics.totalListings)}
+          </p>
+          <p className="adminDashboard-kpiMeta">Matching current filters</p>
+        </article>
+
+        <article className="adminDashboard-kpiCard">
+          <p className="adminDashboard-kpiLabel">Items on Page</p>
+          <p className="adminDashboard-kpiValue">
+            {numberFormatter.format(kpiMetrics.totalItems)}
+          </p>
+          <p className="adminDashboard-kpiMeta">
+            Across {numberFormatter.format(kpiMetrics.listingsOnPage)} listings
+          </p>
+        </article>
+
+        <article className="adminDashboard-kpiCard">
+          <p className="adminDashboard-kpiLabel">Visits on Page</p>
+          <p className="adminDashboard-kpiValue">
+            {numberFormatter.format(kpiMetrics.totalVisits)}
+          </p>
+          <p className="adminDashboard-kpiMeta">Total listing visits in view</p>
+        </article>
+
+        <article className="adminDashboard-kpiCard">
+          <p className="adminDashboard-kpiLabel">Empty Listings</p>
+          <p className="adminDashboard-kpiValue">
+            {numberFormatter.format(kpiMetrics.zeroItemListings)}
+          </p>
+          <p className="adminDashboard-kpiMeta">Listings with zero items</p>
+        </article>
+      </section>
 
       <div className="adminDashboard-listingsSection">
         {isLoading && !data ? (
