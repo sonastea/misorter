@@ -1,6 +1,7 @@
 import { Button, Field, Fieldset, Input, Label } from "@headlessui/react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { SubmitEvent, useEffect, useMemo, useState } from "react";
+import AdminThemeToggle from "@/components/admin/AdminThemeToggle";
 import { getSupabaseBrowserClient } from "@/utils/supabase/browser";
 import { queryClient } from "@/utils/trpc";
 import { trpc } from "@/utils/trpc";
@@ -82,8 +83,20 @@ function RouteComponent() {
   return (
     <main className="adminAuth-shell">
       <section className="adminAuth-card">
-        <h1 className="adminAuth-title">Admin Login</h1>
-        <p className="adminAuth-subtitle">Sign in to access your dashboard.</p>
+        <div className="adminAuth-header">
+          <div className="adminAuth-headerCopy">
+            <h1 className="adminAuth-title">Admin Login</h1>
+            <p className="adminAuth-subtitle">
+              Sign in to access your dashboard.
+            </p>
+          </div>
+
+          <div className="adminAuth-headerActions">
+            <div className="adminAuth-themeToggle">
+              <AdminThemeToggle />
+            </div>
+          </div>
+        </div>
 
         <form className="adminAuth-form" onSubmit={handleSubmit}>
           <Fieldset className="adminAuth-fieldset" disabled={isSubmitting}>
