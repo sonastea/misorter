@@ -14,6 +14,7 @@ import NoticeBanner from "@/components/NoticeBanner";
 import SupportForm from "@/components/SupportForm";
 import { trpc } from "@utils/trpc";
 import { v4 as uuidv4 } from "uuid";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const tip =
   "Tap the title to name your list something.<br/>hitting <b>no opinion</b>  or  <b>I like both</b> frequently will negatively affect your results.";
@@ -131,6 +132,7 @@ function Home() {
 
   return (
     <>
+      <ThemeToggle />
       <NoticeBanner />
       <SupportForm />
       <div className="home-container">
