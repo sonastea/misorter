@@ -2336,8 +2336,8 @@ html[data-theme="dark"] .home-editHelper {
 
 .adminDashboard-searchInput {
   width: 100%;
-  border: 1px solid var(--color-bg-tertiary);
-  background: var(--color-bg-primary);
+  border: 1px solid var(--color-bg-quaternary, var(--color-bg-tertiary));
+  background: var(--color-bg-tertiary);
   color: var(--color-text-primary);
   border-radius: 0.7rem;
   padding: 0.48rem 0.72rem 0.48rem 2rem;
@@ -2393,9 +2393,17 @@ html[data-theme="dark"] .home-editHelper {
   padding: 1rem;
 }
 
-.adminDashboard-tableWrapper {
-  overflow-x: auto;
+.adminDashboard-tableScrollRegion {
+  overflow: auto;
+  max-height: min(68vh, 52rem);
   margin-bottom: 1rem;
+  border-radius: 0.65rem;
+  border: 1px solid var(--color-bg-tertiary);
+  background: var(--color-bg-primary);
+}
+
+.adminDashboard-tableWrapper {
+  min-width: 44rem;
 }
 
 .adminDashboard-table {
@@ -2412,6 +2420,10 @@ html[data-theme="dark"] .home-editHelper {
 }
 
 .adminDashboard-table th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--color-bg-primary);
   color: var(--color-text-secondary);
   font-weight: 600;
   font-size: 0.75rem;
@@ -2552,14 +2564,18 @@ html[data-theme="dark"] .home-editHelper {
 .adminDashboard-itemRow {
   display: flex;
   gap: 0.4rem;
-  padding: 0.25rem 0;
+  padding: 0.3rem 0.4rem;
   font-size: 0.8rem;
   color: var(--color-text-primary);
-  border-bottom: 1px solid var(--color-bg-tertiary);
+  border-radius: 0.35rem;
 }
 
-.adminDashboard-itemRow:last-child {
-  border-bottom: none;
+.adminDashboard-itemRow:nth-child(odd) {
+  background: var(--color-bg-primary);
+}
+
+.adminDashboard-itemRow + .adminDashboard-itemRow {
+  margin-top: 0.15rem;
 }
 
 .adminDashboard-itemIndex {
@@ -2593,7 +2609,10 @@ html[data-theme="dark"] .home-editHelper {
 
 .adminDashboard-expandedPanel {
   padding: 0.75rem 1rem;
-  background: var(--color-bg-primary);
+  background: var(--color-bg-tertiary);
+  box-shadow:
+    inset 0 1px 0 var(--color-bg-quaternary, var(--color-bg-tertiary)),
+    inset 0 -1px 0 var(--color-bg-quaternary, var(--color-bg-tertiary));
 }
 
 .adminDashboard-expandedContent {
@@ -2714,8 +2733,12 @@ html[data-theme="dark"] .adminDashboard-deleteButton:hover:not(:disabled) {
 }
 
 html[data-theme="dark"] .adminDashboard-itemsDropdownContent {
-  background: var(--color-bg-primary);
-  border-color: var(--color-bg-tertiary);
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-bg-quaternary, var(--color-bg-tertiary));
+}
+
+html[data-theme="dark"] .adminDashboard-itemRow:nth-child(odd) {
+  background: var(--color-bg-secondary);
 }
 
 html[data-theme="dark"] .adminDashboard-table th {
@@ -2726,13 +2749,18 @@ html[data-theme="dark"] .adminDashboard-table td {
   color: var(--color-text-primary);
 }
 
+html[data-theme="dark"] .adminDashboard-tableScrollRegion {
+  border-color: var(--color-bg-tertiary);
+  background: var(--color-bg-primary);
+}
+
 html[data-theme="dark"] .adminDashboard-paginationButton:hover:not(:disabled) {
   background: var(--color-bg-tertiary);
 }
 
 html[data-theme="dark"] .adminDashboard-searchInput {
-  background: var(--color-bg-secondary);
-  border-color: var(--color-bg-tertiary);
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-bg-icon);
 }
 
 html[data-theme="dark"] .adminDashboard-searchIcon {
@@ -2775,6 +2803,23 @@ html[data-theme="dark"] .adminDashboard-shell {
 
   .adminDashboard-searchInputWrap {
     min-width: 100%;
+  }
+
+  .adminDashboard-tableScrollRegion {
+    max-height: none;
+    overflow: visible;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .adminDashboard-tableWrapper {
+    min-width: 0;
+    overflow-x: auto;
+  }
+
+  .adminDashboard-table th {
+    position: static;
   }
 
   .toggle {

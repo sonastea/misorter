@@ -130,28 +130,34 @@ const ListingTable = ({
   isDeleting: boolean;
 }) => {
   return (
-    <div className="adminDashboard-tableWrapper">
-      <table className="adminDashboard-table">
-        <thead>
-          <tr>
-            <th></th>
-            <th>Label</th>
-            <th>Title</th>
-            <th>Items</th>
-            <th>Visits</th>
-            <th>Created</th>
-            <th></th>
-          </tr>
-        </thead>
-        {listings.map((listing) => (
-          <ListingRow
-            key={listing.label}
-            listing={listing}
-            onDelete={onDelete}
-            isDeleting={isDeleting}
-          />
-        ))}
-      </table>
+    <div
+      className="adminDashboard-tableScrollRegion"
+      role="region"
+      aria-label="Listings results"
+    >
+      <div className="adminDashboard-tableWrapper">
+        <table className="adminDashboard-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Label</th>
+              <th>Title</th>
+              <th>Items</th>
+              <th>Visits</th>
+              <th>Created</th>
+              <th></th>
+            </tr>
+          </thead>
+          {listings.map((listing) => (
+            <ListingRow
+              key={listing.label}
+              listing={listing}
+              onDelete={onDelete}
+              isDeleting={isDeleting}
+            />
+          ))}
+        </table>
+      </div>
     </div>
   );
 };
