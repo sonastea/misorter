@@ -2277,37 +2277,72 @@ html[data-theme="dark"] .home-editHelper {
 .adminDashboard-searchRow {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0.75rem;
-  margin-top: 0.5rem;
+  margin-top: 0.9rem;
+}
+
+.adminDashboard-searchInputWrap {
+  position: relative;
+  flex: 1 1 24rem;
+  min-width: 16rem;
+}
+
+.adminDashboard-searchIcon {
+  position: absolute;
+  left: 0.7rem;
+  top: 50%;
+  width: 0.86rem;
+  height: 0.86rem;
+  color: var(--color-text-secondary);
+  opacity: 0.82;
+  transform: translateY(-50%);
+  pointer-events: none;
 }
 
 .adminDashboard-searchInput {
-  flex: 1;
+  width: 100%;
   border: 1px solid var(--color-bg-tertiary);
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
-  border-radius: 0.55rem;
-  padding: 0.55rem 0.72rem;
-  font-size: 0.9rem;
+  border-radius: 0.7rem;
+  padding: 0.48rem 0.72rem 0.48rem 2rem;
+  font-size: 0.84rem;
+  line-height: 1.35;
   font-family: inherit;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.adminDashboard-searchInput::placeholder {
+  color: var(--color-text-secondary);
+  opacity: 0.9;
+}
+
+.adminDashboard-searchInput:hover {
+  border-color: var(--color-bg-quaternary, var(--color-bg-tertiary));
 }
 
 .adminDashboard-searchInput:focus {
   border-color: var(--color-text-once);
-  outline: 2px solid rgba(255, 95, 162, 0.25);
-  outline-offset: 1px;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 95, 162, 0.2);
 }
 
 .adminDashboard-searchMeta {
   color: var(--color-text-secondary);
   font-size: 0.75rem;
   white-space: nowrap;
+  line-height: 1;
 }
 
 .adminDashboard-searchUpdating {
   color: var(--color-text-secondary);
   font-size: 0.75rem;
   white-space: nowrap;
+  line-height: 1;
 }
 
 .adminDashboard-listingsTitle {
@@ -2666,6 +2701,10 @@ html[data-theme="dark"] .adminDashboard-searchInput {
   border-color: var(--color-bg-tertiary);
 }
 
+html[data-theme="dark"] .adminDashboard-searchIcon {
+  opacity: 0.92;
+}
+
 html[data-theme="dark"] .adminAuth-shell,
 html[data-theme="dark"] .adminDashboard-shell {
   --admin-cta-bg: var(--color-bg-once-dark-faded-hover);
@@ -2687,6 +2726,10 @@ html[data-theme="dark"] .adminDashboard-shell {
 
   .adminDashboard-searchRow {
     flex-wrap: wrap;
+  }
+
+  .adminDashboard-searchInputWrap {
+    min-width: 100%;
   }
 
   .toggle {

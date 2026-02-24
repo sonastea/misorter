@@ -137,13 +137,29 @@ function RouteComponent() {
         ) : null}
 
         <div className="adminDashboard-searchRow">
-          <input
-            type="text"
-            placeholder="Search by label or item name..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="adminDashboard-searchInput"
-          />
+          <div className="adminDashboard-searchInputWrap">
+            <svg
+              className="adminDashboard-searchIcon"
+              viewBox="0 0 20 20"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M14 14L18 18M15.333 9.667a5.667 5.667 0 1 1-11.334 0 5.667 5.667 0 0 1 11.334 0Z"
+                stroke="currentColor"
+                strokeWidth="1.7"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <input
+              type="text"
+              placeholder="Search by label or item name..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="adminDashboard-searchInput"
+            />
+          </div>
           {searchTerm && (
             <span className="adminDashboard-searchMeta">
               Showing {filteredListings.length} of {data?.totalCount ?? 0}
