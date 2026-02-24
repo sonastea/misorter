@@ -1,4 +1,10 @@
-import { useState, useEffect, useMemo } from "react";
+import {
+  useState,
+  useEffect,
+  useMemo,
+  useRef,
+  type KeyboardEvent,
+} from "react";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { trpc } from "@/utils/trpc";
@@ -49,6 +55,7 @@ function RouteComponent() {
   const [page, setPage] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -118,6 +125,20 @@ function RouteComponent() {
     deleteMutation.mutate({ label });
   };
 
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    setDebouncedSearchTerm("");
+    setPage(0);
+    searchInputRef.current?.focus();
+  };
+
+  const handleSearchKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Escape" && searchTerm) {
+      event.preventDefault();
+      handleClearSearch();
+    }
+  };
+
   const totalPages = data ? Math.ceil(data.totalCount / PAGE_SIZE) : 0;
 
   return (
@@ -157,12 +178,31 @@ function RouteComponent() {
             />
           </svg>
           <input
+            ref={searchInputRef}
             type="text"
             placeholder="Search by label or item name..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={handleSearchKeyDown}
             className="adminDashboard-searchInput"
           />
+          {searchTerm ? (
+            <button
+              type="button"
+              className="adminDashboard-searchClear"
+              onClick={handleClearSearch}
+              aria-label="Clear search"
+            >
+              <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path
+                  d="M6 6l8 8M14 6l-8 8"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </button>
+          ) : null}
         </div>
         {searchTerm && (
           <span className="adminDashboard-searchMeta">

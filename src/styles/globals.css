@@ -2340,7 +2340,7 @@ html[data-theme="dark"] .home-editHelper {
   background: var(--color-bg-tertiary);
   color: var(--color-text-primary);
   border-radius: 0.7rem;
-  padding: 0.48rem 0.72rem 0.48rem 2rem;
+  padding: 0.48rem 2.15rem 0.48rem 2rem;
   font-size: 0.84rem;
   line-height: 1.35;
   font-family: inherit;
@@ -2363,6 +2363,42 @@ html[data-theme="dark"] .home-editHelper {
   border-color: var(--color-text-once);
   outline: none;
   box-shadow: 0 0 0 3px rgba(255, 95, 162, 0.2);
+}
+
+.adminDashboard-searchClear {
+  position: absolute;
+  right: 0.45rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.45rem;
+  height: 1.45rem;
+  border: 1px solid var(--color-bg-quaternary, var(--color-bg-tertiary));
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.adminDashboard-searchClear svg {
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
+.adminDashboard-searchClear:hover {
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+}
+
+.adminDashboard-searchClear:focus-visible {
+  outline: 2px solid var(--color-text-once);
+  outline-offset: 1px;
 }
 
 .adminDashboard-searchMeta {
@@ -2765,6 +2801,15 @@ html[data-theme="dark"] .adminDashboard-paginationButton:hover:not(:disabled) {
 html[data-theme="dark"] .adminDashboard-searchInput {
   background: var(--color-bg-tertiary);
   border-color: var(--color-bg-icon);
+}
+
+html[data-theme="dark"] .adminDashboard-searchClear {
+  background: var(--color-bg-primary);
+  border-color: var(--color-bg-icon);
+}
+
+html[data-theme="dark"] .adminDashboard-searchClear:hover {
+  background: var(--color-bg-secondary);
 }
 
 html[data-theme="dark"] .adminDashboard-searchIcon {
