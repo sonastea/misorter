@@ -27,7 +27,36 @@ function redirectToLogin(redirectPath: string): never {
   });
 }
 
+type QuickFilter = "all" | "has-items" | "empty" | "visited";
+
+type DashboardSearch = {
+  filter?: QuickFilter;
+};
+
+const QUICK_FILTER_OPTIONS: { value: QuickFilter; label: string }[] = [
+  { value: "all", label: "All" },
+  { value: "has-items", label: "Has Items" },
+  { value: "empty", label: "Empty" },
+  { value: "visited", label: "Visited" },
+];
+
+function normalizeQuickFilter(value: unknown): QuickFilter | undefined {
+  if (
+    value === "all" ||
+    value === "has-items" ||
+    value === "empty" ||
+    value === "visited"
+  ) {
+    return value;
+  }
+
+  return undefined;
+}
+
 export const Route = createFileRoute("/_authenticated/_admin/admin/dashboard")({
+  validateSearch: (search: Record<string, unknown>): DashboardSearch => ({
+    filter: normalizeQuickFilter(search.filter),
+  }),
   ssr: true,
   beforeLoad: async ({ context, location }) => {
     const user = await context.queryClient
@@ -50,6 +79,7 @@ const PAGE_SIZE = 50;
 const numberFormatter = new Intl.NumberFormat();
 
 function RouteComponent() {
+  const { filter } = Route.useSearch();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -76,7 +106,9 @@ function RouteComponent() {
     placeholderData: (previousData) => previousData,
   });
 
-  const filteredListings = useMemo(() => {
+  const activeQuickFilter = filter ?? "all";
+
+  const searchMatchedListings = useMemo(() => {
     const listings = data?.listings;
     if (!listings) return [];
     if (!searchTerm) return listings;
@@ -89,6 +121,42 @@ function RouteComponent() {
         )
     );
   }, [data?.listings, searchTerm]);
+
+  const quickFilterCounts = useMemo(() => {
+    const listings = searchMatchedListings;
+    return {
+      all: listings.length,
+      "has-items": listings.reduce(
+        (sum, listing) => sum + (listing.itemCount > 0 ? 1 : 0),
+        0
+      ),
+      empty: listings.reduce(
+        (sum, listing) => sum + (listing.itemCount === 0 ? 1 : 0),
+        0
+      ),
+      visited: listings.reduce(
+        (sum, listing) => sum + (listing.visitCount > 0 ? 1 : 0),
+        0
+      ),
+    };
+  }, [searchMatchedListings]);
+
+  const filteredListings = useMemo(() => {
+    switch (activeQuickFilter) {
+      case "has-items":
+        return searchMatchedListings.filter((listing) => listing.itemCount > 0);
+      case "empty":
+        return searchMatchedListings.filter(
+          (listing) => listing.itemCount === 0
+        );
+      case "visited":
+        return searchMatchedListings.filter(
+          (listing) => listing.visitCount > 0
+        );
+      default:
+        return searchMatchedListings;
+    }
+  }, [activeQuickFilter, searchMatchedListings]);
 
   const deleteMutation = useMutation(
     trpc.listing.delete.mutationOptions({
@@ -139,6 +207,18 @@ function RouteComponent() {
       event.preventDefault();
       handleClearSearch();
     }
+  };
+
+  const handleQuickFilterChange = (nextFilter: QuickFilter) => {
+    setPage(0);
+    navigate({
+      to: ".",
+      search: (previous) => ({
+        ...previous,
+        filter: nextFilter === "all" ? undefined : nextFilter,
+      }),
+      replace: true,
+    });
   };
 
   const totalPages = data ? Math.ceil(data.totalCount / PAGE_SIZE) : 0;
@@ -262,7 +342,7 @@ function RouteComponent() {
             </button>
           ) : null}
         </div>
-        {searchTerm && (
+        {(searchTerm || activeQuickFilter !== "all") && (
           <span className="adminDashboard-searchMeta">
             Showing {filteredListings.length} of {data?.totalCount ?? 0}
           </span>
@@ -275,6 +355,34 @@ function RouteComponent() {
       </div>
 
       <section
+        className="adminDashboard-filterChips"
+        aria-label="Quick filters"
+      >
+        {QUICK_FILTER_OPTIONS.map((option) => {
+          const count = quickFilterCounts[option.value];
+          const isActive = activeQuickFilter === option.value;
+          return (
+            <button
+              key={option.value}
+              type="button"
+              className={
+                isActive
+                  ? "adminDashboard-filterChip adminDashboard-filterChip--active"
+                  : "adminDashboard-filterChip"
+              }
+              onClick={() => handleQuickFilterChange(option.value)}
+              aria-pressed={isActive}
+            >
+              <span>{option.label}</span>
+              <span className="adminDashboard-filterChipCount">
+                {numberFormatter.format(count)}
+              </span>
+            </button>
+          );
+        })}
+      </section>
+
+      <section
         className="adminDashboard-kpiStrip"
         aria-label="Inventory metrics"
       >
@@ -283,7 +391,7 @@ function RouteComponent() {
           <p className="adminDashboard-kpiValue">
             {numberFormatter.format(kpiMetrics.totalListings)}
           </p>
-          <p className="adminDashboard-kpiMeta">Matching current filters</p>
+          <p className="adminDashboard-kpiMeta">From current search query</p>
         </article>
 
         <article className="adminDashboard-kpiCard">
