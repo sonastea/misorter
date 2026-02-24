@@ -2232,11 +2232,15 @@ html[data-theme="dark"] .home-editHelper {
   width: 100%;
   border: 1px solid var(--admin-cta-border);
   background: var(--admin-cta-bg);
-  color: var(--color-bg-primary);
+  color: var(--color-text-primary);
   border-radius: 0.55rem;
   padding: 0.65rem 0.75rem;
   font-size: 0.95rem;
   font-weight: 700;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   transition:
     background 0.15s ease,
@@ -2707,9 +2711,9 @@ html[data-theme="dark"] .adminDashboard-searchIcon {
 
 html[data-theme="dark"] .adminAuth-shell,
 html[data-theme="dark"] .adminDashboard-shell {
-  --admin-cta-bg: var(--color-bg-once-dark-faded-hover);
-  --admin-cta-border: var(--color-bg-once-dark-faded-hover);
-  --admin-cta-hover: var(--color-bg-once-dark-hover);
+  --admin-cta-bg: var(--color-bg-once-dark-hover);
+  --admin-cta-border: var(--color-bg-once-dark-hover);
+  --admin-cta-hover: var(--color-text-once-light);
 }
 
 @media (max-width: 600px) {
