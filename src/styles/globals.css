@@ -2649,6 +2649,215 @@ html[data-theme="dark"] .adminDashboard-stateAction:hover {
   background: var(--color-bg-quaternary, var(--color-bg-tertiary));
 }
 
+.adminDashboard-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-tertiary) 25%,
+    var(--color-bg-quaternary, var(--color-bg-tertiary)) 50%,
+    var(--color-bg-tertiary) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.5s ease-in-out infinite;
+  border-radius: 0.35rem;
+}
+
+@keyframes skeletonShimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.adminDashboard-skeleton--icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 0.3rem;
+}
+
+.adminDashboard-skeleton--label {
+  width: 4rem;
+  height: 1.25rem;
+}
+
+.adminDashboard-skeleton--title {
+  width: 70%;
+  height: 1rem;
+  max-width: 12rem;
+}
+
+.adminDashboard-skeleton--items {
+  width: 6rem;
+  height: 1.5rem;
+}
+
+.adminDashboard-skeleton--number {
+  width: 2.5rem;
+  height: 1rem;
+}
+
+.adminDashboard-skeleton--date {
+  width: 5rem;
+  height: 1rem;
+}
+
+.adminDashboard-skeleton--action {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.4rem;
+}
+
+.adminDashboard-skeleton--mobileTitle {
+  width: 85%;
+  height: 1rem;
+  max-width: 16rem;
+}
+
+.adminDashboard-skeleton--metaLabel {
+  width: 2.5rem;
+  height: 0.7rem;
+  margin-bottom: 0.25rem;
+}
+
+.adminDashboard-skeleton--metaValue {
+  width: 3rem;
+  height: 0.9rem;
+}
+
+.adminDashboard-skeletonBody tr:nth-child(1) .adminDashboard-skeleton {
+  animation-delay: 0s;
+}
+
+.adminDashboard-skeletonBody tr:nth-child(2) .adminDashboard-skeleton {
+  animation-delay: 0.1s;
+}
+
+.adminDashboard-skeletonBody tr:nth-child(3) .adminDashboard-skeleton {
+  animation-delay: 0.2s;
+}
+
+.adminDashboard-skeletonBody tr:nth-child(4) .adminDashboard-skeleton {
+  animation-delay: 0.3s;
+}
+
+.adminDashboard-skeletonBody tr:nth-child(5) .adminDashboard-skeleton {
+  animation-delay: 0.4s;
+}
+
+.adminDashboard-mobileCard--skeleton:nth-child(1) .adminDashboard-skeleton {
+  animation-delay: 0s;
+}
+
+.adminDashboard-mobileCard--skeleton:nth-child(2) .adminDashboard-skeleton {
+  animation-delay: 0.15s;
+}
+
+.adminDashboard-mobileCard--skeleton:nth-child(3) .adminDashboard-skeleton {
+  animation-delay: 0.3s;
+}
+
+.adminDashboard-mobileCard--skeleton {
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+.adminDashboard-tableRow {
+  transition: background-color 0.15s ease;
+}
+
+.adminDashboard-tableRow:hover {
+  background-color: var(--color-bg-secondary);
+}
+
+.adminDashboard-expandButton {
+  transition:
+    transform 0.2s ease,
+    opacity 0.15s ease;
+}
+
+.adminDashboard-expandButton:hover {
+  opacity: 0.7;
+}
+
+.adminDashboard-expandIcon {
+  transition: transform 0.2s ease;
+}
+
+.adminDashboard-expandIcon--open {
+  transform: rotate(180deg);
+}
+
+.adminDashboard-expandedPanel {
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.adminDashboard-mobileCard {
+  transition:
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.adminDashboard-mobileCard:hover {
+  border-color: var(--color-bg-quaternary, var(--color-bg-tertiary));
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.adminDashboard-deleteButton {
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    transform 0.1s ease;
+}
+
+.adminDashboard-deleteButton:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.adminDashboard-paginationButton {
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.adminDashboard-searchInput {
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.adminDashboard-searchClear {
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+}
+
+.adminDashboard-searchClear:hover {
+  transform: scale(1.1);
+}
+
+html[data-theme="dark"] .adminDashboard-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-tertiary) 25%,
+    var(--color-bg-quaternary, var(--color-bg-secondary)) 50%,
+    var(--color-bg-tertiary) 75%
+  );
+  background-size: 200% 100%;
+}
+
+html[data-theme="dark"] .adminDashboard-tableRow:hover {
+  background-color: var(--color-bg-primary);
+}
+
+html[data-theme="dark"] .adminDashboard-mobileCard:hover {
+  border-color: var(--color-bg-quaternary, var(--color-bg-tertiary));
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
 .adminDashboard-tableScrollRegion {
   overflow: auto;
   max-height: min(68vh, 52rem);

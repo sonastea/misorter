@@ -12,6 +12,7 @@ import { getSupabaseBrowserClient } from "@/utils/supabase/browser";
 import {
   AdminShell,
   AdminThemeToggle,
+  ListingSkeleton,
   ListingTable,
   Pagination,
   SignOutButton,
@@ -250,32 +251,7 @@ function RouteComponent() {
 
       <div className="adminDashboard-listingsSection">
         {isLoading && !data ? (
-          <div className="adminDashboard-state adminDashboard-state--loading">
-            <div className="adminDashboard-stateIcon adminDashboard-stateIcon--loading">
-              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <circle
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeDasharray="31.416"
-                  strokeDashoffset="10"
-                  strokeLinecap="round"
-                >
-                  <animateTransform
-                    attributeName="transform"
-                    type="rotate"
-                    from="0 12 12"
-                    to="360 12 12"
-                    dur="1s"
-                    repeatCount="indefinite"
-                  />
-                </circle>
-              </svg>
-            </div>
-            <p className="adminDashboard-stateTitle">Loading listings...</p>
-          </div>
+          <ListingSkeleton />
         ) : filteredListings.length === 0 ? (
           searchTerm ? (
             <div className="adminDashboard-state">
