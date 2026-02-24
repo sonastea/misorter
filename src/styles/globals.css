@@ -2508,15 +2508,27 @@ html[data-theme="dark"] .home-editHelper {
 }
 
 .adminDashboard-bulkActionBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
   font-size: 0.875rem;
   font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
   cursor: pointer;
   border: 1px solid transparent;
   transition:
     background-color 0.15s ease,
     opacity 0.15s ease;
+}
+
+.adminDashboard-bulkActionIcon {
+  width: 0.9rem;
+  height: 0.9rem;
+  flex-shrink: 0;
 }
 
 .adminDashboard-bulkActionBtn:disabled {
@@ -2537,6 +2549,9 @@ html[data-theme="dark"] .home-editHelper {
 .adminDashboard-bulkActionBtn--danger {
   background: #dc2626;
   color: white;
+  border-color: #b91c1c;
+  padding-top: 0.44rem;
+  padding-bottom: 0.44rem;
 }
 
 .adminDashboard-bulkActionBtn--danger:hover:not(:disabled) {
@@ -3228,6 +3243,7 @@ html[data-theme="dark"]
 
 html[data-theme="dark"] .adminDashboard-bulkActionBtn--danger {
   background: #ef4444;
+  border-color: #dc2626;
 }
 
 html[data-theme="dark"]
@@ -3688,6 +3704,11 @@ html[data-theme="dark"] .adminDashboard-shell {
     flex: 1;
     padding: 0.6rem 0.75rem;
     font-size: 0.8125rem;
+  }
+
+  .adminDashboard-bulkActionBtn--danger {
+    padding-top: 0.54rem;
+    padding-bottom: 0.54rem;
   }
 
   .adminDashboard-errorBanner {

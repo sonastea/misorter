@@ -245,6 +245,65 @@ function RouteComponent() {
     setShowBulkDeleteConfirm(false);
   };
 
+  const handleExportCSV = () => {
+    if (filteredListings.length === 0) return;
+
+    const headers = [
+      "Label",
+      "Title",
+      "Item Count",
+      "Visit Count",
+      "Created At",
+      "Items",
+    ];
+    const rows = filteredListings.map((listing) => [
+      listing.label,
+      listing.title || "",
+      listing.itemCount.toString(),
+      listing.visitCount.toString(),
+      new Date(listing.createdAt).toISOString(),
+      listing.items.map((item) => item.value).join(" | "),
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((row) =>
+        row
+          .map((cell) => {
+            const escaped = cell.replace(/"/g, '""');
+            return cell.includes(",") ||
+              cell.includes('"') ||
+              cell.includes("\n")
+              ? `"${escaped}"`
+              : escaped;
+          })
+          .join(",")
+      ),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    const timestamp = new Date()
+      .toISOString()
+      .replace(/[:.]/g, "-")
+      .slice(0, 19);
+    const filterSuffix =
+      activeQuickFilter !== "all" ? `-${activeQuickFilter}` : "";
+    const searchSuffix = searchTerm ? "-filtered" : "";
+
+    link.setAttribute("href", url);
+    link.setAttribute(
+      "download",
+      `listings-${timestamp}${filterSuffix}${searchSuffix}.csv`
+    );
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   const handleSignOut = async () => {
     setErrorMessage(null);
     setIsSigningOut(true);
@@ -500,6 +559,31 @@ function RouteComponent() {
             </span>
           </div>
           <div className="adminDashboard-bulkActionsButtons">
+            <button
+              type="button"
+              className="adminDashboard-bulkActionBtn adminDashboard-bulkActionBtn--secondary"
+              onClick={handleExportCSV}
+              disabled={
+                bulkDeleteMutation.isPending || filteredListings.length === 0
+              }
+              title="Export filtered results to CSV"
+            >
+              <svg
+                viewBox="0 0 20 20"
+                fill="none"
+                aria-hidden="true"
+                className="adminDashboard-bulkActionIcon"
+              >
+                <path
+                  d="M10 12v-8m0 0l-3 3m3-3l3 3M4 14h12"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              Export CSV
+            </button>
             <button
               type="button"
               className="adminDashboard-bulkActionBtn adminDashboard-bulkActionBtn--secondary"
