@@ -3,7 +3,13 @@ import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { trpc } from "@/utils/trpc";
 import { getSupabaseBrowserClient } from "@/utils/supabase/browser";
-import { ListingTable, Pagination, SignOutButton } from "@/components/admin";
+import {
+  AdminShell,
+  AdminThemeToggle,
+  ListingTable,
+  Pagination,
+  SignOutButton,
+} from "@/components/admin";
 
 function redirectToLogin(redirectPath: string): never {
   throw redirect({
@@ -115,84 +121,81 @@ function RouteComponent() {
   const totalPages = data ? Math.ceil(data.totalCount / PAGE_SIZE) : 0;
 
   return (
-    <main className="adminDashboard-shell">
-      <section className="adminDashboard-card">
-        <div className="adminDashboard-header">
-          <div>
-            <h1 className="adminDashboard-title">Admin Dashboard</h1>
-            <p className="adminDashboard-subtitle">
-              Manage, search, & administer listings
-            </p>
-          </div>
+    <AdminShell
+      title="Admin Dashboard"
+      subtitle="Manage, search, & administer listings"
+      actions={
+        <>
+          <AdminThemeToggle />
           <SignOutButton
             isSigningOut={isSigningOut}
             onSignOut={handleSignOut}
           />
-        </div>
+        </>
+      }
+    >
+      {errorMessage ? (
+        <p role="alert" className="adminDashboard-error">
+          {errorMessage}
+        </p>
+      ) : null}
 
-        {errorMessage ? (
-          <p role="alert" className="adminDashboard-error">
-            {errorMessage}
-          </p>
-        ) : null}
-
-        <div className="adminDashboard-searchRow">
-          <div className="adminDashboard-searchInputWrap">
-            <svg
-              className="adminDashboard-searchIcon"
-              viewBox="0 0 20 20"
-              fill="none"
-              aria-hidden="true"
-            >
-              <path
-                d="M14 14L18 18M15.333 9.667a5.667 5.667 0 1 1-11.334 0 5.667 5.667 0 0 1 11.334 0Z"
-                stroke="currentColor"
-                strokeWidth="1.7"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            <input
-              type="text"
-              placeholder="Search by label or item name..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="adminDashboard-searchInput"
+      <div className="adminDashboard-searchRow">
+        <div className="adminDashboard-searchInputWrap">
+          <svg
+            className="adminDashboard-searchIcon"
+            viewBox="0 0 20 20"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M14 14L18 18M15.333 9.667a5.667 5.667 0 1 1-11.334 0 5.667 5.667 0 0 1 11.334 0Z"
+              stroke="currentColor"
+              strokeWidth="1.7"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             />
-          </div>
-          {searchTerm && (
-            <span className="adminDashboard-searchMeta">
-              Showing {filteredListings.length} of {data?.totalCount ?? 0}
-            </span>
-          )}
-          {isFetching && !isLoading && (
-            <span className="adminDashboard-searchUpdating" aria-live="polite">
-              Updating...
-            </span>
-          )}
+          </svg>
+          <input
+            type="text"
+            placeholder="Search by label or item name..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="adminDashboard-searchInput"
+          />
         </div>
+        {searchTerm && (
+          <span className="adminDashboard-searchMeta">
+            Showing {filteredListings.length} of {data?.totalCount ?? 0}
+          </span>
+        )}
+        {isFetching && !isLoading && (
+          <span className="adminDashboard-searchUpdating" aria-live="polite">
+            Updating...
+          </span>
+        )}
+      </div>
 
-        <div className="adminDashboard-listingsSection">
-          {isLoading && !data ? (
-            <p className="adminDashboard-loading">Loading listings...</p>
-          ) : filteredListings.length === 0 ? (
-            <p className="adminDashboard-noListings">No listings found.</p>
-          ) : (
-            <>
-              <ListingTable
-                listings={filteredListings}
-                onDelete={handleDelete}
-                isDeleting={deleteMutation.isPending}
-              />
-              <Pagination
-                currentPage={page}
-                totalPages={totalPages}
-                onPageChange={setPage}
-              />
-            </>
-          )}
-        </div>
-      </section>
-    </main>
+      <div className="adminDashboard-listingsSection">
+        {isLoading && !data ? (
+          <p className="adminDashboard-loading">Loading listings...</p>
+        ) : filteredListings.length === 0 ? (
+          <p className="adminDashboard-noListings">No listings found.</p>
+        ) : (
+          <>
+            <ListingTable
+              listings={filteredListings}
+              onDelete={handleDelete}
+              isDeleting={deleteMutation.isPending}
+            />
+            <Pagination
+              currentPage={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+            />
+          </>
+        )}
+      </div>
+    </AdminShell>
   );
 }

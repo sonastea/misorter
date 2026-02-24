@@ -1,3 +1,5 @@
+export { default as AdminShell } from "./AdminShell";
+export { default as AdminThemeToggle } from "./AdminThemeToggle";
 export { default as DeleteButton } from "./DeleteButton";
 export { default as Items } from "./Items";
 export { default as Label } from "./Label";
