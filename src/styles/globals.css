@@ -2576,6 +2576,140 @@ html[data-theme="dark"] .home-editHelper {
   line-height: 1.3;
 }
 
+.adminDashboard-activityLog {
+  margin-top: 1.5rem;
+  border-radius: 0.75rem;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-bg-tertiary);
+  overflow: hidden;
+}
+
+.adminDashboard-activityLogHeader {
+  margin: 0;
+  padding: 0.65rem 0.85rem;
+  border-bottom: 1px solid var(--color-bg-tertiary);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-family:
+    "JetBrains Mono", "Fira Code", "SFMono-Regular", Consolas,
+    "Liberation Mono", monospace;
+}
+
+.adminDashboard-activityLogLoading,
+.adminDashboard-activityLogEmpty {
+  color: var(--color-text-secondary);
+  font-size: 0.76rem;
+  text-align: left;
+  padding: 0.15rem 0;
+}
+
+.adminDashboard-activityLogList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  list-style: none;
+  margin: 0;
+  padding: 0.65rem 0.85rem 0.8rem;
+  font-family:
+    "JetBrains Mono", "Fira Code", "SFMono-Regular", Consolas,
+    "Liberation Mono", monospace;
+}
+
+.adminDashboard-activityLogItem {
+  display: grid;
+  grid-template-columns: 0.85rem auto minmax(0, 1fr);
+  align-items: flex-start;
+  column-gap: 0.55rem;
+  padding: 0.35rem 0.4rem;
+  border-radius: 0.45rem;
+  border: 1px solid transparent;
+}
+
+.adminDashboard-activityLogItem:hover {
+  border-color: var(--color-bg-tertiary);
+  background: var(--color-bg-secondary);
+}
+
+.adminDashboard-activityLogContent {
+  display: grid;
+  gap: 0.2rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.adminDashboard-activityLogPrompt {
+  display: inline-block;
+  width: 0.85rem;
+  text-align: center;
+  color: var(--color-text-once);
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.35;
+  transform: translateY(0.01rem);
+}
+
+.adminDashboard-activityLogTimestamp {
+  color: var(--color-text-secondary);
+  font-size: 0.72rem;
+  line-height: 1.35;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.adminDashboard-activityLogActionLine {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  line-height: 1.35;
+}
+
+.adminDashboard-activityLogAction {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--color-text-primary);
+  font-weight: 600;
+  text-transform: lowercase;
+}
+
+.adminDashboard-activityLogRelative {
+  color: var(--color-text-secondary);
+  font-size: 0.72rem;
+}
+
+.adminDashboard-activityLogTarget {
+  margin: 0;
+  font-size: 0.74rem;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.adminDashboard-activityLogTarget code {
+  background: var(--color-bg-tertiary);
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.25rem;
+  font-size: 0.72rem;
+}
+
+html[data-theme="dark"] .adminDashboard-activityLog {
+  background: var(--color-bg-primary);
+}
+
+html[data-theme="dark"] .adminDashboard-activityLogHeader {
+  background: var(--color-bg-secondary);
+}
+
+html[data-theme="dark"] .adminDashboard-activityLogItem:hover {
+  background: rgba(var(--color-accent-rgb, 96 165 250), 0.1);
+  border-color: var(--color-bg-icon);
+}
+
 .adminDashboard-listingsTitle {
   margin: 0 0 1rem;
   color: var(--color-text-primary);
@@ -3596,6 +3730,52 @@ html[data-theme="dark"] .adminDashboard-shell {
 
   .adminDashboard-stateDescription {
     font-size: 0.85rem;
+  }
+
+  .adminDashboard-activityLog {
+    margin-top: 1rem;
+    border-radius: 0.65rem;
+  }
+
+  .adminDashboard-activityLogHeader {
+    font-size: 0.72rem;
+    padding: 0.55rem 0.65rem;
+  }
+
+  .adminDashboard-activityLogList {
+    padding: 0.55rem 0.65rem 0.65rem;
+    gap: 0.3rem;
+  }
+
+  .adminDashboard-activityLogItem {
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 0.45rem;
+    padding: 0.35rem;
+  }
+
+  .adminDashboard-activityLogTimestamp {
+    grid-column: 2;
+    font-size: 0.68rem;
+    line-height: 1.2;
+  }
+
+  .adminDashboard-activityLogContent {
+    grid-column: 2;
+  }
+
+  .adminDashboard-activityLogActionLine {
+    gap: 0.35rem;
+  }
+
+  .adminDashboard-activityLogAction {
+    font-size: 0.72rem;
+  }
+
+  .adminDashboard-activityLogRelative,
+  .adminDashboard-activityLogTarget,
+  .adminDashboard-activityLogLoading,
+  .adminDashboard-activityLogEmpty {
+    font-size: 0.68rem;
   }
 
   .adminDashboard-stateAction {

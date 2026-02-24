@@ -1,3 +1,4 @@
+export { default as ActivityPanel } from "./ActivityPanel";
 export { default as AdminShell } from "./AdminShell";
 export { default as AdminThemeToggle } from "./AdminThemeToggle";
 export { default as DeleteButton } from "./DeleteButton";

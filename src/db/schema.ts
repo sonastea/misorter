@@ -1,6 +1,7 @@
 import {
   pgTable,
   serial,
+  integer,
   varchar,
   text,
   timestamp,
@@ -69,8 +70,33 @@ export const supportSubmissions = pgTable("SupportSubmission", {
   createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
 });
 
+export const activityLogActions = [
+  "listing_delete",
+  "listing_delete_many",
+  "listing_create",
+  "listing_update",
+] as const;
+export type ActivityLogAction = (typeof activityLogActions)[number];
+export const activityLogActionEnum = pgEnum(
+  "activity_log_action",
+  activityLogActions
+);
+
+export const activityLogs = pgTable(
+  "ActivityLog",
+  {
+    id: serial("id").primaryKey(),
+    action: activityLogActionEnum("action").notNull(),
+    targetLabel: varchar("targetLabel", { length: 16 }),
+    targetCount: integer("targetCount").default(1).notNull(),
+    details: text("details"),
+    createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+  },
+  (table) => [index("ActivityLog_createdAt_idx").on(table.createdAt)]
+);
+
 export const relations = defineRelations(
-  { listings, items, visits, notices, supportSubmissions },
+  { listings, items, visits, notices, supportSubmissions, activityLogs },
   (r) => ({
     listings: {
       items: r.many.items({

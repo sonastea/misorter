@@ -1,6 +1,6 @@
 import { publicProcedure, protectedProcedure, router } from "@/backend/trpc";
 import { getDb } from "@/db/client";
-import { items, listings, visits } from "@/db/schema";
+import { activityLogs, items, listings, visits } from "@/db/schema";
 import { TRPCError } from "@trpc/server";
 import { Redis } from "@upstash/redis/cloudflare";
 import {
@@ -541,6 +541,21 @@ export const listingRouter = router({
 
       ctx.waitUntil(deleteCachedListing());
 
+      ctx.waitUntil(
+        db
+          .insert(activityLogs)
+          .values({
+            action: "listing_delete",
+            targetLabel: input.label,
+            targetCount: 1,
+            details: `Deleted listing ${input.label}`,
+          })
+          .then(() => {})
+          .catch((e) => {
+            console.error("Failed to log activity:", e);
+          })
+      );
+
       return { success: true, label: input.label };
     }),
   deleteMany: protectedProcedure
@@ -583,6 +598,20 @@ export const listingRouter = router({
         .where(inArray(listings.label, Array.from(existingLabels)));
 
       ctx.waitUntil(deleteCachedListings(Array.from(existingLabels)));
+
+      ctx.waitUntil(
+        db
+          .insert(activityLogs)
+          .values({
+            action: "listing_delete_many",
+            targetCount: existingListings.length,
+            details: `Bulk deleted ${existingListings.length} listings`,
+          })
+          .then(() => {})
+          .catch((e) => {
+            console.error("Failed to log bulk activity:", e);
+          })
+      );
 
       return {
         success: true,

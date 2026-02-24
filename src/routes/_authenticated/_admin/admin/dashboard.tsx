@@ -11,6 +11,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { trpc } from "@/utils/trpc";
 import { getSupabaseBrowserClient } from "@/utils/supabase/browser";
 import {
+  ActivityPanel,
   AdminShell,
   AdminThemeToggle,
   ListingSkeleton,
@@ -587,6 +588,8 @@ function RouteComponent() {
           </>
         )}
       </div>
+
+      <ActivityPanel />
 
       <ConfirmModal
         open={showBulkDeleteConfirm}
