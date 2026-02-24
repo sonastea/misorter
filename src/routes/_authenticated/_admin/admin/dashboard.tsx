@@ -2,6 +2,7 @@ import {
   useState,
   useEffect,
   useMemo,
+  useCallback,
   useRef,
   type KeyboardEvent,
 } from "react";
@@ -17,6 +18,7 @@ import {
   Pagination,
   SignOutButton,
 } from "@/components/admin";
+import ConfirmModal from "@/components/ConfirmModal";
 
 function redirectToLogin(redirectPath: string): never {
   throw redirect({
@@ -87,6 +89,8 @@ function RouteComponent() {
   const [page, setPage] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+  const [selectedLabels, setSelectedLabels] = useState<Set<string>>(new Set());
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -96,6 +100,28 @@ function RouteComponent() {
     }, 300);
     return () => clearTimeout(timer);
   }, [searchTerm]);
+
+  const clearSelection = () => setSelectedLabels(new Set());
+
+  const toggleSelection = (label: string) => {
+    setSelectedLabels((prev) => {
+      const next = new Set(prev);
+      if (next.has(label)) {
+        next.delete(label);
+      } else {
+        next.add(label);
+      }
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedLabels.size === filteredListings.length) {
+      clearSelection();
+    } else {
+      setSelectedLabels(new Set(filteredListings.map((l) => l.label)));
+    }
+  };
 
   const { data, isLoading, isFetching } = useQuery({
     ...trpc.listing.getAllPaginated.queryOptions({
@@ -141,7 +167,7 @@ function RouteComponent() {
     };
   }, [searchMatchedListings]);
 
-  const filteredListings = useMemo(() => {
+  const getFilteredListings = () => {
     switch (activeQuickFilter) {
       case "has-items":
         return searchMatchedListings.filter((listing) => listing.itemCount > 0);
@@ -156,7 +182,25 @@ function RouteComponent() {
       default:
         return searchMatchedListings;
     }
-  }, [activeQuickFilter, searchMatchedListings]);
+  };
+
+  const filteredListings = getFilteredListings();
+
+  const handleQuickFilterChange = useCallback(
+    (nextFilter: QuickFilter) => {
+      setPage(0);
+      clearSelection();
+      navigate({
+        to: ".",
+        search: (previous) => ({
+          ...previous,
+          filter: nextFilter === "all" ? undefined : nextFilter,
+        }),
+        replace: true,
+      });
+    },
+    [navigate]
+  );
 
   const deleteMutation = useMutation(
     trpc.listing.delete.mutationOptions({
@@ -170,6 +214,35 @@ function RouteComponent() {
       },
     })
   );
+
+  const bulkDeleteMutation = useMutation(
+    trpc.listing.deleteMany.mutationOptions({
+      onSuccess: (data) => {
+        clearSelection();
+        queryClient.invalidateQueries({
+          queryKey: trpc.listing.getAllPaginated.queryKey(),
+        });
+        if (data.notFoundCount > 0) {
+          setErrorMessage(
+            `Deleted ${data.deletedCount} listings. ${data.notFoundCount} listing${data.notFoundCount === 1 ? "" : "s"} were not found (may have been already deleted).`
+          );
+        }
+      },
+      onError: (error) => {
+        setErrorMessage(error.message);
+      },
+    })
+  );
+
+  const handleBulkDelete = () => {
+    if (selectedLabels.size === 0) return;
+    setShowBulkDeleteConfirm(true);
+  };
+
+  const confirmBulkDelete = () => {
+    bulkDeleteMutation.mutate({ labels: Array.from(selectedLabels) });
+    setShowBulkDeleteConfirm(false);
+  };
 
   const handleSignOut = async () => {
     setErrorMessage(null);
@@ -199,6 +272,7 @@ function RouteComponent() {
     setSearchTerm("");
     setDebouncedSearchTerm("");
     setPage(0);
+    clearSelection();
     searchInputRef.current?.focus();
   };
 
@@ -207,18 +281,6 @@ function RouteComponent() {
       event.preventDefault();
       handleClearSearch();
     }
-  };
-
-  const handleQuickFilterChange = (nextFilter: QuickFilter) => {
-    setPage(0);
-    navigate({
-      to: ".",
-      search: (previous) => ({
-        ...previous,
-        filter: nextFilter === "all" ? undefined : nextFilter,
-      }),
-      replace: true,
-    });
   };
 
   const totalPages = data ? Math.ceil(data.totalCount / PAGE_SIZE) : 0;
@@ -421,6 +483,44 @@ function RouteComponent() {
         </article>
       </section>
 
+      {selectedLabels.size > 0 && (
+        <section
+          className="adminDashboard-bulkActions"
+          aria-label="Bulk actions"
+        >
+          <div className="adminDashboard-bulkActionsInfo">
+            <span className="adminDashboard-bulkActionsCount">
+              {numberFormatter.format(selectedLabels.size)}
+            </span>
+            <span className="adminDashboard-bulkActionsLabel">
+              {selectedLabels.size === 1
+                ? "listing selected"
+                : "listings selected"}
+            </span>
+          </div>
+          <div className="adminDashboard-bulkActionsButtons">
+            <button
+              type="button"
+              className="adminDashboard-bulkActionBtn adminDashboard-bulkActionBtn--secondary"
+              onClick={clearSelection}
+              disabled={bulkDeleteMutation.isPending}
+            >
+              Clear
+            </button>
+            <button
+              type="button"
+              className="adminDashboard-bulkActionBtn adminDashboard-bulkActionBtn--danger"
+              onClick={handleBulkDelete}
+              disabled={bulkDeleteMutation.isPending}
+            >
+              {bulkDeleteMutation.isPending
+                ? "Deleting..."
+                : `Delete ${selectedLabels.size}`}
+            </button>
+          </div>
+        </section>
+      )}
+
       <div className="adminDashboard-listingsSection">
         {isLoading && !data ? (
           <ListingSkeleton />
@@ -475,6 +575,9 @@ function RouteComponent() {
               listings={filteredListings}
               onDelete={handleDelete}
               isDeleting={deleteMutation.isPending}
+              selectedLabels={selectedLabels}
+              onToggleSelection={toggleSelection}
+              onToggleSelectAll={toggleSelectAll}
             />
             <Pagination
               currentPage={page}
@@ -484,6 +587,22 @@ function RouteComponent() {
           </>
         )}
       </div>
+
+      <ConfirmModal
+        open={showBulkDeleteConfirm}
+        title="Delete Listings"
+        message={
+          <>
+            <p className="confirmModal-deleteWarning">
+              Are you sure you want to delete {selectedLabels.size} listing
+              {selectedLabels.size === 1 ? "" : "s"}? This action cannot be
+              undone.
+            </p>
+          </>
+        }
+        onCancel={() => setShowBulkDeleteConfirm(false)}
+        onConfirm={confirmBulkDelete}
+      />
     </AdminShell>
   );
 }

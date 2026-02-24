@@ -40,10 +40,14 @@ const ListingRow = ({
   listing,
   onDelete,
   isDeleting,
+  isSelected,
+  onToggleSelection,
 }: {
   listing: Listing;
   onDelete: (label: string) => void;
   isDeleting: boolean;
+  isSelected: boolean;
+  onToggleSelection: (label: string) => void;
 }) => {
   const disclosureButtonRef = useRef<HTMLButtonElement | null>(null);
 
@@ -60,7 +64,24 @@ const ListingRow = ({
     <Disclosure as="tbody" className="adminDashboard-rowGroup">
       {({ open }) => (
         <>
-          <tr className="adminDashboard-tableRow" onClick={handleRowClick}>
+          <tr
+            className={
+              isSelected
+                ? "adminDashboard-tableRow adminDashboard-tableRow--selected"
+                : "adminDashboard-tableRow"
+            }
+            onClick={handleRowClick}
+          >
+            <td className="adminDashboard-selectCell">
+              <input
+                type="checkbox"
+                checked={isSelected}
+                onChange={() => onToggleSelection(listing.label)}
+                className="adminDashboard-checkbox"
+                data-row-interactive="true"
+                aria-label={`Select ${listing.label}`}
+              />
+            </td>
             <td className="adminDashboard-expandCell">
               <DisclosureButton
                 ref={disclosureButtonRef}
@@ -103,7 +124,7 @@ const ListingRow = ({
             </td>
           </tr>
           <tr>
-            <td colSpan={7} className="adminDashboard-expandedCell">
+            <td colSpan={8} className="adminDashboard-expandedCell">
               <DisclosurePanel className="adminDashboard-expandedPanel">
                 <div className="adminDashboard-expandedContent">
                   <div className="adminDashboard-expandedSection">
@@ -123,10 +144,14 @@ const ListingMobileCard = ({
   listing,
   onDelete,
   isDeleting,
+  isSelected,
+  onToggleSelection,
 }: {
   listing: Listing;
   onDelete: (label: string) => void;
   isDeleting: boolean;
+  isSelected: boolean;
+  onToggleSelection: (label: string) => void;
 }) => {
   const disclosureButtonRef = useRef<HTMLButtonElement | null>(null);
 
@@ -144,9 +169,21 @@ const ListingMobileCard = ({
       {({ open }) => (
         <>
           <div
-            className="adminDashboard-mobileCardHeader"
+            className={
+              isSelected
+                ? "adminDashboard-mobileCardHeader adminDashboard-mobileCardHeader--selected"
+                : "adminDashboard-mobileCardHeader"
+            }
             onClick={handleCardHeaderClick}
           >
+            <input
+              type="checkbox"
+              checked={isSelected}
+              onChange={() => onToggleSelection(listing.label)}
+              className="adminDashboard-checkbox"
+              data-row-interactive="true"
+              aria-label={`Select ${listing.label}`}
+            />
             <div className="adminDashboard-mobileCardTitleWrap">
               <DisclosureButton
                 ref={disclosureButtonRef}
@@ -216,11 +253,22 @@ const ListingTable = ({
   listings,
   onDelete,
   isDeleting,
+  selectedLabels,
+  onToggleSelection,
+  onToggleSelectAll,
 }: {
   listings: Listing[];
   onDelete: (label: string) => void;
   isDeleting: boolean;
+  selectedLabels: Set<string>;
+  onToggleSelection: (label: string) => void;
+  onToggleSelectAll: () => void;
 }) => {
+  const allSelected =
+    listings.length > 0 && selectedLabels.size === listings.length;
+  const someSelected =
+    selectedLabels.size > 0 && selectedLabels.size < listings.length;
+
   return (
     <>
       <div
@@ -232,6 +280,18 @@ const ListingTable = ({
           <table className="adminDashboard-table">
             <thead>
               <tr>
+                <th className="adminDashboard-selectHeader">
+                  <input
+                    type="checkbox"
+                    checked={allSelected}
+                    ref={(el) => {
+                      if (el) el.indeterminate = someSelected;
+                    }}
+                    onChange={onToggleSelectAll}
+                    className="adminDashboard-checkbox"
+                    aria-label="Select all listings"
+                  />
+                </th>
                 <th></th>
                 <th>Label</th>
                 <th>Title</th>
@@ -247,6 +307,8 @@ const ListingTable = ({
                 listing={listing}
                 onDelete={onDelete}
                 isDeleting={isDeleting}
+                isSelected={selectedLabels.has(listing.label)}
+                onToggleSelection={onToggleSelection}
               />
             ))}
           </table>
@@ -260,6 +322,8 @@ const ListingTable = ({
             listing={listing}
             onDelete={onDelete}
             isDeleting={isDeleting}
+            isSelected={selectedLabels.has(listing.label)}
+            onToggleSelection={onToggleSelection}
           />
         ))}
       </div>

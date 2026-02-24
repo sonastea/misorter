@@ -543,4 +543,51 @@ export const listingRouter = router({
 
       return { success: true, label: input.label };
     }),
+  deleteMany: protectedProcedure
+    .input(
+      z.object({
+        labels: z.array(z.string()).min(1).max(100),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const db = getDb();
+      const redisClient = getRedis();
+
+      const deleteCachedListings = (labels: string[]) =>
+        Promise.all(
+          labels.map((label) =>
+            redisClient.del(label).catch((e) => {
+              console.error("Redis del error on bulk listing delete:", e);
+            })
+          )
+        );
+
+      const existingListings = await db
+        .select({ label: listings.label })
+        .from(listings)
+        .where(inArray(listings.label, input.labels));
+
+      const existingLabels = new Set(existingListings.map((l) => l.label));
+      const notFoundLabels = input.labels.filter((l) => !existingLabels.has(l));
+
+      if (existingListings.length === 0) {
+        ctx.waitUntil(deleteCachedListings(input.labels));
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "No listings found to delete",
+        });
+      }
+
+      await db
+        .delete(listings)
+        .where(inArray(listings.label, Array.from(existingLabels)));
+
+      ctx.waitUntil(deleteCachedListings(Array.from(existingLabels)));
+
+      return {
+        success: true,
+        deletedCount: existingListings.length,
+        notFoundCount: notFoundLabels.length,
+      };
+    }),
 });
