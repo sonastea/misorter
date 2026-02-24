@@ -2,6 +2,8 @@
  * Cookie utility functions for client-side cookie management
  */
 
+import { parseCookieHeader, serializeSetCookie } from "@/utils/cookie-headers";
+
 export interface CookieOptions {
   expires?: Date | number;
   path?: string;
@@ -19,39 +21,23 @@ export function setCookie(
   value: string,
   options: CookieOptions = {}
 ): void {
-  let cookieString = `${encodeURIComponent(name)}=${encodeURIComponent(value)}`;
+  const expires =
+    typeof options.expires === "number"
+      ? new Date(Date.now() + options.expires * 864e5)
+      : options.expires;
 
-  if (options.maxAge !== undefined) {
-    cookieString += `; max-age=${options.maxAge}`;
-  } else if (options.expires) {
-    const expires =
-      typeof options.expires === "number"
-        ? new Date(Date.now() + options.expires * 864e5)
-        : options.expires;
-    cookieString += `; expires=${expires.toUTCString()}`;
-  }
-
-  if (options.path) {
-    cookieString += `; path=${options.path}`;
-  } else {
-    cookieString += `; path=/`;
-  }
-
-  if (options.domain) {
-    cookieString += `; domain=${options.domain}`;
-  }
-
-  if (options.secure) {
-    cookieString += `; secure`;
-  }
-
-  if (options.sameSite) {
-    const sameSiteValue =
-      typeof options.sameSite === "boolean" ? "strict" : options.sameSite;
-    cookieString += `; samesite=${sameSiteValue}`;
-  }
-
-  document.cookie = cookieString;
+  document.cookie = serializeSetCookie({
+    name,
+    value,
+    options: {
+      path: options.path,
+      maxAge: options.maxAge,
+      domain: options.domain,
+      secure: options.secure,
+      sameSite: options.sameSite,
+      expires,
+    },
+  });
 }
 
 /**
@@ -60,16 +46,11 @@ export function setCookie(
 export function getCookie(name: string): string | undefined {
   if (typeof document === "undefined") return undefined;
 
-  const cookies = document.cookie.split("; ");
-  const prefix = `${encodeURIComponent(name)}=`;
+  const matchingCookie = parseCookieHeader(document.cookie).find(
+    (cookie) => cookie.name === name
+  );
 
-  for (const cookie of cookies) {
-    if (cookie.startsWith(prefix)) {
-      return decodeURIComponent(cookie.substring(prefix.length));
-    }
-  }
-
-  return undefined;
+  return matchingCookie?.value;
 }
 
 /**
@@ -95,15 +76,11 @@ export function hasCookie(name: string): boolean {
 export function getAllCookies(): Record<string, string> {
   if (typeof document === "undefined") return {};
 
-  const cookies: Record<string, string> = {};
-  const cookieStrings = document.cookie.split("; ");
-
-  for (const cookie of cookieStrings) {
-    const [name, value] = cookie.split("=");
-    if (name && value) {
-      cookies[decodeURIComponent(name)] = decodeURIComponent(value);
-    }
-  }
-
-  return cookies;
+  return parseCookieHeader(document.cookie).reduce<Record<string, string>>(
+    (cookies, cookie) => {
+      cookies[cookie.name] = cookie.value;
+      return cookies;
+    },
+    {}
+  );
 }

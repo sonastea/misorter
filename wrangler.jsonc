@@ -1,8 +1,8 @@
 {
-  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "misorter-api",
   "main": "./src/server/server.ts",
-  "compatibility_date": "2026-02-09",
+  "compatibility_date": "2026-02-22",
   "compatibility_flags": ["nodejs_compat"],
   "routes": [
     {
@@ -25,8 +25,6 @@
     "logs": {
       "enabled": true,
       "head_sampling_rate": 1,
-      "invocation_logs": true,
-      "persist": true,
     },
   },
 }

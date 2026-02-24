@@ -1,8 +1,20 @@
-import { publicProcedure, router } from "@/backend/trpc";
+import { publicProcedure, protectedProcedure, router } from "@/backend/trpc";
 import { getDb } from "@/db/client";
-import { items, listings, visits } from "@/db/schema";
+import { activityLogs, items, listings, visits } from "@/db/schema";
+import { TRPCError } from "@trpc/server";
 import { Redis } from "@upstash/redis/cloudflare";
-import { and, desc, eq, gte, inArray, notInArray, sql } from "drizzle-orm";
+import {
+  and,
+  desc,
+  eq,
+  exists,
+  gte,
+  ilike,
+  inArray,
+  notInArray,
+  or,
+  sql,
+} from "drizzle-orm";
 import { customAlphabet } from "nanoid";
 import { z } from "zod";
 
@@ -393,5 +405,218 @@ export const listingRouter = router({
       // TODO: axiom log.info("update list title", { label: input.label, title: input.title });
 
       return updatedList;
+    }),
+  getAllPaginated: protectedProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).default(10),
+        offset: z.number().min(0).default(0),
+        query: z.string().trim().optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      const db = getDb();
+      const searchQuery = input.query?.trim() || undefined;
+
+      const whereClause = searchQuery
+        ? or(
+            ilike(listings.label, `%${searchQuery}%`),
+            exists(
+              db
+                .select()
+                .from(items)
+                .where(
+                  and(
+                    eq(items.listingLabel, listings.label),
+                    ilike(items.value, `%${searchQuery}%`)
+                  )
+                )
+            )
+          )
+        : undefined;
+
+      const [listingsResult, totalCountResult] = await Promise.all([
+        db
+          .select({
+            id: listings.id,
+            label: listings.label,
+            title: listings.title,
+            createdAt: listings.createdAt,
+            updatedAt: listings.updatedAt,
+          })
+          .from(listings)
+          .where(whereClause)
+          .orderBy(desc(listings.createdAt))
+          .limit(input.limit)
+          .offset(input.offset),
+        db
+          .select({ count: sql<number>`count(*)::int` })
+          .from(listings)
+          .where(whereClause)
+          .then((result) => result[0]?.count ?? 0),
+      ]);
+
+      const listingLabels = listingsResult.map((l) => l.label);
+
+      const [allItems, visitCounts] = listingLabels.length
+        ? await Promise.all([
+            db
+              .select({
+                id: items.id,
+                value: items.value,
+                listingLabel: items.listingLabel,
+              })
+              .from(items)
+              .where(inArray(items.listingLabel, listingLabels))
+              .orderBy(items.id),
+            db
+              .select({
+                listingLabel: visits.listingLabel,
+                count: sql<number>`count(*)::int`,
+              })
+              .from(visits)
+              .where(inArray(visits.listingLabel, listingLabels))
+              .groupBy(visits.listingLabel),
+          ])
+        : [[], []];
+
+      const itemsByLabel = allItems.reduce(
+        (acc, item) => {
+          if (!acc[item.listingLabel]) acc[item.listingLabel] = [];
+          acc[item.listingLabel].push({ id: item.id, value: item.value });
+          return acc;
+        },
+        {} as Record<string, { id: number; value: string }[]>
+      );
+
+      const visitsByLabel = visitCounts.reduce(
+        (acc, visitCount) => {
+          acc[visitCount.listingLabel] = visitCount.count;
+          return acc;
+        },
+        {} as Record<string, number>
+      );
+
+      return {
+        listings: listingsResult.map((listing) => ({
+          ...listing,
+          items: itemsByLabel[listing.label] || [],
+          itemCount: itemsByLabel[listing.label]?.length || 0,
+          visitCount: visitsByLabel[listing.label] || 0,
+        })),
+        totalCount: totalCountResult,
+      };
+    }),
+  delete: protectedProcedure
+    .input(
+      z.object({
+        label: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const db = getDb();
+      const redisClient = getRedis();
+
+      const deleteCachedListing = () =>
+        redisClient.del(input.label).catch((e) => {
+          console.error("Redis del error on listing delete:", e);
+        });
+
+      const listing = await db.query.listings.findFirst({
+        where: {
+          label: input.label,
+        },
+        columns: { label: true },
+      });
+
+      if (!listing) {
+        ctx.waitUntil(deleteCachedListing());
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Listing not found",
+        });
+      }
+
+      await db.delete(listings).where(eq(listings.label, input.label));
+
+      ctx.waitUntil(deleteCachedListing());
+
+      ctx.waitUntil(
+        db
+          .insert(activityLogs)
+          .values({
+            action: "listing_delete",
+            targetLabel: input.label,
+            targetCount: 1,
+            details: `Deleted listing ${input.label}`,
+          })
+          .then(() => {})
+          .catch((e) => {
+            console.error("Failed to log activity:", e);
+          })
+      );
+
+      return { success: true, label: input.label };
+    }),
+  deleteMany: protectedProcedure
+    .input(
+      z.object({
+        labels: z.array(z.string()).min(1).max(100),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const db = getDb();
+      const redisClient = getRedis();
+
+      const deleteCachedListings = (labels: string[]) =>
+        Promise.all(
+          labels.map((label) =>
+            redisClient.del(label).catch((e) => {
+              console.error("Redis del error on bulk listing delete:", e);
+            })
+          )
+        );
+
+      const existingListings = await db
+        .select({ label: listings.label })
+        .from(listings)
+        .where(inArray(listings.label, input.labels));
+
+      const existingLabels = new Set(existingListings.map((l) => l.label));
+      const notFoundLabels = input.labels.filter((l) => !existingLabels.has(l));
+
+      if (existingListings.length === 0) {
+        ctx.waitUntil(deleteCachedListings(input.labels));
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "No listings found to delete",
+        });
+      }
+
+      await db
+        .delete(listings)
+        .where(inArray(listings.label, Array.from(existingLabels)));
+
+      ctx.waitUntil(deleteCachedListings(Array.from(existingLabels)));
+
+      ctx.waitUntil(
+        db
+          .insert(activityLogs)
+          .values({
+            action: "listing_delete_many",
+            targetCount: existingListings.length,
+            details: `Bulk deleted ${existingListings.length} listings`,
+          })
+          .then(() => {})
+          .catch((e) => {
+            console.error("Failed to log bulk activity:", e);
+          })
+      );
+
+      return {
+        success: true,
+        deletedCount: existingListings.length,
+        notFoundCount: notFoundLabels.length,
+      };
     }),
 });

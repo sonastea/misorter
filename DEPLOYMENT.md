@@ -61,6 +61,11 @@ The backend API requires:
 - `DATABASE_URL` - PostgreSQL connection string
 - `UPSTASH_REDIS_REST_URL` - Upstash Redis REST URL
 - `UPSTASH_REDIS_REST_TOKEN` - Upstash Redis REST token
+- `RESEND_API_KEY` - Resend API key for email delivery
+- `SUPPORT_FROM_EMAIL` - Email address to send support emails from
+- `SUPPORT_TO_EMAIL` - Email address to receive support emails
+- `VITE_SUPABASE_URL` - Supabase project URL
+- `VITE_SUPABASE_KEY` - Supabase anon/public key
 
 **Option A: Manual setup**
 
@@ -73,6 +78,15 @@ wrangler secret put DATABASE_URL
 # Redis
 wrangler secret put UPSTASH_REDIS_REST_URL
 wrangler secret put UPSTASH_REDIS_REST_TOKEN
+
+# Supabase
+wrangler secret put VITE_SUPABASE_URL
+wrangler secret put VITE_SUPABASE_KEY
+
+# Resend (email)
+wrangler secret put RESEND_API_KEY
+wrangler secret put SUPPORT_FROM_EMAIL
+wrangler secret put SUPPORT_TO_EMAIL
 ```
 
 **Option B: From .env file (one-liners)**
@@ -82,6 +96,11 @@ wrangler secret put UPSTASH_REDIS_REST_TOKEN
 source .env && echo "$DATABASE_URL" | wrangler secret put DATABASE_URL
 source .env && echo "$UPSTASH_REDIS_REST_URL" | wrangler secret put UPSTASH_REDIS_REST_URL
 source .env && echo "$UPSTASH_REDIS_REST_TOKEN" | wrangler secret put UPSTASH_REDIS_REST_TOKEN
+source .env && echo "$VITE_SUPABASE_URL" | wrangler secret put VITE_SUPABASE_URL
+source .env && echo "$VITE_SUPABASE_KEY" | wrangler secret put VITE_SUPABASE_KEY
+source .env && echo "$RESEND_API_KEY" | wrangler secret put RESEND_API_KEY
+source .env && echo "$SUPPORT_FROM_EMAIL" | wrangler secret put SUPPORT_FROM_EMAIL
+source .env && echo "$SUPPORT_TO_EMAIL" | wrangler secret put SUPPORT_TO_EMAIL
 ```
 
 To view existing secrets:
@@ -128,6 +147,8 @@ The frontend requires:
 - `VITE_API_URL` - URL to your deployed backend API
 - `VITE_CLIENT_ID` - OAuth client ID
 - `VITE_CLIENT_SECRET` - OAuth client secret
+- `VITE_SUPABASE_URL` - Supabase project URL
+- `VITE_SUPABASE_KEY` - Supabase anon/public key
 
 **Option A: Via Cloudflare Dashboard**
 
@@ -138,6 +159,8 @@ The frontend requires:
    - `VITE_API_URL` = `https://api.your-domain.com`
    - `VITE_CLIENT_ID` = `your_client_id`
    - `VITE_CLIENT_SECRET` = `your_client_secret`
+   - `VITE_SUPABASE_URL` = `https://your-project.supabase.co`
+   - `VITE_SUPABASE_KEY` = `your_supabase_anon_key`
 5. Save
 
 **Option B: Via GitHub Integration**
@@ -155,6 +178,10 @@ VITE_API_URL=https://api.your-domain.com
 # OAuth for twitch integration with polls
 VITE_CLIENT_ID=your_client_id
 VITE_CLIENT_SECRET=your_client_secret
+
+# Supabase for authentication
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_KEY=your_supabase_anon_key
 ```
 
 ### Step 2: Build the Frontend
@@ -198,6 +225,8 @@ wrangler pages deploy dist --project-name=misorter
    - `VITE_API_URL`
    - `VITE_CLIENT_ID`
    - `VITE_CLIENT_SECRET`
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_KEY`
 
 Your frontend will be available at:
 
