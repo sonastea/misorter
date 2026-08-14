@@ -48,7 +48,7 @@
   },
   "devDependencies": {
     "@eslint/compat": "^2.1.0",
-    "@eslint/js": "^10.0.1",
+    "@eslint/js": "9.39.5",
     "@tailwindcss/postcss": "^4.3.3",
     "@tanstack/router-plugin": "^1.168.30",
     "@trpc/server": "^11.18.0",
