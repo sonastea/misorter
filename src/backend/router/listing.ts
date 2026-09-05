@@ -9,7 +9,6 @@ import {
   eq,
   exists,
   gte,
-  ilike,
   inArray,
   notInArray,
   or,
@@ -22,6 +21,9 @@ const nanoid = customAlphabet(
   "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
   16
 );
+
+const escapeIlikePattern = (value: string): string =>
+  value.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_");
 
 const TOP_K_LISTS = 5;
 const CANDIDATE_POOL_SIZE = 40;
@@ -271,8 +273,11 @@ export const listingRouter = router({
           })
           .returning({ label: listings.label, title: listings.title });
 
-        if (listing.label !== newLabel) {
-          tx.rollback();
+        if (!listing || listing.label !== newLabel) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to create listing",
+          });
         }
 
         const insertedItems = await tx
@@ -286,7 +291,10 @@ export const listingRouter = router({
           .returning({ value: items.value });
 
         if (insertedItems.length !== input.items.length) {
-          tx.rollback();
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to create listing items",
+          });
         }
 
         return {
@@ -400,20 +408,24 @@ export const listingRouter = router({
       const searchQuery = input.query?.trim() || undefined;
 
       const whereClause = searchQuery
-        ? or(
-            ilike(listings.label, `%${searchQuery}%`),
-            exists(
-              db
-                .select()
-                .from(items)
-                .where(
-                  and(
-                    eq(items.listingLabel, listings.label),
-                    ilike(items.value, `%${searchQuery}%`)
+        ? (() => {
+            const pattern = `%${escapeIlikePattern(searchQuery)}%`;
+            return or(
+              sql`${listings.label} ILIKE ${pattern} ESCAPE '\\'`,
+              sql`${listings.title} ILIKE ${pattern} ESCAPE '\\'`,
+              exists(
+                db
+                  .select()
+                  .from(items)
+                  .where(
+                    and(
+                      eq(items.listingLabel, listings.label),
+                      sql`${items.value} ILIKE ${pattern} ESCAPE '\\'`
+                    )
                   )
-                )
-            )
-          )
+              )
+            );
+          })()
         : undefined;
 
       const [listingsResult, totalCountResult] = await Promise.all([

@@ -116,14 +116,6 @@ function RouteComponent() {
     });
   };
 
-  const toggleSelectAll = () => {
-    if (selectedLabels.size === filteredListings.length) {
-      clearSelection();
-    } else {
-      setSelectedLabels(new Set(filteredListings.map((l) => l.label)));
-    }
-  };
-
   const { data, isLoading, isFetching } = useQuery({
     ...trpc.listing.getAllPaginated.queryOptions({
       limit: PAGE_SIZE,
@@ -135,22 +127,10 @@ function RouteComponent() {
 
   const activeQuickFilter = filter ?? "all";
 
-  const searchMatchedListings = useMemo(() => {
-    const listings = data?.listings;
-    if (!listings) return [];
-    if (!searchTerm) return listings;
-    const lowerSearch = searchTerm.toLowerCase();
-    return listings.filter(
-      (listing) =>
-        listing.label.toLowerCase().includes(lowerSearch) ||
-        listing.items.some((item) =>
-          item.value.toLowerCase().includes(lowerSearch)
-        )
-    );
-  }, [data?.listings, searchTerm]);
+  const serverListings = useMemo(() => data?.listings ?? [], [data?.listings]);
 
   const quickFilterCounts = useMemo(() => {
-    const listings = searchMatchedListings;
+    const listings = serverListings;
     return {
       all: listings.length,
       "has-items": listings.reduce(
@@ -166,26 +146,28 @@ function RouteComponent() {
         0
       ),
     };
-  }, [searchMatchedListings]);
+  }, [serverListings]);
 
-  const getFilteredListings = () => {
+  const filteredListings = useMemo(() => {
     switch (activeQuickFilter) {
       case "has-items":
-        return searchMatchedListings.filter((listing) => listing.itemCount > 0);
+        return serverListings.filter((listing) => listing.itemCount > 0);
       case "empty":
-        return searchMatchedListings.filter(
-          (listing) => listing.itemCount === 0
-        );
+        return serverListings.filter((listing) => listing.itemCount === 0);
       case "visited":
-        return searchMatchedListings.filter(
-          (listing) => listing.visitCount > 0
-        );
+        return serverListings.filter((listing) => listing.visitCount > 0);
       default:
-        return searchMatchedListings;
+        return serverListings;
     }
-  };
+  }, [serverListings, activeQuickFilter]);
 
-  const filteredListings = getFilteredListings();
+  const toggleSelectAll = useCallback(() => {
+    if (selectedLabels.size === filteredListings.length) {
+      clearSelection();
+    } else {
+      setSelectedLabels(new Set(filteredListings.map((l) => l.label)));
+    }
+  }, [selectedLabels, filteredListings]);
 
   const handleQuickFilterChange = useCallback(
     (nextFilter: QuickFilter) => {
@@ -440,7 +422,7 @@ function RouteComponent() {
           <input
             ref={searchInputRef}
             type="text"
-            placeholder="Search by label or item name..."
+            placeholder="Search by label, title, or item name..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onKeyDown={handleSearchKeyDown}
@@ -610,7 +592,7 @@ function RouteComponent() {
         {isLoading && !data ? (
           <ListingSkeleton />
         ) : filteredListings.length === 0 ? (
-          searchTerm ? (
+          debouncedSearchTerm ? (
             <div className="adminDashboard-state">
               <div className="adminDashboard-stateIcon">
                 <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -625,7 +607,7 @@ function RouteComponent() {
               </div>
               <p className="adminDashboard-stateTitle">No results found</p>
               <p className="adminDashboard-stateDescription">
-                No listings match <strong>{searchTerm}</strong>
+                No listings match <strong>{debouncedSearchTerm}</strong>
               </p>
               <button
                 type="button"
