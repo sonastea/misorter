@@ -1,8 +1,8 @@
 import { publicProcedure, protectedProcedure, router } from "@/backend/trpc";
 import { getDb } from "@/db/client";
 import { activityLogs, items, listings, visits } from "@/db/schema";
+import { getRedis } from "@/utils/redis";
 import { TRPCError } from "@trpc/server";
-import { Redis } from "@upstash/redis/cloudflare";
 import {
   and,
   desc,
@@ -28,28 +28,6 @@ const CANDIDATE_POOL_SIZE = 40;
 const DAYS_AGO = 5;
 
 const RedisExpireTime: number = 7 * (60 * 60 * 24); // expire time in days from seconds
-let redis: Redis | null = null;
-
-const getRedis = () => {
-  const upstashUrl = process.env.UPSTASH_REDIS_REST_URL;
-  if (!upstashUrl) {
-    throw new Error("ENV var UPSTASH_REDIS_REST_URL is not set!");
-  }
-
-  const upstashToken = process.env.UPSTASH_REDIS_REST_TOKEN;
-  if (!upstashToken) {
-    throw new Error("ENV var UPSTASH_REDIS_REST_TOKEN is not set!");
-  }
-
-  if (!redis) {
-    redis = new Redis({
-      url: upstashUrl,
-      token: upstashToken,
-    });
-  }
-
-  return redis;
-};
 
 export type List = {
   label: string;

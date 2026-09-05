@@ -1,8 +1,8 @@
 import { publicProcedure, router } from "@/backend/trpc";
 import { getDb } from "@/db/client";
 import { supportSubmissions } from "@/db/schema";
+import { getRedis } from "@/utils/redis";
 import { Ratelimit } from "@upstash/ratelimit";
-import { Redis } from "@upstash/redis/cloudflare";
 import { TRPCError } from "@trpc/server";
 import { createInsertSchema } from "drizzle-orm/valibot";
 import { Resend } from "resend";
@@ -10,30 +10,8 @@ import { Resend } from "resend";
 const supportSubmissionsInputSchema = createInsertSchema(supportSubmissions);
 type SubmissionEmailPayload = typeof supportSubmissions.$inferInsert;
 
-let redis: Redis | null = null;
 let supportRateLimit: Ratelimit | null = null;
 let resend: Resend | null = null;
-
-const getRedis = () => {
-  const upstashUrl = process.env.UPSTASH_REDIS_REST_URL;
-  if (!upstashUrl) {
-    throw new Error("ENV var UPSTASH_REDIS_REST_URL is not set!");
-  }
-
-  const upstashToken = process.env.UPSTASH_REDIS_REST_TOKEN;
-  if (!upstashToken) {
-    throw new Error("ENV var UPSTASH_REDIS_REST_TOKEN is not set!");
-  }
-
-  if (!redis) {
-    redis = new Redis({
-      url: upstashUrl,
-      token: upstashToken,
-    });
-  }
-
-  return redis;
-};
 
 const getSupportRateLimit = () => {
   if (!supportRateLimit) {
