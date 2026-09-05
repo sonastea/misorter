@@ -1,17 +1,8 @@
 import { createBrowserClient } from "@supabase/ssr";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { getRequiredEnv } from "@/utils/env";
 
 let supabaseBrowserClient: SupabaseClient | null = null;
-
-function getRequiredEnv(value: string | undefined, name: string): string {
-  if (!value) {
-    throw new Error(
-      `${name} is not set as an environment variable for the client.`
-    );
-  }
-
-  return value;
-}
 
 export function getSupabaseBrowserClient(): SupabaseClient {
   if (!supabaseBrowserClient) {
