@@ -1,19 +1,39 @@
-import cryptoRandomString from "crypto-random-string";
-
 const clientId = import.meta.env.VITE_CLIENT_ID;
-const secret = cryptoRandomString({ length: 9, type: "url-safe" });
+
+// URL-safe alphabet (base64url), matching crypto-random-string's "url-safe"
+// output: 9 chars x 6 bits = 54 bits of entropy per OAuth state value.
+const STATE_ALPHABET =
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+const STATE_LENGTH = 9;
+
+const generateOAuthState = (length: number = STATE_LENGTH): string => {
+  const bytes = new Uint8Array(length);
+  crypto.getRandomValues(bytes);
+  // 256 % 64 === 0, so masking introduces no modulo bias.
+  let state = "";
+  for (const byte of bytes) {
+    state += STATE_ALPHABET[byte & 63];
+  }
+  return state;
+};
 
 const CreatePollUnauthorizedButton = ({
   isLoggedIn,
 }: {
   isLoggedIn: boolean | undefined;
 }) => {
-  const twitchAuth = `https://id.twitch.tv/oauth2/authorize?response_type=code&client_id=${clientId}&redirect_uri=${window.location.origin}&scope=channel%3Amanage%3Apolls&state=${secret}`;
+  const handleClick = () => {
+    // Fresh state per attempt: module-scope secrets are shared across
+    // renders and defeat the OAuth state's CSRF purpose.
+    const state = generateOAuthState();
 
-  if (!isLoggedIn) {
-    sessionStorage.setItem("state", secret);
-    sessionStorage.setItem("back-url", window.location.toString());
-  }
+    if (!isLoggedIn) {
+      sessionStorage.setItem("state", state);
+      sessionStorage.setItem("back-url", window.location.toString());
+    }
+
+    location.href = `https://id.twitch.tv/oauth2/authorize?response_type=code&client_id=${clientId}&redirect_uri=${window.location.origin}&scope=channel%3Amanage%3Apolls&state=${state}`;
+  };
 
   return (
     <button
@@ -21,7 +41,7 @@ const CreatePollUnauthorizedButton = ({
       className="sort-pollContainer"
       type="button"
       title="Sign in through twitch to create polls"
-      onClick={() => (location.href = twitchAuth)}
+      onClick={handleClick}
     >
       <svg className="sort-pollUnauthorized" viewBox="0 0 24 24">
         <path
