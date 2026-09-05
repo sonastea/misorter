@@ -12,8 +12,7 @@ import FeaturedListsToggle from "@/components/FeaturedListsToggle";
 import Footer from "@/components/Footer";
 import NoticeBanner from "@/components/NoticeBanner";
 import SupportForm from "@/components/SupportForm";
-import { trpc } from "@utils/trpc";
-import { v4 as uuidv4 } from "uuid";
+import { trpc, queryClient } from "@utils/trpc";
 import ThemeToggle from "@/components/ThemeToggle";
 
 const tip =
@@ -54,51 +53,70 @@ function Home() {
   const [currentListData, setCurrentListData] = useState<Partial<List>>({});
 
   const focusTitleRef = useRef(false);
+  // Tracks which server label we've already applied to local state.
+  // State (not a ref) so `enabled` below re-evaluates reactively.
+  // Prevents refetch + re-apply when the data is already in hand
+  // (e.g. just picked from featured lists).
+  const [appliedLabel, setAppliedLabel] = useState<string | null>(null);
 
   // Featured Lists
   const [selectedList, setSelectedList] = useState<string>("");
   const [open, setOpen] = useState(false);
 
-  const { data, isFetching, refetch } = useQuery({
+  const { data, isFetching } = useQuery({
     ...trpc.listing.get.queryOptions({ label: listLabel ?? "" }),
     refetchOnMount: false,
     refetchInterval: false,
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
     retry: false,
-    enabled: false,
+    enabled: !!listLabel,
   });
 
   const createVisit = useMutation(trpc.listing.createVisit.mutationOptions());
 
   const toggleFeaturedLists = () => {
-    setOpen(!open);
+    setOpen((prev) => !prev);
   };
 
-  const updateList = useCallback(
-    (data: List, featured: boolean, fromUrl: boolean) => {
-      if (featured) {
-        // if we picked a featured list, add a visit to the db
-        createVisit.mutate({ label: data.label, source: "FEATURED" });
-        setGetListOnce(true);
-      } else if (fromUrl) {
-        // if we loaded a list from URL, add a URL visit to the db
-        createVisit.mutate({ label: data.label, source: "URL" });
-      }
-
-      // Store the current list data so it's available for title editing
-      setCurrentListData(data);
-
-      setList([]);
-      setInititalListSize(data.items?.length);
-      data.items.map((item) => {
-        setList((prev) => [...prev, { id: uuidv4(), value: item.value }]);
-      });
-      setTitle(data.title);
-      setOldTitle(data.title);
+  // Single batched state update for a server-loaded list.
+  // Replaces the old setList([]) + N× setList(prev => [...prev]) loop.
+  // Also seeds the `listing.get` query cache synchronously, so the
+  // subsequent navigate to ?list=<label> is a cache hit — no network fetch.
+  // (Seeding is sync, unlike setState, so there's no race with navigate.)
+  const applyServerList = useCallback(
+    (serverData: List, source: "URL" | "FEATURED") => {
+      const cacheValue: Partial<List> | null = {
+        label: serverData.label,
+        title: serverData.title,
+        items: serverData.items.map((item) => ({ value: item.value })),
+      };
+      queryClient.setQueryData(
+        trpc.listing.get.queryOptions({ label: serverData.label }).queryKey,
+        cacheValue
+      );
+      setCurrentListData(serverData);
+      setList(
+        serverData.items.map((item) => ({
+          id: crypto.randomUUID(),
+          value: item.value,
+        }))
+      );
+      setTitle(serverData.title);
+      setOldTitle(serverData.title);
+      setInititalListSize(serverData.items.length);
+      setGetListOnce(true);
+      setAppliedLabel(serverData.label);
+      createVisit.mutate({ label: serverData.label, source });
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [createVisit]
+  );
+
+  const updateList = useCallback(
+    (data: List, featured: boolean) => {
+      applyServerList(data, featured ? "FEATURED" : "URL");
+    },
+    [applyServerList]
   );
 
   useEffect(() => {
@@ -116,19 +134,12 @@ function Home() {
   }, [code, state, navigate]);
 
   useEffect(() => {
-    if (listLabel && !getListOnce) {
-      refetch();
-      setGetListOnce(true);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [listLabel, refetch]);
-
-  useEffect(() => {
-    if (data && data.items) {
-      setInititalListSize(data.items.length);
-      updateList(data as List, false, true);
-    }
-  }, [data, data?.items, data?.title, updateList]);
+    if (!data?.label || !data.items) return;
+    if (appliedLabel === data.label) return;
+    // Intentional editable-copy sync: server data -> local list state, once per label.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    applyServerList(data as List, "URL");
+  }, [data, appliedLabel, applyServerList]);
 
   return (
     <>

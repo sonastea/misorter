@@ -16,7 +16,7 @@ import {
   sql,
 } from "drizzle-orm";
 import { customAlphabet } from "nanoid";
-import { z } from "zod";
+import * as v from "valibot";
 
 const nanoid = customAlphabet(
   "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
@@ -78,8 +78,8 @@ export type FeaturedList = {
   }[];
 };
 
-const VisitSourceSchema = z.enum(["URL", "FEATURED", "NEW"]);
-type VisitSource = z.infer<typeof VisitSourceSchema>;
+const VisitSourceSchema = v.picklist(["URL", "FEATURED", "NEW"]);
+type VisitSource = v.InferInput<typeof VisitSourceSchema>;
 
 const updateListingVisited = async (listingId: string, source: VisitSource) => {
   const date = new Date();
@@ -111,8 +111,8 @@ const updateListingVisited = async (listingId: string, source: VisitSource) => {
 export const listingRouter = router({
   get: publicProcedure
     .input(
-      z.object({
-        label: z.string(),
+      v.object({
+        label: v.string(),
       })
     )
     .query(async ({ input, ctx }) => {
@@ -271,11 +271,11 @@ export const listingRouter = router({
   }),
   create: publicProcedure
     .input(
-      z.object({
-        title: z.string(),
-        items: z.array(
-          z.object({
-            value: z.string(),
+      v.object({
+        title: v.string(),
+        items: v.array(
+          v.object({
+            value: v.string(),
           })
         ),
       })
@@ -323,9 +323,9 @@ export const listingRouter = router({
     }),
   createVisit: publicProcedure
     .input(
-      z.object({
-        label: z.string(),
-        source: VisitSourceSchema.default("NEW"),
+      v.object({
+        label: v.string(),
+        source: v.optional(VisitSourceSchema, "NEW"),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -348,9 +348,9 @@ export const listingRouter = router({
     }),
   updateTitle: publicProcedure
     .input(
-      z.object({
-        label: z.string(),
-        title: z.string(),
+      v.object({
+        label: v.string(),
+        title: v.string(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -408,10 +408,13 @@ export const listingRouter = router({
     }),
   getAllPaginated: protectedProcedure
     .input(
-      z.object({
-        limit: z.number().min(1).max(100).default(10),
-        offset: z.number().min(0).default(0),
-        query: z.string().trim().optional(),
+      v.object({
+        limit: v.optional(
+          v.pipe(v.number(), v.minValue(1), v.maxValue(100)),
+          10
+        ),
+        offset: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
+        query: v.optional(v.pipe(v.string(), v.trim())),
       })
     )
     .query(async ({ input }) => {
@@ -509,8 +512,8 @@ export const listingRouter = router({
     }),
   delete: protectedProcedure
     .input(
-      z.object({
-        label: z.string(),
+      v.object({
+        label: v.string(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -560,8 +563,8 @@ export const listingRouter = router({
     }),
   deleteMany: protectedProcedure
     .input(
-      z.object({
-        labels: z.array(z.string()).min(1).max(100),
+      v.object({
+        labels: v.pipe(v.array(v.string()), v.minLength(1), v.maxLength(100)),
       })
     )
     .mutation(async ({ input, ctx }) => {

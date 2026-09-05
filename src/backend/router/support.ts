@@ -4,7 +4,7 @@ import { supportSubmissions } from "@/db/schema";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis/cloudflare";
 import { TRPCError } from "@trpc/server";
-import { createInsertSchema } from "drizzle-orm/zod";
+import { createInsertSchema } from "drizzle-orm/valibot";
 import { Resend } from "resend";
 
 const supportSubmissionsInputSchema = createInsertSchema(supportSubmissions);

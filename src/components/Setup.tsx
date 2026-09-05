@@ -4,7 +4,6 @@ import { ChangeEvent, KeyboardEvent } from "react";
 import { toast } from "react-toastify";
 import { ListItem } from "src/routes/index";
 import { trpc } from "src/utils/trpc";
-import { v4 as uuidv4 } from "uuid";
 
 interface SetupProps {
   title: string;
@@ -78,7 +77,10 @@ const Setup = ({
   };
 
   const addItemToList = () => {
-    setList((prev: ListItem[]) => [{ id: uuidv4(), value: newItem }, ...prev]);
+    setList((prev: ListItem[]) => [
+      { id: crypto.randomUUID(), value: newItem },
+      ...prev,
+    ]);
     setNewItem("");
     // try resetting getListOnce assuming new items considers it a different list
     setGetListOnce(false);

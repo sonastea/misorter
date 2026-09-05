@@ -2,13 +2,17 @@ import { protectedProcedure, router } from "@/backend/trpc";
 import { getDb } from "@/db/client";
 import { activityLogs } from "@/db/schema";
 import { desc } from "drizzle-orm";
-import { z } from "zod";
+import * as v from "valibot";
+import { activityLogActions } from "@/db/schema";
 
 export const activityRouter = router({
   getRecent: protectedProcedure
     .input(
-      z.object({
-        limit: z.number().min(1).max(100).default(20),
+      v.object({
+        limit: v.optional(
+          v.pipe(v.number(), v.minValue(1), v.maxValue(100)),
+          20
+        ),
       })
     )
     .query(async ({ input }) => {
@@ -24,16 +28,11 @@ export const activityRouter = router({
 
   create: protectedProcedure
     .input(
-      z.object({
-        action: z.enum([
-          "listing_delete",
-          "listing_delete_many",
-          "listing_create",
-          "listing_update",
-        ]),
-        targetLabel: z.string().optional(),
-        targetCount: z.number().min(1).default(1),
-        details: z.string().optional(),
+      v.object({
+        action: v.picklist(activityLogActions),
+        targetLabel: v.optional(v.string()),
+        targetCount: v.optional(v.pipe(v.number(), v.minValue(1)), 1),
+        details: v.optional(v.string()),
       })
     )
     .mutation(async ({ input }) => {
