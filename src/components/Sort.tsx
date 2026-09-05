@@ -8,6 +8,8 @@ import {
 } from "react";
 import { ListItem } from "src/routes/index";
 import { deleteCookie, getCookie, setCookie } from "@utils/cookies";
+import { trpc } from "@/utils/trpc";
+import { useMutation } from "@tanstack/react-query";
 import DownloadAsPngSkeleton from "./DownloadAsPngSkeleton";
 import ConfirmModal from "./ConfirmModal";
 
@@ -29,17 +31,6 @@ let numQuestion: number;
 let totalSize: number;
 let finishSize: number;
 let finishFlag: number;
-let clientId: string = "";
-let clientSecret: string = "";
-
-if (import.meta.env.VITE_CLIENT_ID) {
-  clientId = import.meta.env.VITE_CLIENT_ID;
-}
-
-if (import.meta.env.VITE_CLIENT_SECRET) {
-  clientSecret = import.meta.env.VITE_CLIENT_SECRET;
-}
-
 const Sort = ({
   ogList,
   setStartSort,
@@ -91,45 +82,33 @@ const Sort = ({
     code = sessionStorage.getItem("twitch_auth_code");
   }
 
-  useEffect(() => {
-    const getAccessToken = async () => {
-      try {
-        const data = await fetch("https://id.twitch.tv/oauth2/token", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          body: new URLSearchParams({
-            client_id: clientId,
-            client_secret: clientSecret,
-            code: code as string,
-            grant_type: "authorization_code",
-            redirect_uri: window.location.origin,
-          }),
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            if (data && data.access_token) {
-              setCookie("Authorization", `Bearer ${data.access_token}`, {
-                secure: true,
-                sameSite: "strict",
-              });
-              sessionStorage.removeItem("twitch_auth_code");
-              setLoggedIn(true);
-              validate();
-            }
-          });
-        return data;
-      } catch (error) {
+  const exchangeCode = useMutation(
+    trpc.twitch.exchangeCode.mutationOptions({
+      onSuccess: (data) => {
+        setCookie("Authorization", `Bearer ${data.accessToken}`, {
+          secure: true,
+          sameSite: "strict",
+        });
+        sessionStorage.removeItem("twitch_auth_code");
+        setLoggedIn(true);
+        validate();
+      },
+      onError: (error) => {
         console.error(error);
-      }
-    };
+      },
+    })
+  );
 
+  useEffect(() => {
+    // Secret stays server-side: the Worker exchanges the code with Twitch.
     if (code && !isLoggedIn) {
-      getAccessToken();
+      exchangeCode.mutate({
+        code,
+        redirectUri: window.location.origin,
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [code]);
+  }, [code, isLoggedIn]);
 
   // Thanks to biasorter.tumblr.com for the code
   // https://biasorter.tumblr.com/

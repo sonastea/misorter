@@ -66,8 +66,7 @@ Copy `.env.example` to `.env` and fill in the required values:
 ### Frontend (Client-side)
 
 - `VITE_API_URL` - (Optional) API endpoint URL for production. If not set, uses relative URLs
-- `VITE_CLIENT_ID` - Twitch API client ID
-- `VITE_CLIENT_SECRET` - Twitch API client secret
+- `VITE_CLIENT_ID` - Twitch API client ID (public)
 
 ### Backend (Worker)
 
@@ -75,6 +74,8 @@ Copy `.env.example` to `.env` and fill in the required values:
 - `REDIS_URL` - Redis connection URL
 - `UPSTASH_REDIS_REST_URL` - Upstash Redis REST URL
 - `UPSTASH_REDIS_REST_TOKEN` - Upstash Redis token
+- `TWITCH_CLIENT_ID` - Twitch API client ID (same value as `VITE_CLIENT_ID`)
+- `TWITCH_CLIENT_SECRET` - Twitch API client secret (server-only)
 
 ## Deployment
 

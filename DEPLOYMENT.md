@@ -66,6 +66,8 @@ The backend API requires:
 - `SUPPORT_TO_EMAIL` - Email address to receive support emails
 - `VITE_SUPABASE_URL` - Supabase project URL
 - `VITE_SUPABASE_KEY` - Supabase anon/public key
+- `TWITCH_CLIENT_ID` - Twitch OAuth client ID (same value as frontend `VITE_CLIENT_ID`)
+- `TWITCH_CLIENT_SECRET` - Twitch OAuth client secret (server-only, never `VITE_`-prefixed)
 
 **Option A: Manual setup**
 
@@ -83,6 +85,10 @@ wrangler secret put UPSTASH_REDIS_REST_TOKEN
 wrangler secret put VITE_SUPABASE_URL
 wrangler secret put VITE_SUPABASE_KEY
 
+# Twitch (server-side code exchange; secret never ships to the browser)
+wrangler secret put TWITCH_CLIENT_ID
+wrangler secret put TWITCH_CLIENT_SECRET
+
 # Resend (email)
 wrangler secret put RESEND_API_KEY
 wrangler secret put SUPPORT_FROM_EMAIL
@@ -98,6 +104,8 @@ source .env && echo "$UPSTASH_REDIS_REST_URL" | wrangler secret put UPSTASH_REDI
 source .env && echo "$UPSTASH_REDIS_REST_TOKEN" | wrangler secret put UPSTASH_REDIS_REST_TOKEN
 source .env && echo "$VITE_SUPABASE_URL" | wrangler secret put VITE_SUPABASE_URL
 source .env && echo "$VITE_SUPABASE_KEY" | wrangler secret put VITE_SUPABASE_KEY
+source .env && echo "$TWITCH_CLIENT_ID" | wrangler secret put TWITCH_CLIENT_ID
+source .env && echo "$TWITCH_CLIENT_SECRET" | wrangler secret put TWITCH_CLIENT_SECRET
 source .env && echo "$RESEND_API_KEY" | wrangler secret put RESEND_API_KEY
 source .env && echo "$SUPPORT_FROM_EMAIL" | wrangler secret put SUPPORT_FROM_EMAIL
 source .env && echo "$SUPPORT_TO_EMAIL" | wrangler secret put SUPPORT_TO_EMAIL
@@ -145,8 +153,7 @@ curl https://misorter-api.your-account.workers.dev/
 The frontend requires:
 
 - `VITE_API_URL` - URL to your deployed backend API
-- `VITE_CLIENT_ID` - OAuth client ID
-- `VITE_CLIENT_SECRET` - OAuth client secret
+- `VITE_CLIENT_ID` - Twitch OAuth client ID (public; the secret stays server-side)
 - `VITE_SUPABASE_URL` - Supabase project URL
 - `VITE_SUPABASE_KEY` - Supabase anon/public key
 
@@ -158,7 +165,6 @@ The frontend requires:
 4. Add variables for **Production** environment:
    - `VITE_API_URL` = `https://api.your-domain.com`
    - `VITE_CLIENT_ID` = `your_client_id`
-   - `VITE_CLIENT_SECRET` = `your_client_secret`
    - `VITE_SUPABASE_URL` = `https://your-project.supabase.co`
    - `VITE_SUPABASE_KEY` = `your_supabase_anon_key`
 5. Save
@@ -175,9 +181,9 @@ Create a `.env.production` file (this won't be used by Pages deployments):
 # Point to your deployed Cloudflare Worker
 VITE_API_URL=https://api.your-domain.com
 
-# OAuth for twitch integration with polls
+# OAuth for twitch integration with polls (client ID is public; the
+# code->token exchange runs server-side, so no secret here)
 VITE_CLIENT_ID=your_client_id
-VITE_CLIENT_SECRET=your_client_secret
 
 # Supabase for authentication
 VITE_SUPABASE_URL=https://your-project.supabase.co
@@ -224,7 +230,6 @@ wrangler pages deploy dist --project-name=misorter
 6. Add environment variables:
    - `VITE_API_URL`
    - `VITE_CLIENT_ID`
-   - `VITE_CLIENT_SECRET`
    - `VITE_SUPABASE_URL`
    - `VITE_SUPABASE_KEY`
 
