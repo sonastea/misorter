@@ -342,8 +342,21 @@ export const listingRouter = router({
     .mutation(async ({ input, ctx }) => {
       const db = getDb();
 
-      // Use a single query with relation to get both listing and items
-      const updatedListing = await db.query.listings.findFirst({
+      const [updated] = await db
+        .update(listings)
+        .set({ title: input.title })
+        .where(eq(listings.label, input.label))
+        .returning({ label: listings.label });
+
+      if (!updated) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Listing not found",
+        });
+      }
+
+      // Read items for the response + cache refresh (post-write).
+      const listing = await db.query.listings.findFirst({
         where: {
           label: input.label,
         },
@@ -359,25 +372,13 @@ export const listingRouter = router({
         },
       });
 
-      if (!updatedListing) {
-        throw new Error("Listing not found");
-      }
-
-      // Update title (doesn't need to block since we already have the data)
-      ctx.waitUntil(
-        db
-          .update(listings)
-          .set({ title: input.title })
-          .where(eq(listings.label, input.label))
-          .catch((e) => console.error("Failed to update title:", e))
-      );
-
       const updatedList = {
-        label: updatedListing.label,
+        label: updated.label,
         title: input.title,
-        items: updatedListing.items,
+        items: listing?.items ?? [],
       };
 
+      // Only the cache refresh stays in the background.
       ctx.waitUntil(
         getRedis()
           .set(input.label, JSON.stringify(updatedList), {
