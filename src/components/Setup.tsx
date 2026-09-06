@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { ChangeEvent, KeyboardEvent } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { ListItem } from "src/routes/index";
 import { trpc } from "src/utils/trpc";
 
@@ -53,7 +53,7 @@ const Setup = ({
 
   const checkList = async () => {
     if (list.length < 2) {
-      toast.warn("Not enough items in the list.");
+      toast.warning("Not enough items in the list.");
       return;
     }
 

@@ -167,20 +167,52 @@ html[data-theme="dark"] footer {
   color: hsl(0, 0%, 88%);
 }
 
-html[data-theme="light"] .toastBody {
-  color: var(--color-text-primary);
-  background: var(--color-bg-secondary);
-  min-height: 3rem;
+html[data-theme] [data-sonner-toaster] {
+  --normal-bg: var(--color-bg-secondary);
+  --normal-text: var(--color-text-primary);
+  --normal-border: var(--color-bg-tertiary);
+  /* Status icons exceed 3:1 contrast against each theme's toast surface. */
+  --toast-icon-success: var(--color-green-700);
+  --toast-icon-error: var(--color-red-700);
+  --toast-icon-warning: var(--color-amber-700);
+  --toast-icon-info: var(--color-blue-700);
 }
 
-html[data-theme="light"] .Toastify__close-button {
-  color: var(--color-text-primary);
+html[data-theme="dark"] [data-sonner-toaster] {
+  --toast-icon-success: var(--color-green-400);
+  --toast-icon-error: var(--color-red-400);
+  --toast-icon-warning: var(--color-amber-400);
+  --toast-icon-info: var(--color-blue-400);
 }
 
-html[data-theme="dark"] .toastBody {
-  color: var(--color-bg-once-dark-faded-hover);
+[data-sonner-toast][data-type="success"] [data-icon] {
+  color: var(--toast-icon-success);
+}
+
+[data-sonner-toast][data-type="error"] [data-icon] {
+  color: var(--toast-icon-error);
+}
+
+[data-sonner-toast][data-type="warning"] [data-icon] {
+  color: var(--toast-icon-warning);
+}
+
+[data-sonner-toast][data-type="info"] [data-icon] {
+  color: var(--toast-icon-info);
+}
+
+html[data-theme] [data-sonner-toaster] [data-sonner-toast] [data-close-button] {
+  color: var(--color-text-primary);
   background: var(--color-bg-secondary);
-  min-height: 3rem;
+  border-color: var(--color-bg-tertiary);
+}
+
+html[data-theme]
+  [data-sonner-toaster]
+  [data-sonner-toast]
+  [data-close-button]:hover {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-text-secondary);
 }
 
 html[data-theme="light"] {

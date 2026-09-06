@@ -14,12 +14,10 @@ import { trpc } from "@/utils/trpc";
 import { useMutation } from "@tanstack/react-query";
 import DownloadAsPngSkeleton from "./DownloadAsPngSkeleton";
 import ConfirmModal from "./ConfirmModal";
+import TwitchPollButton from "@/components/CreatePollButtonContainer";
+import ShareLinkButton from "@/components/ShareLinkButton";
 
 const DownloadAsPng = lazy(() => import("../components/DownloadAsPngButton"));
-const TwitchPollButton = lazy(
-  () => import("../components/CreatePollButtonContainer")
-);
-const ShareLinkButton = lazy(() => import("../components/ShareLinkButton"));
 
 type SortEngine = {
   lstMember: number[][];
@@ -387,16 +385,12 @@ const SortSession = ({
           <br />
           {battle.percent}% sorted.
         </div>
-        <Suspense fallback={<div />}>
-          <TwitchPollButton
-            isLoggedIn={isLoggedIn}
-            option1={option1}
-            option2={option2}
-          />
-        </Suspense>
-        <Suspense fallback={<div />}>
-          <ShareLinkButton />
-        </Suspense>
+        <TwitchPollButton
+          isLoggedIn={isLoggedIn}
+          option1={option1}
+          option2={option2}
+        />
+        <ShareLinkButton />
         <div
           className="sort-leftField"
           onClick={() => {
