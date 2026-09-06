@@ -1,36 +1,42 @@
-import domtoimage from "dom-to-image-more";
+import { Button } from "@headlessui/react";
+import { toPng } from "html-to-image";
+import { toast } from "sonner";
 
 export const DownloadAsPngButton = () => {
-  const exportToPng = () => {
-    domtoimage
-      .toPng(document.getElementById("ResultsContainer"))
-      .then((dataUrl: string) => {
-        const link = document.createElement("a");
-        link.download = `misorter-results-${new Date().toLocaleString(
-          "default",
-          {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-          }
-        )}.png`;
-        link.href = dataUrl;
-        link.click();
-      });
+  const exportToPng = async () => {
+    const node = document.getElementById("ResultsContainer");
+    if (!node) {
+      toast.error("Nothing to export yet.");
+      return;
+    }
+    try {
+      const dataUrl = await toPng(node, { cacheBust: true, pixelRatio: 2 });
+      const link = document.createElement("a");
+      link.download = `misorter-results-${new Date().toLocaleString("default", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      })}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (error) {
+      console.error(error);
+      toast.error("Unable to export PNG.");
+    }
   };
 
   return (
-    <button
+    <Button
       className="sort-export"
       type="button"
       onClick={() => {
         if (typeof window !== "undefined") {
-          exportToPng();
+          void exportToPng();
         }
       }}
     >
       Download as png
-    </button>
+    </Button>
   );
 };
 

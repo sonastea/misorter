@@ -1,4 +1,4 @@
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 const ShareLinkButton = () => {
   const copyLinkToClipboard = async () => {
@@ -7,7 +7,7 @@ const ShareLinkButton = () => {
         toast.success("Successfully copied link.");
       },
       () => {
-        toast.warn("Unable to copy link.");
+        toast.warning("Unable to copy link.");
       }
     );
   };

@@ -1,10 +1,9 @@
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { ChangeEvent, KeyboardEvent } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { ListItem } from "src/routes/index";
 import { trpc } from "src/utils/trpc";
-import { v4 as uuidv4 } from "uuid";
 
 interface SetupProps {
   title: string;
@@ -54,7 +53,7 @@ const Setup = ({
 
   const checkList = async () => {
     if (list.length < 2) {
-      toast.warn("Not enough items in the list.");
+      toast.warning("Not enough items in the list.");
       return;
     }
 
@@ -78,7 +77,10 @@ const Setup = ({
   };
 
   const addItemToList = () => {
-    setList((prev: ListItem[]) => [{ id: uuidv4(), value: newItem }, ...prev]);
+    setList((prev: ListItem[]) => [
+      { id: crypto.randomUUID(), value: newItem },
+      ...prev,
+    ]);
     setNewItem("");
     // try resetting getListOnce assuming new items considers it a different list
     setGetListOnce(false);

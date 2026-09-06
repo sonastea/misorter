@@ -1,6 +1,6 @@
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import { useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { deleteCookie, getCookie } from "@utils/cookies";
 
 const CreatePollButton = ({

@@ -1,6 +1,6 @@
 import { QueryClient } from "@tanstack/react-query";
 import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
-import ToastContainer from "src/components/ToastContainer";
+import { Toaster } from "sonner";
 
 interface MyRouterContext {
   queryClient: QueryClient;
@@ -13,14 +13,10 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 function RootComponent() {
   return (
     <>
-      <ToastContainer
+      <Toaster
         position="top-right"
-        autoClose={1000}
-        hideProgressBar={true}
-        closeOnClick
-        theme="dark"
-        draggable
-        toastClassName="toastBody"
+        toastOptions={{ duration: 1000 }}
+        closeButton
       />
       <Outlet />
     </>

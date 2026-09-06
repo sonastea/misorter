@@ -1,7 +1,7 @@
 import { List } from "@router/listing";
 import { useMutation } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { trpc } from "src/utils/trpc";
 
 const ListTitleEdit = ({

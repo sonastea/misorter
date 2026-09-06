@@ -1,55 +1,35 @@
 import { publicProcedure, protectedProcedure, router } from "@/backend/trpc";
 import { getDb } from "@/db/client";
 import { activityLogs, items, listings, visits } from "@/db/schema";
+import { getRedis } from "@/utils/redis";
 import { TRPCError } from "@trpc/server";
-import { Redis } from "@upstash/redis/cloudflare";
 import {
   and,
   desc,
   eq,
   exists,
   gte,
-  ilike,
   inArray,
   notInArray,
   or,
   sql,
 } from "drizzle-orm";
 import { customAlphabet } from "nanoid";
-import { z } from "zod";
+import * as v from "valibot";
 
 const nanoid = customAlphabet(
   "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
   16
 );
 
+const escapeIlikePattern = (value: string): string =>
+  value.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_");
+
 const TOP_K_LISTS = 5;
 const CANDIDATE_POOL_SIZE = 40;
 const DAYS_AGO = 5;
 
 const RedisExpireTime: number = 7 * (60 * 60 * 24); // expire time in days from seconds
-let redis: Redis | null = null;
-
-const getRedis = () => {
-  const upstashUrl = process.env.UPSTASH_REDIS_REST_URL;
-  if (!upstashUrl) {
-    throw new Error("ENV var UPSTASH_REDIS_REST_URL is not set!");
-  }
-
-  const upstashToken = process.env.UPSTASH_REDIS_REST_TOKEN;
-  if (!upstashToken) {
-    throw new Error("ENV var UPSTASH_REDIS_REST_TOKEN is not set!");
-  }
-
-  if (!redis) {
-    redis = new Redis({
-      url: upstashUrl,
-      token: upstashToken,
-    });
-  }
-
-  return redis;
-};
 
 export type List = {
   label: string;
@@ -78,8 +58,8 @@ export type FeaturedList = {
   }[];
 };
 
-const VisitSourceSchema = z.enum(["URL", "FEATURED", "NEW"]);
-type VisitSource = z.infer<typeof VisitSourceSchema>;
+const VisitSourceSchema = v.picklist(["URL", "FEATURED", "NEW"]);
+type VisitSource = v.InferInput<typeof VisitSourceSchema>;
 
 const updateListingVisited = async (listingId: string, source: VisitSource) => {
   const date = new Date();
@@ -111,8 +91,8 @@ const updateListingVisited = async (listingId: string, source: VisitSource) => {
 export const listingRouter = router({
   get: publicProcedure
     .input(
-      z.object({
-        label: z.string(),
+      v.object({
+        label: v.string(),
       })
     )
     .query(async ({ input, ctx }) => {
@@ -271,11 +251,11 @@ export const listingRouter = router({
   }),
   create: publicProcedure
     .input(
-      z.object({
-        title: z.string(),
-        items: z.array(
-          z.object({
-            value: z.string(),
+      v.object({
+        title: v.string(),
+        items: v.array(
+          v.object({
+            value: v.string(),
           })
         ),
       })
@@ -293,8 +273,11 @@ export const listingRouter = router({
           })
           .returning({ label: listings.label, title: listings.title });
 
-        if (listing.label !== newLabel) {
-          tx.rollback();
+        if (!listing || listing.label !== newLabel) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to create listing",
+          });
         }
 
         const insertedItems = await tx
@@ -308,7 +291,10 @@ export const listingRouter = router({
           .returning({ value: items.value });
 
         if (insertedItems.length !== input.items.length) {
-          tx.rollback();
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to create listing items",
+          });
         }
 
         return {
@@ -323,9 +309,9 @@ export const listingRouter = router({
     }),
   createVisit: publicProcedure
     .input(
-      z.object({
-        label: z.string(),
-        source: VisitSourceSchema.default("NEW"),
+      v.object({
+        label: v.string(),
+        source: v.optional(VisitSourceSchema, "NEW"),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -348,16 +334,29 @@ export const listingRouter = router({
     }),
   updateTitle: publicProcedure
     .input(
-      z.object({
-        label: z.string(),
-        title: z.string(),
+      v.object({
+        label: v.string(),
+        title: v.string(),
       })
     )
     .mutation(async ({ input, ctx }) => {
       const db = getDb();
 
-      // Use a single query with relation to get both listing and items
-      const updatedListing = await db.query.listings.findFirst({
+      const [updated] = await db
+        .update(listings)
+        .set({ title: input.title })
+        .where(eq(listings.label, input.label))
+        .returning({ label: listings.label });
+
+      if (!updated) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Listing not found",
+        });
+      }
+
+      // Read items for the response + cache refresh (post-write).
+      const listing = await db.query.listings.findFirst({
         where: {
           label: input.label,
         },
@@ -373,25 +372,13 @@ export const listingRouter = router({
         },
       });
 
-      if (!updatedListing) {
-        throw new Error("Listing not found");
-      }
-
-      // Update title (doesn't need to block since we already have the data)
-      ctx.waitUntil(
-        db
-          .update(listings)
-          .set({ title: input.title })
-          .where(eq(listings.label, input.label))
-          .catch((e) => console.error("Failed to update title:", e))
-      );
-
       const updatedList = {
-        label: updatedListing.label,
+        label: updated.label,
         title: input.title,
-        items: updatedListing.items,
+        items: listing?.items ?? [],
       };
 
+      // Only the cache refresh stays in the background.
       ctx.waitUntil(
         getRedis()
           .set(input.label, JSON.stringify(updatedList), {
@@ -408,10 +395,13 @@ export const listingRouter = router({
     }),
   getAllPaginated: protectedProcedure
     .input(
-      z.object({
-        limit: z.number().min(1).max(100).default(10),
-        offset: z.number().min(0).default(0),
-        query: z.string().trim().optional(),
+      v.object({
+        limit: v.optional(
+          v.pipe(v.number(), v.minValue(1), v.maxValue(100)),
+          10
+        ),
+        offset: v.optional(v.pipe(v.number(), v.minValue(0)), 0),
+        query: v.optional(v.pipe(v.string(), v.trim())),
       })
     )
     .query(async ({ input }) => {
@@ -419,20 +409,24 @@ export const listingRouter = router({
       const searchQuery = input.query?.trim() || undefined;
 
       const whereClause = searchQuery
-        ? or(
-            ilike(listings.label, `%${searchQuery}%`),
-            exists(
-              db
-                .select()
-                .from(items)
-                .where(
-                  and(
-                    eq(items.listingLabel, listings.label),
-                    ilike(items.value, `%${searchQuery}%`)
+        ? (() => {
+            const pattern = `%${escapeIlikePattern(searchQuery)}%`;
+            return or(
+              sql`${listings.label} ILIKE ${pattern} ESCAPE '\\'`,
+              sql`${listings.title} ILIKE ${pattern} ESCAPE '\\'`,
+              exists(
+                db
+                  .select()
+                  .from(items)
+                  .where(
+                    and(
+                      eq(items.listingLabel, listings.label),
+                      sql`${items.value} ILIKE ${pattern} ESCAPE '\\'`
+                    )
                   )
-                )
-            )
-          )
+              )
+            );
+          })()
         : undefined;
 
       const [listingsResult, totalCountResult] = await Promise.all([
@@ -509,8 +503,8 @@ export const listingRouter = router({
     }),
   delete: protectedProcedure
     .input(
-      z.object({
-        label: z.string(),
+      v.object({
+        label: v.string(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -560,8 +554,8 @@ export const listingRouter = router({
     }),
   deleteMany: protectedProcedure
     .input(
-      z.object({
-        labels: z.array(z.string()).min(1).max(100),
+      v.object({
+        labels: v.pipe(v.array(v.string()), v.minLength(1), v.maxLength(100)),
       })
     )
     .mutation(async ({ input, ctx }) => {

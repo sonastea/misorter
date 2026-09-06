@@ -10,7 +10,7 @@ import {
   Transition,
   TransitionChild,
 } from "@headlessui/react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { trpc } from "src/utils/trpc";
 
 type SupportType = "help" | "feedback";
