@@ -446,16 +446,16 @@ function RouteComponent() {
             </button>
           ) : null}
         </div>
-        {(searchTerm || activeQuickFilter !== "all") && (
+        <div className="adminDashboard-searchStatus">
           <span className="adminDashboard-searchMeta">
-            Showing {filteredListings.length} of {data?.totalCount ?? 0}
+            {searchTerm || activeQuickFilter !== "all"
+              ? `Showing ${filteredListings.length} of ${data?.totalCount ?? 0}`
+              : ""}
           </span>
-        )}
-        {isFetching && !isLoading && (
           <span className="adminDashboard-searchUpdating" aria-live="polite">
-            Updating...
+            {isFetching && !isLoading ? "Updating..." : ""}
           </span>
-        )}
+        </div>
       </div>
 
       <section

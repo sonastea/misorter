@@ -2346,17 +2346,44 @@ html[data-theme="dark"] .home-editHelper {
 }
 
 .adminDashboard-searchRow {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 11rem;
   align-items: center;
-  justify-content: space-between;
   gap: 0.75rem;
   margin-top: 0.9rem;
 }
 
 .adminDashboard-searchInputWrap {
   position: relative;
-  flex: 1 1 24rem;
-  min-width: 16rem;
+  min-width: 0;
+}
+
+.adminDashboard-searchStatus {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(1rem, auto) 1rem;
+  align-items: center;
+  gap: 0.2rem;
+  min-width: 0;
+  min-height: 1.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 600px) {
+  .adminDashboard-searchRow {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.25rem;
+  }
+
+  .adminDashboard-searchStatus {
+    grid-template-columns: minmax(0, 1fr) 5rem;
+    grid-template-rows: minmax(1.5rem, auto);
+    gap: 0.5rem;
+  }
+
+  .adminDashboard-searchStatus .adminDashboard-searchUpdating {
+    text-align: right;
+  }
 }
 
 .adminDashboard-searchIcon {
@@ -2420,7 +2447,8 @@ html[data-theme="dark"] .home-editHelper {
   transition:
     background-color 0.15s ease,
     border-color 0.15s ease,
-    color 0.15s ease;
+    color 0.15s ease,
+    transform 0.15s ease;
 }
 
 .adminDashboard-searchClear svg {
@@ -2429,6 +2457,7 @@ html[data-theme="dark"] .home-editHelper {
 }
 
 .adminDashboard-searchClear:hover {
+  transform: translateY(-50%) scale(1.1);
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
 }
@@ -2438,14 +2467,25 @@ html[data-theme="dark"] .home-editHelper {
   outline-offset: 1px;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .adminDashboard-searchClear {
+    transition: none;
+  }
+
+  .adminDashboard-searchClear:hover {
+    transform: translateY(-50%);
+  }
+}
+
 .adminDashboard-searchMeta {
   color: var(--color-text-secondary);
   font-size: 0.75rem;
-  white-space: nowrap;
-  line-height: 1;
+  overflow-wrap: anywhere;
+  line-height: 1.4;
 }
 
 .adminDashboard-searchUpdating {
+  text-align: left;
   color: var(--color-text-secondary);
   font-size: 0.75rem;
   white-space: nowrap;
@@ -3074,23 +3114,6 @@ html[data-theme="dark"] .adminDashboard-filterChip--active {
   border-radius: 0.4rem;
 }
 
-.adminDashboard-skeleton--mobileTitle {
-  width: 85%;
-  height: 1rem;
-  max-width: 16rem;
-}
-
-.adminDashboard-skeleton--metaLabel {
-  width: 2.5rem;
-  height: 0.7rem;
-  margin-bottom: 0.25rem;
-}
-
-.adminDashboard-skeleton--metaValue {
-  width: 3rem;
-  height: 0.9rem;
-}
-
 .adminDashboard-skeletonBody tr:nth-child(1) .adminDashboard-skeleton {
   animation-delay: 0s;
 }
@@ -3109,23 +3132,6 @@ html[data-theme="dark"] .adminDashboard-filterChip--active {
 
 .adminDashboard-skeletonBody tr:nth-child(5) .adminDashboard-skeleton {
   animation-delay: 0.4s;
-}
-
-.adminDashboard-mobileCard--skeleton:nth-child(1) .adminDashboard-skeleton {
-  animation-delay: 0s;
-}
-
-.adminDashboard-mobileCard--skeleton:nth-child(2) .adminDashboard-skeleton {
-  animation-delay: 0.15s;
-}
-
-.adminDashboard-mobileCard--skeleton:nth-child(3) .adminDashboard-skeleton {
-  animation-delay: 0.3s;
-}
-
-.adminDashboard-mobileCard--skeleton {
-  pointer-events: none;
-  opacity: 0.85;
 }
 
 .adminDashboard-tableRow {
@@ -3187,17 +3193,6 @@ html[data-theme="dark"] .adminDashboard-filterChip--active {
     transform 0.2s ease;
 }
 
-.adminDashboard-mobileCard {
-  transition:
-    box-shadow 0.15s ease,
-    border-color 0.15s ease;
-}
-
-.adminDashboard-mobileCard:hover {
-  border-color: var(--color-bg-quaternary, var(--color-bg-tertiary));
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
 .adminDashboard-copyButton {
   transition:
     background 0.15s ease,
@@ -3233,16 +3228,6 @@ html[data-theme="dark"] .adminDashboard-filterChip--active {
     box-shadow 0.15s ease;
 }
 
-.adminDashboard-searchClear {
-  transition:
-    opacity 0.15s ease,
-    transform 0.15s ease;
-}
-
-.adminDashboard-searchClear:hover {
-  transform: scale(1.1);
-}
-
 html[data-theme="dark"] .adminDashboard-skeleton {
   background: linear-gradient(
     90deg,
@@ -3257,21 +3242,12 @@ html[data-theme="dark"] .adminDashboard-tableRow:hover {
   background-color: var(--color-bg-primary);
 }
 
-html[data-theme="dark"] .adminDashboard-mobileCard:hover {
-  border-color: var(--color-bg-quaternary, var(--color-bg-tertiary));
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-}
-
 html[data-theme="dark"] .adminDashboard-tableRow--selected {
   background-color: rgba(var(--color-accent-rgb, 96 165 250), 0.12);
 }
 
 html[data-theme="dark"] .adminDashboard-tableRow--selected:hover {
   background-color: rgba(var(--color-accent-rgb, 96 165 250), 0.18);
-}
-
-html[data-theme="dark"] .adminDashboard-mobileCardHeader--selected {
-  background-color: rgba(var(--color-accent-rgb, 96 165 250), 0.1);
 }
 
 html[data-theme="dark"] .adminDashboard-bulkActions {
@@ -3308,12 +3284,166 @@ html[data-theme="dark"]
   background: var(--color-bg-primary);
 }
 
-.adminDashboard-mobileCards {
+.adminDashboard-tableWrapper {
+  min-width: 44rem;
+}
+
+.adminDashboard-cellCaption {
   display: none;
 }
 
-.adminDashboard-tableWrapper {
-  min-width: 44rem;
+.adminDashboard-selectAllLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* One table tree becomes cards; resizing preserves selection and disclosures. */
+@media (max-width: 600px) {
+  .adminDashboard-tableScrollRegion {
+    overflow: visible;
+    max-height: none;
+    border: 0;
+    background: transparent;
+  }
+
+  .adminDashboard-tableWrapper {
+    min-width: 0;
+  }
+
+  .adminDashboard-responsiveTable {
+    display: block;
+    width: 100%;
+  }
+
+  .adminDashboard-responsiveTable thead,
+  .adminDashboard-responsiveTable thead tr {
+    display: block;
+    position: static;
+  }
+
+  /* Keep column headers in the accessibility tree while showing select-all. */
+  .adminDashboard-responsiveTable thead th:not(.adminDashboard-selectHeader) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .adminDashboard-responsiveTable .adminDashboard-selectHeader {
+    display: block;
+    width: auto;
+    text-align: left;
+    border: 0;
+    padding: 0.5rem 0;
+  }
+
+  .adminDashboard-responsiveTable .adminDashboard-rowGroup,
+  .adminDashboard-responsiveTable .adminDashboard-tableRow--skeleton {
+    display: block;
+    margin-bottom: 0.75rem;
+    border: 1px solid var(--color-bg-tertiary);
+    border-radius: 0.65rem;
+    background: var(--color-bg-primary);
+  }
+
+  .adminDashboard-responsiveTable .adminDashboard-tableRow {
+    display: grid;
+    grid-template-columns:
+      2.25rem 2.25rem minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr)
+      2.5rem;
+    align-items: center;
+    padding: 0.5rem;
+    border-radius: 0.65rem;
+  }
+
+  .adminDashboard-responsiveTable .adminDashboard-tableRow > td {
+    display: block;
+    min-width: 0;
+    width: auto;
+    max-width: none;
+    border: 0;
+    padding: 0.35rem;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .adminDashboard-responsiveTable .adminDashboard-selectCell {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .adminDashboard-responsiveTable .adminDashboard-expandCell {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .adminDashboard-responsiveTable .adminDashboard-labelCell {
+    grid-column: 3 / 6;
+    grid-row: 1;
+  }
+  .adminDashboard-responsiveTable .adminDashboard-actionsCell {
+    grid-column: 6;
+    grid-row: 1;
+  }
+  .adminDashboard-responsiveTable .adminDashboard-titleCell {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    font-weight: 600;
+  }
+  .adminDashboard-responsiveTable .adminDashboard-itemsCell {
+    grid-column: 1 / 4;
+    grid-row: 3;
+  }
+  .adminDashboard-responsiveTable .adminDashboard-visitsCell {
+    grid-column: 4;
+    grid-row: 3;
+  }
+  .adminDashboard-responsiveTable .adminDashboard-createdCell {
+    grid-column: 5 / 7;
+    grid-row: 3;
+  }
+
+  .adminDashboard-cellCaption {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    margin-bottom: 0.2rem;
+  }
+
+  .adminDashboard-selectAllLabel .adminDashboard-cellCaption {
+    margin: 0;
+  }
+
+  .adminDashboard-responsiveTable .adminDashboard-detailsRow:not([hidden]),
+  .adminDashboard-responsiveTable .adminDashboard-expandedCell,
+  .adminDashboard-responsiveTable .adminDashboard-skeletonBody {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .adminDashboard-responsiveTable .adminDashboard-expandedItem {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .adminDashboard-responsiveTable .adminDashboard-expandedItems {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .adminDashboard-responsiveTable .adminDashboard-itemValue {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .adminDashboard-responsiveTable .adminDashboard-skeleton {
+    max-width: 100%;
+  }
 }
 
 .adminDashboard-table {
@@ -3753,10 +3883,6 @@ html[data-theme="dark"] .adminDashboard-shell {
     padding: 1rem;
   }
 
-  .adminDashboard-searchRow {
-    flex-wrap: wrap;
-  }
-
   .adminAuth-header,
   .adminDashboard-header {
     flex-direction: column;
@@ -3767,10 +3893,6 @@ html[data-theme="dark"] .adminDashboard-shell {
   .adminDashboard-headerActions {
     width: 100%;
     justify-content: space-between;
-  }
-
-  .adminDashboard-searchInputWrap {
-    min-width: 100%;
   }
 
   .adminDashboard-filterChips {
@@ -3899,88 +4021,6 @@ html[data-theme="dark"] .adminDashboard-shell {
   .adminDashboard-stateAction {
     padding: 0.5rem 0.95rem;
     font-size: 0.85rem;
-  }
-
-  .adminDashboard-tableScrollRegion {
-    display: none;
-  }
-
-  .adminDashboard-mobileCards {
-    display: grid;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
-  }
-
-  .adminDashboard-mobileCard {
-    border: 1px solid var(--color-bg-tertiary);
-    border-radius: 0.65rem;
-    overflow: hidden;
-    background: var(--color-bg-primary);
-  }
-
-  .adminDashboard-mobileCardHeader {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
-    padding: 0.6rem 0.75rem;
-    border-bottom: 1px solid var(--color-bg-tertiary);
-    cursor: pointer;
-  }
-
-  .adminDashboard-mobileCardTitleWrap {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
-    min-width: 0;
-  }
-
-  .adminDashboard-mobileCardBody {
-    padding: 0.7rem 0.75rem;
-    display: grid;
-    gap: 0.55rem;
-  }
-
-  .adminDashboard-mobileCardListingTitle {
-    margin: 0;
-    color: var(--color-text-primary);
-    font-size: 1rem;
-    font-weight: 600;
-    line-height: 1.2;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .adminDashboard-mobileCardMetaGrid {
-    margin: 0;
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.5rem;
-  }
-
-  .adminDashboard-mobileCardMetaItem {
-    margin: 0;
-  }
-
-  .adminDashboard-mobileCardMetaItem dt {
-    color: var(--color-text-secondary);
-    font-size: 0.68rem;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    margin-bottom: 0.2rem;
-  }
-
-  .adminDashboard-mobileCardMetaItem dd {
-    margin: 0;
-    color: var(--color-text-primary);
-    font-size: 0.86rem;
-    font-weight: 600;
-  }
-
-  .adminDashboard-mobileExpandedPanel {
-    padding-top: 0.55rem;
-    padding-bottom: 0.6rem;
   }
 
   .toggle {
