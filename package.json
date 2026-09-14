@@ -1,6 +1,6 @@
 {
   "name": "misorter",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "private": true,
   "scripts": {
     "dev": "concurrently -n worker,vite -c blue,green \"bun run dev:worker\" \"bun run dev:client\"",
@@ -29,8 +29,8 @@
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.116.0",
     "@tanstack/react-query": "^5.102.8",
-    "@tanstack/react-router": "^1.170.35",
-    "@tanstack/router-devtools": "^1.167.1",
+    "@tanstack/react-router": "^1.170.36",
+    "@tanstack/router-devtools": "^1.167.2",
     "@trpc/client": "^11.18.0",
     "@trpc/react-query": "^11.18.0",
     "@trpc/tanstack-react-query": "^11.18.0",
@@ -48,7 +48,7 @@
     "@eslint/compat": "^2.1.1",
     "@eslint/js": "9.39.5",
     "@tailwindcss/postcss": "^4.3.3",
-    "@tanstack/router-plugin": "^1.168.37",
+    "@tanstack/router-plugin": "^1.168.38",
     "@trpc/server": "^11.18.0",
     "@types/bun": "^1.4.2",
     "@types/cors": "^2.8.19",
