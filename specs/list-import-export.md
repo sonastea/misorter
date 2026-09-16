@@ -4,6 +4,8 @@ Status: Draft implementation spec; proposed defaults for review
 
 Date: 2026-09-15
 
+Implementation progress: [v3.1.0 checklist](list-import-export-todo.md)
+
 ## 1. Recommendation
 
 Support **one canonical, versioned JSON format** for reliable backups and
