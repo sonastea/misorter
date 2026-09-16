@@ -7,6 +7,14 @@ const Items = ({ items, count }: { items: Item[]; count: number }) => {
   const [isLongPress, setIsLongPress] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [isLongPress]);
+
   if (items.length === 0) {
     return <span>{count}</span>;
   }
@@ -40,14 +48,6 @@ const Items = ({ items, count }: { items: Item[]; count: number }) => {
       setShowDropdown(false);
     }
   };
-
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, [isLongPress]);
 
   return (
     <span
