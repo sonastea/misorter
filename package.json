@@ -3,6 +3,8 @@
   "version": "3.0.3",
   "private": true,
   "scripts": {
+    "test": "bun test",
+    "test:list-transfer": "bun test tests/list-transfer",
     "dev": "concurrently -n worker,vite -c blue,green \"bun run dev:worker\" \"bun run dev:client\"",
     "dev:client": "vite",
     "dev:worker": "wrangler dev",
@@ -56,6 +58,7 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.1",
+    "ajv": "8.17.1",
     "concurrently": "^10.0.5",
     "cors": "^2.8.6",
     "dotenv-cli": "^11.0.0",

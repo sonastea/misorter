@@ -1,0 +1,8 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "types": ["bun"],
+    "ignoreDeprecations": "6.0"
+  },
+  "include": ["./**/*.ts", "../../src/utils/list-transfer/**/*.ts"]
+}

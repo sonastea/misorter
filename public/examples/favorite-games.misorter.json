@@ -1,0 +1,10 @@
+{
+  "format": "misorter-list",
+  "version": 1,
+  "title": "Favorite games",
+  "items": [
+    { "value": "Hades" },
+    { "value": "Outer Wilds" },
+    { "value": "Disco Elysium" }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "format": "misorter-list",
+  "version": 1,
+  "title": "  Games 🎮 é  ",
+  "items": [
+    {
+      "value": "Zulu"
+    },
+    {
+      "value": "  Alpha\t"
+    },
+    {
+      "value": "Zulu"
+    },
+    {
+      "value": "Quotes: \"hi\" \\ path"
+    },
+    {
+      "value": "first\r\nsecond\nthird"
+    },
+    {
+      "value": "😀 é é <b>literal</b>"
+    }
+  ]
+}
