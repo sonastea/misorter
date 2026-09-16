@@ -83,10 +83,12 @@ test("clipboard copies the selected export format and recovers from a denied wri
     name: "Copy to clipboard",
     exact: true,
   });
+  const copyPosition = await copyButton.boundingBox();
   await copyButton.click();
   await expect(page.getByRole("status")).toHaveText(
     "JSON copied to clipboard."
   );
+  expect(await copyButton.boundingBox()).toEqual(copyPosition);
   expect(
     JSON.parse(await page.evaluate(() => navigator.clipboard.readText()))
   ).toEqual({
@@ -150,7 +152,9 @@ test("CSV mapping, conflicting title repair and actual spreadsheet/text download
   await page.getByRole("button", { name: /^Use imported list/ }).click();
   await page.getByRole("button", { name: "Export list", exact: true }).click();
   await page.getByLabel("Export format").selectOption("csv");
-  await expect(page.getByRole("status")).toContainText("apostrophe");
+  await expect(
+    page.getByRole("status").filter({ hasText: "apostrophe" })
+  ).toContainText("apostrophe");
   const csvDownload = page.waitForEvent("download");
   await page.getByRole("button", { name: "Download CSV" }).click();
   const csv = await csvDownload;
@@ -305,7 +309,9 @@ test("visible file picker opens and previews a selected JSON file", async ({
     mimeType: "application/json",
     buffer: Buffer.from(native("Selected file", ["First", "Second"])),
   });
-  await expect(page.getByRole("status")).toHaveText("my-list.json");
+  await expect(
+    page.getByRole("status").filter({ hasText: "my-list.json" })
+  ).toHaveText("my-list.json");
   await page.getByRole("button", { name: "Preview list", exact: true }).click();
   await expect(page.getByLabel("Preview title")).toHaveValue("Selected file");
   await expect(

@@ -13,6 +13,7 @@ import { type ListDraft } from "@/utils/list-transfer/schema";
 import { serializeList } from "@/utils/list-transfer/serialize";
 import type { TransferFormat } from "@/utils/list-transfer/adapters";
 import { downloadList } from "@/utils/list-transfer/download";
+import ListTransferStatus from "@/components/ListTransferStatus";
 
 export default function ListExportDialog({
   draft,
@@ -22,6 +23,7 @@ export default function ListExportDialog({
   onClose: () => void;
 }) {
   const [error, setError] = useState("");
+  const [downloadStarted, setDownloadStarted] = useState(false);
   const [format, setFormat] = useState<TransferFormat>("json");
   const [copyState, setCopyState] = useState<"idle" | "copying" | "copied">(
     "idle"
@@ -38,6 +40,7 @@ export default function ListExportDialog({
     if (!result.success || copyState === "copying") return;
     const request = ++copyRevision.current;
     setCopyState("copying");
+    setDownloadStarted(false);
     setError("");
     try {
       await navigator.clipboard.writeText(result.text);
@@ -75,6 +78,7 @@ export default function ListExportDialog({
               onChange={(event) => {
                 copyRevision.current++;
                 setCopyState("idle");
+                setDownloadStarted(false);
                 setFormat(event.target.value as TransferFormat);
                 setError("");
               }}
@@ -109,14 +113,25 @@ export default function ListExportDialog({
               </ul>
             </div>
           )}
-          {error && <p role="alert">{error}</p>}
-          {copyState !== "idle" && (
-            <p className="transfer-help" role="status">
-              {copyState === "copied"
-                ? `${format === "text" ? "Plain text" : format.toUpperCase()} copied to clipboard.`
-                : "Copying to clipboard…"}
-            </p>
-          )}
+          <ListTransferStatus
+            tone={
+              error
+                ? "error"
+                : copyState === "copied" || downloadStarted
+                  ? "success"
+                  : "info"
+            }
+            message={
+              error ||
+              (downloadStarted
+                ? "Download started."
+                : copyState === "copied"
+                  ? `${format === "text" ? "Plain text" : format.toUpperCase()} copied to clipboard.`
+                  : copyState === "copying"
+                    ? "Copying to clipboard…"
+                    : "")
+            }
+          />
           <div className="transfer-actions transfer-footer transfer-export-actions">
             <Button className="transfer-button" onClick={onClose}>
               Close
@@ -149,6 +164,9 @@ export default function ListExportDialog({
               disabled={!result.success}
               onClick={() => {
                 if (!result.success) return;
+                copyRevision.current++;
+                setCopyState("idle");
+                setDownloadStarted(false);
                 try {
                   downloadList(
                     result.text,
@@ -157,6 +175,7 @@ export default function ListExportDialog({
                     format
                   );
                   setError("");
+                  setDownloadStarted(true);
                 } catch {
                   setError(
                     "The download could not be started. Your list is unchanged. Try downloading again."

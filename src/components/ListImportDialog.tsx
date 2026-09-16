@@ -11,6 +11,7 @@ import {
   Textarea,
 } from "@headlessui/react";
 import { useEffect, useRef, useState } from "react";
+import ListTransferStatus from "@/components/ListTransferStatus";
 import {
   parseList,
   detectFormat,
@@ -351,6 +352,28 @@ export default function ListImportDialog({
                 )}
               </div>
               <div className="transfer-import-parse">
+                <ListTransferStatus
+                  tone={
+                    pending
+                      ? "info"
+                      : sourceChanged
+                        ? "warning"
+                        : canApply
+                          ? "success"
+                          : "info"
+                  }
+                  message={
+                    pending
+                      ? "Reading list…"
+                      : sourceChanged && preview
+                        ? "Source or options changed. Parse again."
+                        : canApply
+                          ? "Preview ready to apply."
+                          : preview || issues.length
+                            ? "Review the import issues in the preview."
+                            : ""
+                  }
+                />
                 <Button
                   className="transfer-button"
                   disabled={pending || (!file && !source)}
