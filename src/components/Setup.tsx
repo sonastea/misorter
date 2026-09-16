@@ -136,6 +136,33 @@ const Setup = ({
           </svg>
         </button>
       </div>
+      <div
+        className="home-listUtilities"
+        role="group"
+        aria-label="List import and export"
+      >
+        <Button
+          className="home-listUtility"
+          disabled={importDisabled || creatingList}
+          onClick={() => setImportOpen(true)}
+        >
+          Import list
+        </Button>
+        <Button
+          className="home-listUtility"
+          onClick={() => {
+            // Controlled editors commit on every input, including paste and IME.
+            if (document.activeElement instanceof HTMLElement)
+              document.activeElement.blur();
+            setExportDraft({
+              title,
+              items: list.map(({ value }) => ({ value })),
+            });
+          }}
+        >
+          Export list
+        </Button>
+      </div>
       <ul className="home-listTable">
         {list &&
           list.map((item: ListItem, index) => {
@@ -186,68 +213,43 @@ const Setup = ({
           })}
       </ul>
       <div className="home-listButtons">
-        <div className="transfer-setup-actions">
-          <Button
-            className="transfer-button"
-            disabled={importDisabled || creatingList}
-            onClick={() => setImportOpen(true)}
-          >
-            Import list
-          </Button>
-          <Button
-            className="transfer-button"
-            onClick={() => {
-              // Controlled editors commit on every input, including paste and IME.
-              if (document.activeElement instanceof HTMLElement)
-                document.activeElement.blur();
-              setExportDraft({
-                title,
-                items: list.map(({ value }) => ({ value })),
-              });
-            }}
-          >
-            Export list
-          </Button>
-        </div>
-        <div className="transfer-setup-actions">
-          <button className="home-reset" onClick={resetList}>
-            Reset
-          </button>
-          <button
-            className="home-start"
-            onClick={checkList}
-            disabled={creatingList}
-          >
-            {creatingList ? (
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 38 38"
-                xmlns="http://www.w3.org/2000/svg"
-                stroke="currentColor"
-                aria-label="Loading"
-              >
-                <g fill="none" fillRule="evenodd">
-                  <g transform="translate(1 1)" strokeWidth="2">
-                    <circle strokeOpacity=".5" cx="18" cy="18" r="18" />
-                    <path d="M36 18c0-9.94-8.06-18-18-18">
-                      <animateTransform
-                        attributeName="transform"
-                        type="rotate"
-                        from="0 18 18"
-                        to="360 18 18"
-                        dur="1s"
-                        repeatCount="indefinite"
-                      />
-                    </path>
-                  </g>
+        <button className="home-reset" onClick={resetList}>
+          Reset
+        </button>
+        <button
+          className="home-start"
+          onClick={checkList}
+          disabled={creatingList}
+        >
+          {creatingList ? (
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 38 38"
+              xmlns="http://www.w3.org/2000/svg"
+              stroke="currentColor"
+              aria-label="Loading"
+            >
+              <g fill="none" fillRule="evenodd">
+                <g transform="translate(1 1)" strokeWidth="2">
+                  <circle strokeOpacity=".5" cx="18" cy="18" r="18" />
+                  <path d="M36 18c0-9.94-8.06-18-18-18">
+                    <animateTransform
+                      attributeName="transform"
+                      type="rotate"
+                      from="0 18 18"
+                      to="360 18 18"
+                      dur="1s"
+                      repeatCount="indefinite"
+                    />
+                  </path>
                 </g>
-              </svg>
-            ) : (
-              "Start"
-            )}
-          </button>
-        </div>
+              </g>
+            </svg>
+          ) : (
+            "Start"
+          )}
+        </button>
       </div>
       {importOpen && (
         <ListImportDialog
