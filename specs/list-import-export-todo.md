@@ -1,12 +1,12 @@
 # v3.1.0 — List import/export progress
 
-Last updated: 2026-09-15
+Last updated: 2026-09-16
 
 Specification: [List import/export](list-import-export.md)
 
-**Current state:** milestones 1 and 2 are complete. Native JSON import/export,
-editable previews, and local draft detachment are implemented and verified. CSV
-and plain-text adapters are next. The `3.1.0` package
+**Current state:** milestones 1–3 are complete. Native JSON, CSV, and plain-text
+import/export, editable previews, and local draft detachment are implemented and
+verified. Persistence alignment is next. The `3.1.0` package
 version identifies the target release, not release readiness.
 
 ## Release scope and tracking
@@ -14,7 +14,7 @@ version identifies the target release, not release readiness.
 - [x] Set `package.json` to `3.1.0`.
 - [x] Complete milestone 1: portable contract.
 - [x] Complete milestone 2: core JSON UI and draft handling.
-- [ ] Complete milestone 3: CSV and plain-text adapters.
+- [x] Complete milestone 3: CSV and plain-text adapters.
 - [ ] Complete milestone 4: persistence alignment.
 - [ ] Complete milestone 5: documentation and release verification.
 
@@ -108,34 +108,34 @@ commands, results, and remaining blockers as work proceeds.
 - [x] Check keyboard/focus, mobile layout, light/dark themes, error announcements,
       and large-preview usability.
 
-## 3. CSV and plain-text adapters — pending
+## 3. CSV and plain-text adapters — complete
 
 ### Implementation
 
-- [ ] Select and pin a maintained browser-compatible CSV parser.
-- [ ] Add Auto/JSON/CSV/Text selection and extension/content detection exactly as
+- [x] Select and pin a maintained browser-compatible CSV parser.
+- [x] Add Auto/JSON/CSV/Text selection and extension/content detection exactly as
       specified, including fallback titles and no comma-based guessing.
-- [ ] Add CSV parsing with header toggle, item/title column mapping, unambiguous
+- [x] Add CSV parsing with header toggle, item/title column mapping, unambiguous
       suggestions, conflicting-title resolution, source records, and unused-column
       notices. Reject malformed quotes/widths and invalid selected cells.
-- [ ] Add text parsing with normalized line endings, visible blank-line counts,
+- [x] Add text parsing with normalized line endings, visible blank-line counts,
       literal punctuation preservation, and opt-in list-marker removal.
-- [ ] Add spreadsheet-safe CSV export with repeated titles, CRLF, standard quoting,
+- [x] Add spreadsheet-safe CSV export with repeated titles, CRLF, standard quoting,
       formula-prefix escaping, and an explanation when escaping changes content.
-- [ ] Add items-only TXT export, disable it for embedded CR/LF, and enforce every
+- [x] Add items-only TXT export, disable it for embedded CR/LF, and enforce every
       serialized download's byte limit with actionable format alternatives.
 
 ### Verification
 
-- [ ] Cover CSV BOM/quoting/multiline fields, mapping ambiguity, repeated/conflicting
+- [x] Cover CSV BOM/quoting/multiline fields, mapping ambiguity, repeated/conflicting
       titles, empty records/cells, malformed records, order, and duplicates.
-- [ ] Verify formula escaping in titles/values, including leading whitespace, and
+- [x] Verify formula escaping in titles/values, including leading whitespace, and
       preservation of literal apostrophes on import.
-- [ ] Verify text line endings, literal commas/tabs/semicolons, blank notices, and
+- [x] Verify text line endings, literal commas/tabs/semicolons, blank notices, and
       exactly one supported marker removed only when requested.
-- [ ] Verify fallback titles, explicit CSV selection for pasted CSV, native-error
+- [x] Verify fallback titles, explicit CSV selection for pasted CSV, native-error
       handling without text fallback, TXT multiline refusal, and download limits.
-- [ ] Exercise mapping/options and actual CSV/TXT downloads in browser workflows;
+- [x] Exercise mapping/options and actual CSV/TXT downloads in browser workflows;
       keep detailed data semantics in the pure-contract suite.
 
 ## 4. Persistence alignment — pending
@@ -258,6 +258,50 @@ milestones 3–5. These browser tests establish frontend integration, including 
 fresh create request, but do not establish database atomicity, persisted ordering,
 source database immutability, or reload from a newly persisted label. Those real
 database guarantees remain assigned to milestone 4.
+
+### Milestone 3 verification (2026-09-16)
+
+Contract design: [adapter case map](list-transfer-adapter-cases.md). Detailed
+format semantics belong to the pure contract suite; browser cases verify controls,
+editable title-conflict resolution, stale reads, and actual downloaded bytes.
+
+Implementation notes:
+
+- Pinned `csv-parse@7.0.2`, using its browser ESM synchronous entry point. Its
+  strict quote parsing is combined with explicit record-width validation after
+  omitting wholly empty records. Parsing stops above the item limit.
+- CSV defaults to a header row. Ambiguous item columns require explicit mapping;
+  conflicting imported titles require editing the preview title in replace mode.
+  Append retains the current title. Mapping/options changes require an explicit
+  reparse, with stale file results ignored.
+- Text normalizes line endings and preserves punctuation; marker removal is
+  opt-in. A terminal newline ends the last line rather than adding a blank item.
+- CSV export explains spreadsheet escaping; TXT explains title omission and
+  refuses embedded line breaks. Serialized CSV has independently checked
+  below/at/above 1 MiB boundary cases, including repeated title overhead.
+- Existing field/button styles and Merriweather Sans typography are reused.
+  Added only wrapping column controls, checkbox/notices styles, and body-font
+  inheritance for the now multi-format source textarea. Inspected desktop light,
+  mobile light/dark import controls, and mobile dark export visually.
+
+| Check                                                  | Result                                                                                                                                                                         |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `bun run test`                                         | Passed: all Bun contracts and Playwright workflows, including CSV mapping/title correction/download, text marker options, TXT refusal, and parser-option stale-read protection |
+| `bunx tsc --project tests/list-transfer/tsconfig.json` | Passed                                                                                                                                                                         |
+| `bunx tsc --project tests/browser/tsconfig.json`       | Passed                                                                                                                                                                         |
+| Focused ESLint and `bun run lint`                      | Passed; repository-wide lint no longer reproduces the milestone 2 blockers                                                                                                     |
+| Prettier check of milestone files                      | Passed                                                                                                                                                                         |
+| `bunx tsc --noEmit --ignoreDeprecations 6.0`           | Blocked by existing database/router types, admin code, and NoticeBanner; no errors in changed feature files                                                                    |
+| `bun run build`                                        | Passed                                                                                                                                                                         |
+| `bun run build:worker`                                 | Passed (dry run)                                                                                                                                                               |
+| Mobile/theme checks                                    | Passed wrapping/no-overflow checks for CSV mappings in both themes; existing keyboard/focus and large-preview workflows also pass                                              |
+
+Targeted fault check: temporarily disabled CSV formula-prefix escaping. The
+independent golden-byte assertion failed on unescaped titles and values. Restored
+escaping and reran the complete suite successfully.
+
+Remaining release blockers: application TypeScript errors and milestones 4–5.
+Database persistence guarantees remain assigned to milestone 4.
 
 ## 6. V1.1 AI adapter — follow-up
 

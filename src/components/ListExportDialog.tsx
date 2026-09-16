@@ -4,11 +4,15 @@ import {
   Dialog,
   DialogPanel,
   DialogTitle,
+  Field,
+  Label,
+  Select,
 } from "@headlessui/react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { type ListDraft } from "@/utils/list-transfer/schema";
-import { serializeNativeJson } from "@/utils/list-transfer/serialize";
-import { downloadJson } from "@/utils/list-transfer/download";
+import { serializeList } from "@/utils/list-transfer/serialize";
+import type { TransferFormat } from "@/utils/list-transfer/adapters";
+import { downloadList } from "@/utils/list-transfer/download";
 
 export default function ListExportDialog({
   draft,
@@ -18,7 +22,34 @@ export default function ListExportDialog({
   onClose: () => void;
 }) {
   const [error, setError] = useState("");
-  const result = serializeNativeJson(draft);
+  const [format, setFormat] = useState<TransferFormat>("json");
+  const [copyState, setCopyState] = useState<"idle" | "copying" | "copied">(
+    "idle"
+  );
+  const copyRevision = useRef(0);
+  useEffect(
+    () => () => {
+      copyRevision.current++;
+    },
+    []
+  );
+  const result = serializeList(draft, format);
+  const copy = async () => {
+    if (!result.success || copyState === "copying") return;
+    const request = ++copyRevision.current;
+    setCopyState("copying");
+    setError("");
+    try {
+      await navigator.clipboard.writeText(result.text);
+      if (request === copyRevision.current) setCopyState("copied");
+    } catch {
+      if (request !== copyRevision.current) return;
+      setCopyState("idle");
+      setError(
+        "Could not copy to the clipboard. Try again or download the file instead."
+      );
+    }
+  };
   return (
     <Dialog open onClose={onClose} className="transfer-dialog">
       <div className="transfer-backdrop" aria-hidden="true" />
@@ -29,17 +60,46 @@ export default function ListExportDialog({
               Export input list
             </DialogTitle>
             <Description className="transfer-description">
-              Save an exact backup as Misorter JSON.
+              Save your input list for a backup, a spreadsheet, or another app.
             </Description>
           </header>
           <p className="transfer-description">
-            Includes the title and {draft.items.length} items in their original
-            input order, with duplicates and whitespace preserved. Rankings are
-            not included.
+            {draft.items.length} items in their original input order. Rankings
+            are not included.
           </p>
+          <Field className="transfer-field">
+            <Label>Export format</Label>
+            <Select
+              className="transfer-input"
+              value={format}
+              onChange={(event) => {
+                copyRevision.current++;
+                setCopyState("idle");
+                setFormat(event.target.value as TransferFormat);
+                setError("");
+              }}
+            >
+              <option value="json">Misorter JSON · exact backup</option>
+              <option value="csv">CSV · spreadsheet</option>
+              <option value="text">Plain text · items only</option>
+            </Select>
+            <Description className="transfer-help">
+              {format === "json"
+                ? "Preserves the title and item text exactly, including whitespace and duplicates."
+                : format === "csv"
+                  ? "Includes a title,value header and repeats the title in each row."
+                  : "Items only; title not included."}
+            </Description>
+          </Field>
+          {result.success &&
+            result.notices?.map((notice) => (
+              <p className="transfer-help" role="status" key={notice}>
+                {notice}
+              </p>
+            ))}
           {!result.success && (
             <div role="alert">
-              <p>Return to editing to fix these fields:</p>
+              <p>Before exporting:</p>
               <ul className="transfer-errors">
                 {result.issues.map((issue, index) => (
                   <li key={index}>
@@ -50,17 +110,52 @@ export default function ListExportDialog({
             </div>
           )}
           {error && <p role="alert">{error}</p>}
-          <div className="transfer-actions transfer-footer">
+          {copyState !== "idle" && (
+            <p className="transfer-help" role="status">
+              {copyState === "copied"
+                ? `${format === "text" ? "Plain text" : format.toUpperCase()} copied to clipboard.`
+                : "Copying to clipboard…"}
+            </p>
+          )}
+          <div className="transfer-actions transfer-footer transfer-export-actions">
             <Button className="transfer-button" onClick={onClose}>
               Close
             </Button>
             <Button
-              className="transfer-button transfer-primary"
+              className="transfer-button transfer-icon-button"
+              aria-label="Copy to clipboard"
+              disabled={!result.success || copyState === "copying"}
+              onClick={() => void copy()}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.75"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M9 5H6a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-3M9 3h6v4H9z"
+                />
+              </svg>
+              Copy
+            </Button>
+            <Button
+              className="transfer-button transfer-primary transfer-icon-button"
+              aria-label={`Download ${format === "text" ? "TXT" : format.toUpperCase()}`}
               disabled={!result.success}
               onClick={() => {
                 if (!result.success) return;
                 try {
-                  downloadJson(result.text, result.mediaType, draft.title);
+                  downloadList(
+                    result.text,
+                    result.mediaType,
+                    draft.title,
+                    format
+                  );
                   setError("");
                 } catch {
                   setError(
@@ -69,7 +164,21 @@ export default function ListExportDialog({
                 }
               }}
             >
-              Download JSON
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.75"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 3v12m-5-5 5 5 5-5M5 16v4a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-4"
+                />
+              </svg>
+              Download
             </Button>
           </div>
         </DialogPanel>

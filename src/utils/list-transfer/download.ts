@@ -1,4 +1,5 @@
 import { utf8ByteLength } from "@/utils/list-transfer/schema";
+import type { TransferFormat } from "@/utils/list-transfer/adapters";
 
 export function nativeFilename(title: string): string {
   const cleaned = title
@@ -17,16 +18,20 @@ export function nativeFilename(title: string): string {
 }
 
 /** Delay revocation until the browser has consumed the download navigation. */
-export function downloadJson(
+export function downloadList(
   text: string,
   mediaType: string,
-  title: string
+  title: string,
+  format: TransferFormat = "json"
 ): void {
   const anchor = document.createElement("a");
   const url = URL.createObjectURL(new Blob([text], { type: mediaType }));
   try {
     anchor.href = url;
-    anchor.download = nativeFilename(title);
+    anchor.download = nativeFilename(title).replace(
+      /\.misorter\.json$/,
+      format === "json" ? ".misorter.json" : format === "csv" ? ".csv" : ".txt"
+    );
     document.body.append(anchor);
     anchor.click();
   } finally {

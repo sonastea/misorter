@@ -44,8 +44,8 @@ async function sourceRoutes(page: Page) {
 
 async function preview(page: Page, title: string, values: string[]) {
   await page.getByRole("button", { name: "Import list", exact: true }).click();
-  await page.getByLabel("Paste JSON").fill(native(title, values));
-  await page.getByRole("button", { name: "Preview JSON", exact: true }).click();
+  await page.getByLabel("Paste list").fill(native(title, values));
+  await page.getByRole("button", { name: "Preview list", exact: true }).click();
 }
 
 async function exportList(page: Page, sorting = false) {
@@ -69,13 +69,232 @@ async function exportList(page: Page, sorting = false) {
   };
 }
 
+test("clipboard copies the selected export format and recovers from a denied write", async ({
+  page,
+  context,
+}) => {
+  await sourceRoutes(page);
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await page.goto("/");
+  await preview(page, "Clipboard list", ["Zulu", "=1+1"]);
+  await page.getByRole("button", { name: /^Use imported list/ }).click();
+  await page.getByRole("button", { name: "Export list", exact: true }).click();
+  const copyButton = page.getByRole("button", {
+    name: "Copy to clipboard",
+    exact: true,
+  });
+  await copyButton.click();
+  await expect(page.getByRole("status")).toHaveText(
+    "JSON copied to clipboard."
+  );
+  expect(
+    JSON.parse(await page.evaluate(() => navigator.clipboard.readText()))
+  ).toEqual({
+    format: "misorter-list",
+    version: 1,
+    title: "Clipboard list",
+    items: [{ value: "Zulu" }, { value: "=1+1" }],
+  });
+  await page.getByLabel("Export format").selectOption("csv");
+  await expect(
+    page.getByText("JSON copied to clipboard.", { exact: true })
+  ).toHaveCount(0);
+  await copyButton.click();
+  await expect(
+    page.getByText("CSV copied to clipboard.", { exact: true })
+  ).toBeVisible();
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
+    "title,value\r\nClipboard list,Zulu\r\nClipboard list,'=1+1\r\n"
+  );
+  await page.getByLabel("Export format").selectOption("text");
+  await page.evaluate(() => {
+    const write = navigator.clipboard.writeText.bind(navigator.clipboard);
+    navigator.clipboard.writeText = async (text: string) => {
+      navigator.clipboard.writeText = write;
+      throw new DOMException(`Denied ${text.length} bytes`, "NotAllowedError");
+    };
+  });
+  await copyButton.click();
+  await expect(page.getByRole("alert")).toContainText("Could not copy");
+  await expect(copyButton).toBeEnabled();
+  await copyButton.click();
+  await expect(page.getByRole("status")).toHaveText(
+    "Plain text copied to clipboard."
+  );
+  await expect(page.getByRole("alert")).toHaveCount(0);
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
+    "Zulu\n=1+1\n"
+  );
+});
+
+test("CSV mapping, conflicting title repair and actual spreadsheet/text downloads", async ({
+  page,
+}) => {
+  await sourceRoutes(page);
+  await page.goto("/");
+  await page.getByRole("button", { name: "Import list", exact: true }).click();
+  await page
+    .getByLabel("Paste list")
+    .fill("title,name,item\nOne,unused,Alpha\nTwo,unused,Beta");
+  await page.getByLabel("Import format").selectOption("csv");
+  await page.getByRole("button", { name: "Preview list", exact: true }).click();
+  await expect(page.getByRole("alert")).toContainText("Choose the column");
+  await page.getByLabel("Item column", { exact: true }).selectOption("2");
+  await page.getByRole("button", { name: "Preview list", exact: true }).click();
+  await expect(page.getByRole("alert")).toContainText("different titles");
+  await expect(
+    page.getByRole("button", { name: /^Use imported list/ })
+  ).toBeDisabled();
+  await page.getByLabel("Preview title").fill("Chosen");
+  await page.getByRole("textbox", { name: /^Item 2 / }).fill("=SUM(1)");
+  await page.getByRole("button", { name: /^Use imported list/ }).click();
+  await page.getByRole("button", { name: "Export list", exact: true }).click();
+  await page.getByLabel("Export format").selectOption("csv");
+  await expect(page.getByRole("status")).toContainText("apostrophe");
+  const csvDownload = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Download CSV" }).click();
+  const csv = await csvDownload;
+  expect(csv.suggestedFilename()).toBe("Chosen.csv");
+  expect(await readFile((await csv.path())!, "utf8")).toBe(
+    "title,value\r\nChosen,Alpha\r\nChosen,'=SUM(1)\r\n"
+  );
+  await page.getByLabel("Export format").selectOption("text");
+  await expect(
+    page.getByText("Items only; title not included.", { exact: true })
+  ).toBeVisible();
+  const txtDownload = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Download TXT" }).click();
+  const txt = await txtDownload;
+  expect(txt.suggestedFilename()).toBe("Chosen.txt");
+  expect(await readFile((await txt.path())!, "utf8")).toBe("Alpha\n=SUM(1)\n");
+});
+
+test("plain text options preserve commas, reparse explicitly and refuse multiline TXT", async ({
+  page,
+}) => {
+  await sourceRoutes(page);
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto("/");
+  await page.getByRole("button", { name: "Import list", exact: true }).click();
+  await page.getByLabel("Paste list").fill("- Alpha, Beta\n\n2. Gamma");
+  await page.getByRole("button", { name: "Preview list", exact: true }).click();
+  await expect(page.getByRole("textbox", { name: /^Item 1 / })).toHaveValue(
+    "- Alpha, Beta"
+  );
+  await expect(
+    page.getByRole("status").filter({ hasText: "blank line" })
+  ).toContainText("1 blank line");
+  await page.getByLabel("Remove list markers").check();
+  await expect(
+    page.getByRole("button", { name: /^Use imported list/ })
+  ).toBeDisabled();
+  await page.getByRole("button", { name: "Parse list again" }).click();
+  await expect(page.getByRole("textbox", { name: /^Item 1 / })).toHaveValue(
+    "Alpha, Beta"
+  );
+  await page.getByRole("textbox", { name: /^Item 2 / }).fill("Gamma\nDelta");
+  await page.getByRole("button", { name: /^Use imported list/ }).click();
+  await page.getByRole("button", { name: "Export list", exact: true }).click();
+  await page.getByLabel("Export format").selectOption("text");
+  await expect(page.getByRole("alert")).toContainText("Choose JSON or CSV");
+  await expect(
+    page.getByRole("button", { name: "Download TXT" })
+  ).toBeDisabled();
+  await expect(
+    page.getByRole("button", { name: "Copy to clipboard" })
+  ).toBeDisabled();
+  await page.getByLabel("Export format").selectOption("csv");
+  await expect(
+    page.getByRole("button", { name: "Download CSV" })
+  ).toBeEnabled();
+});
+
+test("CSV header and mapping options stay usable on mobile in both themes", async ({
+  page,
+}) => {
+  await sourceRoutes(page);
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto("/");
+  await page.getByRole("button", { name: "Import list", exact: true }).click();
+  await page.getByLabel("List file").setInputFiles({
+    name: "Songs.csv",
+    mimeType: "",
+    buffer: Buffer.from("Zulu,first\nAlpha,second"),
+  });
+  await page.getByLabel("First nonempty record is a header").uncheck();
+  await page.getByRole("button", { name: "Preview list", exact: true }).click();
+  await page.getByLabel("Item column", { exact: true }).selectOption("0");
+  await page.getByRole("button", { name: "Preview list", exact: true }).click();
+  await expect(page.getByLabel("Preview title")).toHaveValue("Songs");
+  await expect(page.getByRole("textbox", { name: /^Item 1 / })).toHaveValue(
+    "Zulu"
+  );
+  for (const theme of ["light", "dark"]) {
+    await page.evaluate(
+      (theme) => document.documentElement.setAttribute("data-theme", theme),
+      theme
+    );
+    expect(
+      await page
+        .getByRole("dialog")
+        .evaluate((dialog) => dialog.scrollWidth <= window.innerWidth)
+    ).toBe(true);
+    await expect(page.getByLabel("Item column", { exact: true })).toBeVisible();
+  }
+});
+
+test("changing parser options invalidates a pending file read", async ({
+  page,
+}) => {
+  await sourceRoutes(page);
+  await page.goto("/");
+  await page.evaluate(() => {
+    const original = File.prototype.arrayBuffer;
+    File.prototype.arrayBuffer = async function () {
+      const contents = await original.call(this);
+      await new Promise<void>((resolve) => {
+        Object.assign(window, { releaseAdapterRead: resolve });
+      });
+      return contents;
+    };
+  });
+  await page.getByRole("button", { name: "Import list", exact: true }).click();
+  await page.getByLabel("List file").setInputFiles({
+    name: "Songs.csv",
+    mimeType: "text/csv",
+    buffer: Buffer.from("value\nOld"),
+  });
+  await page.getByRole("button", { name: "Preview list", exact: true }).click();
+  await page.waitForFunction(() => "releaseAdapterRead" in window);
+  await page.getByLabel("Import format").selectOption("text");
+  await expect(
+    page.getByRole("button", { name: "Preview list", exact: true })
+  ).toBeEnabled();
+  await page.evaluate(() =>
+    (
+      window as unknown as { releaseAdapterRead: () => void }
+    ).releaseAdapterRead()
+  );
+  await expect(page.getByLabel("Preview title")).toHaveCount(0);
+  await page.getByLabel("Paste list").fill("- New");
+  await page.getByLabel("Remove list markers").check();
+  await page.getByRole("button", { name: "Preview list", exact: true }).click();
+  await expect(page.getByRole("textbox", { name: /^Item 1 / })).toHaveValue(
+    "New"
+  );
+  await expect(page.getByLabel("Preview title")).toHaveValue("misorter");
+  await expect(
+    page.getByRole("button", { name: /^Use imported list/ })
+  ).toBeEnabled();
+});
+
 test("visible file picker opens and previews a selected JSON file", async ({
   page,
 }) => {
   await sourceRoutes(page);
   await page.goto("/");
   await page.getByRole("button", { name: "Import list", exact: true }).click();
-  const picker = page.getByRole("button", { name: "Choose JSON file" });
+  const picker = page.getByRole("button", { name: "Choose file" });
   await expect(picker).toBeVisible();
   await picker.focus();
   const chooserPromise = page.waitForEvent("filechooser");
@@ -87,7 +306,7 @@ test("visible file picker opens and previews a selected JSON file", async ({
     buffer: Buffer.from(native("Selected file", ["First", "Second"])),
   });
   await expect(page.getByRole("status")).toHaveText("my-list.json");
-  await page.getByRole("button", { name: "Preview JSON", exact: true }).click();
+  await page.getByRole("button", { name: "Preview list", exact: true }).click();
   await expect(page.getByLabel("Preview title")).toHaveValue("Selected file");
   await expect(
     page.getByRole("button", { name: /^Use imported list/ })
@@ -168,8 +387,8 @@ test("loaded route cancels safely, rejects malformed input and detaches same-len
     .fill("Pending input");
   const historyLength = await page.evaluate(() => history.length);
   await preview(page, "Replacement", ["Beta", "Gamma"]);
-  await page.getByLabel("Paste JSON").fill("{");
-  await page.getByRole("button", { name: "Parse JSON again" }).click();
+  await page.getByLabel("Paste list").fill("{");
+  await page.getByRole("button", { name: "Parse list again" }).click();
   await expect(page.getByRole("alert")).toContainText("Invalid JSON");
   await expect(page.getByLabel("Preview title")).toHaveValue("Replacement");
   await expect(
@@ -281,27 +500,27 @@ test("a deferred file read cannot overwrite a newer source or a reopened dialog"
     };
   });
   await page.getByRole("button", { name: "Import list", exact: true }).click();
-  await page.getByLabel("JSON file").setInputFiles({
+  await page.getByLabel("List file").setInputFiles({
     name: "old.json",
     mimeType: "application/json",
     buffer: Buffer.from(native("Old", ["Old item"])),
   });
-  await page.getByRole("button", { name: "Preview JSON" }).click();
+  await page.getByRole("button", { name: "Preview list" }).click();
   await expect(
-    page.getByRole("button", { name: "Reading JSON…" })
+    page.getByRole("button", { name: "Reading list…" })
   ).toBeVisible();
-  await page.getByLabel("Paste JSON").fill(native("New", ["New item"]));
-  await page.getByRole("button", { name: "Preview JSON" }).click();
+  await page.getByLabel("Paste list").fill(native("New", ["New item"]));
+  await page.getByRole("button", { name: "Preview list" }).click();
   await page.evaluate(() =>
     (window as unknown as { releaseReads: () => Promise<void> }).releaseReads()
   );
   await expect(page.getByLabel("Preview title")).toHaveValue("New");
-  await page.getByLabel("JSON file").setInputFiles({
+  await page.getByLabel("List file").setInputFiles({
     name: "old.json",
     mimeType: "application/json",
     buffer: Buffer.from(native("Old", ["Old item"])),
   });
-  await page.getByRole("button", { name: "Parse JSON again" }).click();
+  await page.getByRole("button", { name: "Parse list again" }).click();
   await page.getByRole("button", { name: "Cancel", exact: true }).click();
   await preview(page, "Reopened", ["Kept"]);
   await page.evaluate(() =>
@@ -392,23 +611,23 @@ test("file import checks size before reading and preserves source row references
   expect((await sampleDownload).suggestedFilename()).toBe(
     "twice-this-is-for.misorter.json"
   );
-  await page.getByLabel("JSON file").setInputFiles({
+  await page.getByLabel("List file").setInputFiles({
     name: "large.json",
     mimeType: "application/json",
     buffer: Buffer.alloc(1_048_577, " "),
   });
-  await page.getByRole("button", { name: "Preview JSON" }).click();
+  await page.getByRole("button", { name: "Preview list" }).click();
   await expect(page.getByRole("alert")).toContainText(
     "Choose a file at most 1 MiB"
   );
-  await page.getByLabel("JSON file").setInputFiles({
+  await page.getByLabel("List file").setInputFiles({
     name: "valid.json",
     mimeType: "",
     buffer: Buffer.from(
       native("From file", ["Remove", "Kept\nmultiline", "Kept\nmultiline"])
     ),
   });
-  await page.getByRole("button", { name: "Preview JSON" }).click();
+  await page.getByRole("button", { name: "Preview list" }).click();
   await page
     .getByRole("button", { name: "Remove item 1", exact: true })
     .click();
@@ -441,14 +660,14 @@ test("source-only validation errors remain visible and block application", async
   ).toBeDisabled();
   const unknownField =
     '{"format":"misorter-list","version":1,"title":"List","items":[{"value":"Kept"}],"label":"source"}';
-  await page.getByLabel("Paste JSON").fill(unknownField);
-  await page.getByRole("button", { name: "Preview JSON", exact: true }).click();
+  await page.getByLabel("Paste list").fill(unknownField);
+  await page.getByRole("button", { name: "Preview list", exact: true }).click();
   await page.getByLabel("Preview title").fill("Edited");
   await expect(page.getByRole("alert")).toContainText("label");
   await expect(
     page.getByRole("button", { name: /^Use imported list/ })
   ).toBeDisabled();
-  await expect(page.getByLabel("Paste JSON")).toHaveValue(unknownField);
+  await expect(page.getByLabel("Paste list")).toHaveValue(unknownField);
 });
 
 test("import stays disabled during title/list saves and keyboard focus remains inside the dialog", async ({
