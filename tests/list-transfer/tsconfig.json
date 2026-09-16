@@ -1,8 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "types": ["bun"],
-    "ignoreDeprecations": "6.0"
+    "types": ["bun", "node", "@playwright/test"]
   },
   "include": ["./**/*.ts", "../../src/utils/list-transfer/**/*.ts"]
 }

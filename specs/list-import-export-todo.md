@@ -4,15 +4,16 @@ Last updated: 2026-09-15
 
 Specification: [List import/export](list-import-export.md)
 
-**Current state:** milestone 1 is complete. The portable contract is implemented
-and tested; user-facing import/export is the next milestone. The `3.1.0` package
+**Current state:** milestones 1 and 2 are complete. Native JSON import/export,
+editable previews, and local draft detachment are implemented and verified. CSV
+and plain-text adapters are next. The `3.1.0` package
 version identifies the target release, not release readiness.
 
 ## Release scope and tracking
 
 - [x] Set `package.json` to `3.1.0`.
 - [x] Complete milestone 1: portable contract.
-- [ ] Complete milestone 2: core JSON UI and draft handling.
+- [x] Complete milestone 2: core JSON UI and draft handling.
 - [ ] Complete milestone 3: CSV and plain-text adapters.
 - [ ] Complete milestone 4: persistence alignment.
 - [ ] Complete milestone 5: documentation and release verification.
@@ -60,51 +61,51 @@ commands, results, and remaining blockers as work proceeds.
 - [x] Pass focused tests, focused TypeScript/ESLint, formatting, client build, and
       Worker build. See the verification record below for repository-wide blockers.
 
-## 2. Core JSON UI and draft handling — next
+## 2. Core JSON UI and draft handling — complete
 
 ### Implementation
 
-- [ ] Add `ListImportDialog.tsx` with file/paste input, pre-read size checks, native
+- [x] Add `ListImportDialog.tsx` with file/paste input, pre-read size checks, native
       example download, and an editable title/item preview with source references.
-- [ ] Retain source and repairable preview on errors; expose field errors, counts,
+- [x] Retain source and repairable preview on errors; expose field errors, counts,
       duplicate notices, row removal, and multiline item editing.
-- [ ] Add replace/append selection, defaulting to replace. Validate the final
+- [x] Add replace/append selection, defaulting to replace. Validate the final
       combined draft, preserve the existing title on append, and show resulting
       count/action before apply.
-- [ ] Ignore stale reads/parses after source or option changes and closing; explain
+- [x] Ignore stale reads/parses after source or option changes and closing; explain
       that explicit re-parsing replaces preview edits.
-- [ ] Add one route-level `applyImportedList` handler: generate imported UUIDs,
+- [x] Add one route-level `applyImportedList` handler: generate imported UUIDs,
       retain existing IDs on append, clear pending input/title editing/sort state,
       reset unsaved sentinels, and clear source/featured-list identity.
-- [ ] Remove the `list` URL parameter using history replacement, preserve relevant
+- [x] Remove the `list` URL parameter using history replacement, preserve relevant
       search parameters, and guard against late source-query overwrites.
-- [ ] Disable import during initial loading or list/title saves, and restore focus
+- [x] Disable import during initial loading or list/title saves, and restore focus
       to setup after apply.
-- [ ] Replace contentEditable keydown mutation with immutable updates on input;
+- [x] Replace contentEditable keydown mutation with immutable updates on input;
       commit current editor content before taking an export snapshot.
-- [ ] Add `ListExportDialog.tsx` and `download.ts`: validated JSON export, specific
+- [x] Add `ListExportDialog.tsx` and `download.ts`: validated JSON export, specific
       invalid-draft reasons, sanitized/bounded filenames, Blob downloads, object
       URL cleanup, and retryable failures.
-- [ ] Add setup import/export actions and pass input title/items to Sort for an
+- [x] Add setup import/export actions and pass input title/items to Sort for an
       explicitly named “Export input list” action.
-- [ ] Use Headless UI and shared themed CSS; provide accessible names, announced
+- [x] Use Headless UI and shared themed CSS; provide accessible names, announced
       errors, keyboard/focus support, and a bounded mobile-friendly preview.
 
 ### Verification
 
-- [ ] Add focused append/replace contract cases, including combined count/size
+- [x] Add focused append/replace contract cases, including combined count/size
       overflow where each draft separately passes validation.
-- [ ] Exercise actual import/apply/download workflows, anonymous use, and latest
+- [x] Exercise actual import/apply/download workflows, anonymous use, and latest
       typed/pasted item edits in browser tests.
-- [ ] Verify cancel, parse failure, and controlled stale-response ordering preserve
+- [x] Verify cancel, parse failure, and controlled stale-response ordering preserve
       the active draft and URL; preview edits must revalidate before apply.
-- [ ] Verify draft detachment, same-length replacement, append identity handling,
+- [x] Verify draft detachment, same-length replacement, append identity handling,
       and late source-query protection at the route integration boundary.
-- [ ] Verify local parsing/export works offline once loaded and causes no list
+- [x] Verify local parsing/export works offline once loaded and causes no list
       creation, retrieval, or visit requests.
-- [ ] Verify exports during/after sorting contain original input order, using a
+- [x] Verify exports during/after sorting contain original input order, using a
       result order that differs from the input order.
-- [ ] Check keyboard/focus, mobile layout, light/dark themes, error announcements,
+- [x] Check keyboard/focus, mobile layout, light/dark themes, error announcements,
       and large-preview usability.
 
 ## 3. CSV and plain-text adapters — pending
@@ -197,6 +198,66 @@ checks at implementation milestones. The focused TypeScript check does not repla
 the application check. For documentation/version-only updates, check formatting,
 links, and version metadata. Record unavailable integration environments rather
 than claiming mocked transactions prove database guarantees.
+
+### Milestone 2 verification (2026-09-15)
+
+Contract design: [core UI case map](list-transfer-ui-cases.md), authored before
+implementation inspection. Detailed native semantics remain in milestone 1's
+contract suite. New pure cases own combined count/byte limits, replace/append
+content and UUID relationships, retained-title validation, and portable filenames.
+
+Implementation notes:
+
+- Item editors are controlled multiline textareas, with immutable updates on every
+  input. Exports take a committed value snapshot.
+- Previews render 50 rows per page within a bounded scroll viewport. Source JSON
+  array indexes remain attached to rows after removal. Native structural errors
+  remain blocking; editable field errors are revalidated. Append validates the
+  retained title and disables the unused preview title.
+- Filenames have an 80-code-point / 180-byte stem bound, with no path separators
+  or control characters. Object URLs are revoked after both successful and failed
+  download attempts.
+- Browser tests run the real frontend and intercept external tRPC responses only.
+  File reads and failed browser downloads are controlled at their platform
+  boundaries. No parser, serializer, or route state transition is mocked.
+
+| Check                                                  | Result                                                                                                                                                                                                                                                                                |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `bun run test`                                         | Passed: Bun contracts plus Playwright browser workflows                                                                                                                                                                                                                               |
+| `bun run test:list-transfer`                           | Passed; expanded contract cases also passed in the final complete run                                                                                                                                                                                                                 |
+| `bun run test:browser`                                 | Passed: file/paste/apply/download, actual clipboard paste plus final typed character, offline anonymous operation, invalid export reasons, source-only errors, removal/source references, and example download                                                                        |
+| Route/browser integration                              | Passed: cancel and failure preserve draft/URL; same-length replacement removes only `list` without pushing history; title cancel/save stays local; Start submits imported values to create; append keeps title/order/duplicates; late source response cannot overwrite accepted draft |
+| Async/resource boundaries                              | Passed: controlled stale file completion after source change and close; import unavailable during initial load and disabled during title/list saves; failed download retry and object URL cleanup                                                                                     |
+| Sorting export                                         | Passed before and after ranking Alpha above Zulu, while exported input remains Zulu then Alpha                                                                                                                                                                                        |
+| Accessibility/layout                                   | Passed keyboard open/Tab containment/Escape/focus restoration, alert visibility, 1,000-row pagination, mobile overflow checks; visually inspected light/dark mobile and desktop dialogs, setup controls, and export                                                                   |
+| `bunx tsc --project tests/list-transfer/tsconfig.json` | Passed                                                                                                                                                                                                                                                                                |
+| `bunx tsc --project tests/browser/tsconfig.json`       | Passed                                                                                                                                                                                                                                                                                |
+| Focused ESLint and Prettier                            | Passed for milestone files                                                                                                                                                                                                                                                            |
+| `bunx tsc --noEmit --ignoreDeprecations 6.0`           | Still blocked by existing database/router, admin, and NoticeBanner errors; no errors in changed feature files                                                                                                                                                                         |
+| `bun run lint`                                         | Still blocked by existing hook violations in `src/components/ThemeToggle.tsx` and `src/components/admin/Items.tsx`                                                                                                                                                                    |
+| `bun run build`                                        | Passed                                                                                                                                                                                                                                                                                |
+| `bun run build:worker`                                 | Passed (dry run)                                                                                                                                                                                                                                                                      |
+
+Targeted fault check: temporarily retaining `currentListData` during import caused
+the same-length route workflow to fail because a subsequent title edit sent
+`listing.updateTitle` to the source list. Restored detachment and reran the complete
+suite successfully. This verifies an identity regression is detected through its
+observable network side effect.
+
+Fresh setup: run `bun install` and `bunx playwright install chromium` before the
+browser suite. `bun run test` now includes both test runners; `.pw.ts` browser files
+are intentionally outside Bun's direct test discovery. Playwright starts Vite when
+needed. The focused lint command is:
+
+```sh
+bunx eslint src/utils/list-transfer src/components/ListImportDialog.tsx src/components/ListExportDialog.tsx src/components/Setup.tsx src/components/Sort.tsx src/routes/index.tsx tests/list-transfer tests/browser playwright.config.ts
+```
+
+Remaining release blockers: repository-wide TypeScript/lint errors above and
+milestones 3–5. These browser tests establish frontend integration, including the
+fresh create request, but do not establish database atomicity, persisted ordering,
+source database immutability, or reload from a newly persisted label. Those real
+database guarantees remain assigned to milestone 4.
 
 ## 6. V1.1 AI adapter — follow-up
 

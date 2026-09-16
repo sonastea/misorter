@@ -16,6 +16,8 @@ import DownloadAsPngSkeleton from "./DownloadAsPngSkeleton";
 import ConfirmModal from "./ConfirmModal";
 import TwitchPollButton from "@/components/CreatePollButtonContainer";
 import ShareLinkButton from "@/components/ShareLinkButton";
+import { Button } from "@headlessui/react";
+import ListExportDialog from "@/components/ListExportDialog";
 
 const DownloadAsPng = lazy(() => import("../components/DownloadAsPngButton"));
 
@@ -54,9 +56,11 @@ const createSortEngine = (): SortEngine => {
 };
 
 const Sort = ({
+  title,
   ogList,
   setStartSort,
 }: {
+  title: string;
   ogList: ListItem[];
   setStartSort: (value: boolean) => void;
 }) => {
@@ -141,6 +145,7 @@ const Sort = ({
 
   return (
     <SortSession
+      title={title}
       key={session.version}
       ogList={ogList}
       setStartSort={setStartSort}
@@ -150,14 +155,17 @@ const Sort = ({
 };
 
 const SortSession = ({
+  title,
   ogList,
   setStartSort,
   isLoggedIn,
 }: {
+  title: string;
   ogList: ListItem[];
   setStartSort: (value: boolean) => void;
   isLoggedIn: boolean;
 }) => {
+  const [exportOpen, setExportOpen] = useState(false);
   // Thanks to biasorter.tumblr.com for the code
   // https://biasorter.tumblr.com/
   function initList(eng: SortEngine, ogList: ListItem[]) {
@@ -391,6 +399,18 @@ const SortSession = ({
           option2={option2}
         />
         <ShareLinkButton />
+        <Button
+          className="transfer-button transfer-sort-export"
+          onClick={() => setExportOpen(true)}
+        >
+          Export input list
+        </Button>
+        {exportOpen && (
+          <ListExportDialog
+            draft={{ title, items: ogList.map(({ value }) => ({ value })) }}
+            onClose={() => setExportOpen(false)}
+          />
+        )}
         <div
           className="sort-leftField"
           onClick={() => {

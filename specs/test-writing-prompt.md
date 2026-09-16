@@ -55,6 +55,12 @@ contract or bug report. The bug's current output is not the expected output.
 
 ## 3. Eliminate redundant coverage
 
+Default to mostly fast Bun unit/contract tests and a small Playwright suite for
+critical user journeys. Keep detailed functional cases below the browser; use
+Playwright to prove that controls, route state, and browser APIs work together.
+There is no target test count or layer ratio: each browser case must catch a
+distinct integration failure that the lower-level tests cannot establish.
+
 - Assign each rule a primary owning layer: pure contract tests for data semantics,
   integration tests for boundary enforcement/persistence, and browser tests for
   interaction and download behavior.
@@ -64,6 +70,15 @@ contract or bug report. The bug's current output is not the expected output.
   rejection case proves the server actually enforces validation.
 - Do not duplicate every parser case through the component, API, and browser.
   Do not add a separate test for each helper involved in the same behavior.
+- Browser coverage should focus on workflows such as import → edit → download,
+  cancel without changing the draft, replace a loaded list → Start with the correct
+  payload, and export the original input after sorting. Include controlled async
+  regressions where stale work could overwrite user changes. Prove detailed
+  validation rules in unit tests and use representative UI cases to verify errors
+  are shown and block application.
+- Browser tests with mocked tRPC responses prove frontend wiring and outgoing
+  requests, not server validation, persisted state, or database atomicity. Assign
+  those guarantees to API/database integration tests with real persistence.
 - Partition inputs by materially different behavior. Parameterize equivalent cases
   with descriptive names; do not generate a Cartesian product of formats, errors,
   and UI modes without a specific interaction rule to justify it.
@@ -75,6 +90,11 @@ contract or bug report. The bug's current output is not the expected output.
 - Omit trivial framework/library behavior, type-only checks already enforced by
   TypeScript, and reversible cosmetic changes that add no meaningful regression
   protection. Do not add tests just because a file changed.
+
+For daily feedback, use `bun test` or `bun run test:list-transfer`. Run
+`bun run test:browser` for relevant UI changes and both suites in CI;
+`bun run test` runs both. See the [README testing section](../README.md#testing)
+for browser setup and commands.
 
 ## 4. Assert outcomes, not implementation machinery
 

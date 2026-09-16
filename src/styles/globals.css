@@ -6,6 +6,179 @@
 
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
+.transfer-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-dialog, 1000);
+  color: var(--color-text-primary);
+}
+.transfer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 55%);
+}
+.transfer-position {
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+.transfer-panel {
+  width: 100%;
+  max-width: 44rem;
+  min-width: 0;
+  padding: 1.5rem;
+  border-radius: 12px;
+  background: var(--color-bg-primary);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow-wrap: anywhere;
+}
+.transfer-panel-small {
+  max-width: 32rem;
+}
+.transfer-heading {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+.transfer-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.transfer-field > label,
+.transfer-row > label {
+  font-weight: 600;
+}
+.transfer-input {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--color-text-secondary, currentColor);
+  border-radius: 6px;
+  padding: 0.65rem;
+  color: var(--color-text-primary);
+  background: var(--color-bg-secondary);
+  font: inherit;
+}
+.transfer-input[aria-invalid="true"] {
+  border-width: 2px;
+}
+.transfer-source {
+  min-height: 7rem;
+  resize: vertical;
+  font-family: monospace;
+}
+.transfer-help {
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+.transfer-preview {
+  max-height: 24rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-block: 1px solid currentColor;
+}
+.transfer-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 1rem 0;
+}
+.transfer-row + .transfer-row {
+  border-top: 1px solid var(--color-bg-secondary);
+}
+.transfer-row textarea {
+  resize: vertical;
+}
+.transfer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+.transfer-button {
+  padding: 0.6rem 0.9rem;
+  border: 1px solid currentColor;
+  border-radius: 6px;
+  color: var(--color-text-primary);
+  background: var(--color-bg-primary);
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+.transfer-button:hover:not(:disabled) {
+  background: var(--color-bg-secondary);
+}
+.transfer-primary {
+  background: var(--color-text-once);
+  color: var(--color-light-text-primary);
+  border-color: transparent;
+  font-weight: 600;
+}
+.transfer-primary:hover:not(:disabled) {
+  background: var(--color-once-hover);
+}
+.transfer-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.transfer-button:focus-visible,
+.transfer-input:focus-visible,
+.transfer-item-editor:focus-visible {
+  outline: 2px solid var(--color-text-once);
+  outline-offset: 3px;
+}
+.transfer-errors {
+  padding-left: 1.25rem;
+  list-style: disc;
+  max-height: 10rem;
+  overflow: auto;
+}
+.transfer-summary {
+  font-weight: 600;
+}
+.transfer-sort-export {
+  grid-column: 1 / -1;
+  grid-row: 4;
+  justify-self: end;
+}
+.transfer-item-editor {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  resize: vertical;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  padding: 0.4rem;
+  white-space: pre-wrap;
+}
+.transfer-setup-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+@media (max-width: 480px) {
+  .transfer-position {
+    padding: 0.5rem;
+  }
+  .transfer-panel {
+    padding: 1rem;
+  }
+  .transfer-actions > .transfer-button {
+    flex: 1;
+  }
+  .transfer-preview {
+    max-height: 40vh;
+  }
+}
+
 @theme {
   --color-light-text-primary: hsl(0, 0%, 5%);
   --color-light-text-secondary: hsl(0, 0%, 22%);

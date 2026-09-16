@@ -45,6 +45,47 @@ npm run dev:worker
 
 You can start editing the page by modifying `src/routes/index.tsx`. The page auto-updates as you edit the file.
 
+## Testing
+
+Keep most functional coverage in fast Bun unit/contract tests, with a small
+Playwright suite for critical browser workflows. Use the narrowest layer that can
+prove the behavior:
+
+- **Unit/contract tests:** parsing, validation boundaries, content preservation,
+  and replace/append logic.
+- **API/database integration tests:** server-side enforcement, persistence, and
+  transaction rollback. Database guarantees require an isolated real database.
+- **Playwright:** file uploads/downloads, latest edits reaching exported content,
+  cancellation and URL behavior, and targeted asynchronous UI regressions. Check
+  that validation errors block UI actions without repeating every validation case.
+
+The current Playwright suite runs the real frontend with mocked tRPC responses.
+It verifies UI integration and outgoing requests; real persistence verification
+is still pending in the [import/export checklist](specs/list-import-export-todo.md).
+
+Install dependencies with `bun install`, then use:
+
+```bash
+# Fast feedback during development
+bun test
+
+# Focused list-transfer unit/contract tests
+bun run test:list-transfer
+
+# Install Chromium before the first browser run
+bunx playwright install chromium
+
+# Browser workflows; Playwright starts Vite automatically when needed
+bun run test:browser
+
+# Complete current suite: Bun tests followed by Playwright
+bun run test
+```
+
+Use the fast suite during development, run browser tests for relevant UI changes,
+and run both in CI. See the [test-writing guide](specs/test-writing-prompt.md) for
+contract-first case design and coverage ownership.
+
 ## Build
 
 To create a production build:

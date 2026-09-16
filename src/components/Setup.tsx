@@ -1,11 +1,18 @@
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { ChangeEvent, KeyboardEvent } from "react";
+import { ChangeEvent, KeyboardEvent, useRef, useState } from "react";
+import { Button, Textarea } from "@headlessui/react";
+import ListImportDialog from "@/components/ListImportDialog";
+import ListExportDialog from "@/components/ListExportDialog";
+import { type ListDraft } from "@/utils/list-transfer/schema";
+import { type ImportMode } from "@/utils/list-transfer/draft";
 import { toast } from "sonner";
 import { ListItem } from "src/routes/index";
 import { trpc } from "src/utils/trpc";
 
 interface SetupProps {
+  onImport: (draft: ListDraft, mode: ImportMode) => void;
+  importDisabled: boolean;
   title: string;
   list: ListItem[];
   initialListSize: number;
@@ -20,6 +27,8 @@ interface SetupProps {
 }
 
 const Setup = ({
+  onImport,
+  importDisabled,
   title,
   list,
   initialListSize,
@@ -32,6 +41,9 @@ const Setup = ({
   setStartSort,
 }: SetupProps) => {
   const navigate = useNavigate();
+  const [importOpen, setImportOpen] = useState(false);
+  const [exportDraft, setExportDraft] = useState<ListDraft>();
+  const setupRef = useRef<HTMLInputElement>(null);
 
   const createVisit = useMutation(trpc.listing.createVisit.mutationOptions());
 
@@ -92,6 +104,8 @@ const Setup = ({
     <>
       <div className="home-inputContainer">
         <input
+          ref={setupRef}
+          aria-label="Add an item to the list"
           className="home-listInput"
           type="text"
           placeholder="Add an item to the list"
@@ -124,25 +138,30 @@ const Setup = ({
       </div>
       <ul className="home-listTable">
         {list &&
-          list.map((item: ListItem) => {
+          list.map((item: ListItem, index) => {
             return (
               <li className="home-item" key={item.id}>
-                <p
-                  contentEditable="true"
-                  suppressContentEditableWarning={true}
-                  onKeyDown={(e: KeyboardEvent<HTMLParagraphElement>) => {
-                    if (e.code === "Enter" || e.code === "Escape") {
-                      e.preventDefault();
-                      (e.target as HTMLElement).blur();
-                    }
-                    item.value =
-                      (e.target as HTMLParagraphElement).textContent ?? "";
-                    // editting a list field indicates a new item
+                <Textarea
+                  className="transfer-item-editor"
+                  aria-label={`Edit item ${index + 1}`}
+                  value={item.value}
+                  rows={Math.min(6, item.value.split(/\r\n|\r|\n/).length)}
+                  onChange={(event) => {
+                    const value = event.target.value;
+                    setList((previous) =>
+                      previous.map((row) =>
+                        row.id === item.id ? { ...row, value } : row
+                      )
+                    );
                     setGetListOnce(false);
                   }}
-                >
-                  {item.value}
-                </p>
+                  onKeyDown={(e: KeyboardEvent<HTMLTextAreaElement>) => {
+                    if (e.code === "Escape") {
+                      e.preventDefault();
+                      e.currentTarget.blur();
+                    }
+                  }}
+                />
                 <svg
                   className="home-removeItem"
                   style={{ width: "1.75em", height: "1.75em" }}
@@ -151,9 +170,10 @@ const Setup = ({
                     e.currentTarget.parentElement?.classList.add(
                       "home-removing"
                     );
-                    setTimeout(() => {
-                      setList(list.filter((it) => it !== item));
-                    }, 200);
+                    setList((previous) =>
+                      previous.filter((it) => it.id !== item.id)
+                    );
+                    setGetListOnce(false);
                   }}
                 >
                   <path
@@ -166,44 +186,86 @@ const Setup = ({
           })}
       </ul>
       <div className="home-listButtons">
-        <button className="home-reset" onClick={resetList}>
-          Reset
-        </button>
-        <button
-          className="home-start"
-          onClick={checkList}
-          disabled={creatingList}
-        >
-          {creatingList ? (
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 38 38"
-              xmlns="http://www.w3.org/2000/svg"
-              stroke="currentColor"
-              aria-label="Loading"
-            >
-              <g fill="none" fillRule="evenodd">
-                <g transform="translate(1 1)" strokeWidth="2">
-                  <circle strokeOpacity=".5" cx="18" cy="18" r="18" />
-                  <path d="M36 18c0-9.94-8.06-18-18-18">
-                    <animateTransform
-                      attributeName="transform"
-                      type="rotate"
-                      from="0 18 18"
-                      to="360 18 18"
-                      dur="1s"
-                      repeatCount="indefinite"
-                    />
-                  </path>
+        <div className="transfer-setup-actions">
+          <Button
+            className="transfer-button"
+            disabled={importDisabled || creatingList}
+            onClick={() => setImportOpen(true)}
+          >
+            Import list
+          </Button>
+          <Button
+            className="transfer-button"
+            onClick={() => {
+              // Controlled editors commit on every input, including paste and IME.
+              if (document.activeElement instanceof HTMLElement)
+                document.activeElement.blur();
+              setExportDraft({
+                title,
+                items: list.map(({ value }) => ({ value })),
+              });
+            }}
+          >
+            Export list
+          </Button>
+        </div>
+        <div className="transfer-setup-actions">
+          <button className="home-reset" onClick={resetList}>
+            Reset
+          </button>
+          <button
+            className="home-start"
+            onClick={checkList}
+            disabled={creatingList}
+          >
+            {creatingList ? (
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 38 38"
+                xmlns="http://www.w3.org/2000/svg"
+                stroke="currentColor"
+                aria-label="Loading"
+              >
+                <g fill="none" fillRule="evenodd">
+                  <g transform="translate(1 1)" strokeWidth="2">
+                    <circle strokeOpacity=".5" cx="18" cy="18" r="18" />
+                    <path d="M36 18c0-9.94-8.06-18-18-18">
+                      <animateTransform
+                        attributeName="transform"
+                        type="rotate"
+                        from="0 18 18"
+                        to="360 18 18"
+                        dur="1s"
+                        repeatCount="indefinite"
+                      />
+                    </path>
+                  </g>
                 </g>
-              </g>
-            </svg>
-          ) : (
-            "Start"
-          )}
-        </button>
+              </svg>
+            ) : (
+              "Start"
+            )}
+          </button>
+        </div>
       </div>
+      {importOpen && (
+        <ListImportDialog
+          current={{ title, items: list.map(({ value }) => ({ value })) }}
+          onClose={() => setImportOpen(false)}
+          onApply={(draft, mode) => {
+            onImport(draft, mode);
+            setImportOpen(false);
+            requestAnimationFrame(() => setupRef.current?.focus());
+          }}
+        />
+      )}
+      {exportDraft && (
+        <ListExportDialog
+          draft={exportDraft}
+          onClose={() => setExportDraft(undefined)}
+        />
+      )}
     </>
   );
 };
