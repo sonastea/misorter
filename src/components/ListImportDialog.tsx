@@ -1,5 +1,6 @@
 import {
   Button,
+  Description,
   Dialog,
   DialogPanel,
   DialogTitle,
@@ -137,18 +138,26 @@ export default function ListImportDialog({
       <div className="transfer-backdrop" aria-hidden="true" />
       <div className="transfer-position">
         <DialogPanel className="transfer-panel">
-          <DialogTitle className="transfer-heading">Import list</DialogTitle>
-          <p>
-            Misorter JSON · Parsed locally on your device. Up to 1 MiB and 1,000
-            items.
-          </p>
-          <a href="/examples/favorite-games.misorter.json" download>
-            Download native JSON example
-          </a>
+          <header className="transfer-header">
+            <DialogTitle className="transfer-heading">Import list</DialogTitle>
+            <Description className="transfer-description">
+              Choose a Misorter JSON file or paste its contents. Parsed locally
+              on your device.
+            </Description>
+            <a
+              className="transfer-link"
+              href="/examples/twice-this-is-for.misorter.json"
+              download
+            >
+              Download native JSON example
+            </a>
+          </header>
           <Field className="transfer-field">
             <Label>JSON file</Label>
             <Input
               ref={fileInput}
+              className="transfer-file-input"
+              tabIndex={-1}
               type="file"
               accept=".json,application/json"
               onChange={(event) => {
@@ -157,6 +166,20 @@ export default function ListImportDialog({
                 setSourceChanged(true);
               }}
             />
+            <div className="transfer-file-picker">
+              <Button
+                className="transfer-button"
+                onClick={() => fileInput.current?.click()}
+              >
+                Choose JSON file
+              </Button>
+              <span className="transfer-file-name" role="status">
+                {file?.name || "No file selected"}
+              </span>
+            </div>
+            <Description className="transfer-help">
+              Up to 1 MiB and 1,000 items.
+            </Description>
           </Field>
           <Field className="transfer-field">
             <Label>Paste JSON</Label>
@@ -325,7 +348,7 @@ export default function ListImportDialog({
               )}
             </>
           )}
-          <div className="transfer-actions">
+          <div className="transfer-actions transfer-footer">
             <Button className="transfer-button" onClick={close}>
               Cancel
             </Button>

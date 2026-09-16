@@ -1,0 +1,30 @@
+{
+  "format": "misorter-list",
+  "version": 1,
+  "title": "Favorite TWICE songs: THIS IS FOR + member solos",
+  "items": [
+    { "value": "FOUR" },
+    { "value": "THIS IS FOR" },
+    { "value": "OPTIONS" },
+    { "value": "MARS" },
+    { "value": "RIGHT HAND GIRL" },
+    { "value": "PEACH GELATO" },
+    { "value": "HI HELLO" },
+    { "value": "BATTITUDE (NAYEON, JEONGYEON, MOMO, MINA)" },
+    { "value": "DAT AHH DAT OOH (SANA, JIHYO, DAHYUN, CHAEYOUNG, TZUYU)" },
+    { "value": "LET LOVE GO (JEONGYEON, MOMO, SANA, TZUYU)" },
+    { "value": "G.O.A.T. (MINA, DAHYUN, CHAEYOUNG)" },
+    { "value": "TALK (NAYEON, JIHYO)" },
+    { "value": "SEESAW" },
+    { "value": "HEARTBREAK AVENUE" },
+    { "value": "MEEEEEE (NAYEON)" },
+    { "value": "FIX A DRINK (JEONGYEON)" },
+    { "value": "MOVE LIKE THAT (MOMO)" },
+    { "value": "DECAFFEINATED (SANA)" },
+    { "value": "ATM (JIHYO)" },
+    { "value": "STONE COLD (MINA)" },
+    { "value": "CHESS (DAHYUN)" },
+    { "value": "IN MY ROOM (CHAEYOUNG)" },
+    { "value": "DIVE IN (TZUYU)" }
+  ]
+}

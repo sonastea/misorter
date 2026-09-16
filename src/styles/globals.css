@@ -11,6 +11,9 @@
   inset: 0;
   z-index: var(--z-dialog, 1000);
   color: var(--color-text-primary);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  letter-spacing: normal;
 }
 .transfer-backdrop {
   position: fixed;
@@ -35,8 +38,27 @@
   background: var(--color-bg-primary);
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.25rem;
   overflow-wrap: anywhere;
+}
+.transfer-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+.transfer-description {
+  max-width: 65ch;
+  text-wrap: pretty;
+}
+.transfer-link {
+  font-size: 0.875rem;
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.transfer-link:hover {
+  text-decoration-thickness: 2px;
 }
 .transfer-panel-small {
   max-width: 32rem;
@@ -44,6 +66,9 @@
 .transfer-heading {
   font-size: 1.5rem;
   font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
 }
 .transfer-field {
   display: flex;
@@ -53,12 +78,31 @@
 }
 .transfer-field > label,
 .transfer-row > label {
+  font-size: 0.875rem;
   font-weight: 600;
+}
+.transfer-file-input {
+  display: none;
+}
+.transfer-file-picker {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.875rem;
+  padding: 0.875rem;
+  border-radius: 6px;
+  background: var(--color-bg-secondary);
+}
+.transfer-file-name {
+  flex: 1 1 12rem;
+  min-width: 0;
+  font-size: 0.875rem;
 }
 .transfer-input {
   width: 100%;
   min-width: 0;
-  border: 1px solid var(--color-text-secondary, currentColor);
+  border: 1px solid
+    color-mix(in srgb, var(--color-text-primary) 30%, var(--color-bg-primary));
   border-radius: 6px;
   padding: 0.65rem;
   color: var(--color-text-primary);
@@ -69,19 +113,21 @@
   border-width: 2px;
 }
 .transfer-source {
-  min-height: 7rem;
+  min-height: 9rem;
   resize: vertical;
   font-family: monospace;
 }
 .transfer-help {
   font-size: 0.875rem;
   font-weight: 400;
+  line-height: 1.5;
 }
 .transfer-preview {
   max-height: 24rem;
   overflow-y: auto;
   overscroll-behavior: contain;
-  border-block: 1px solid currentColor;
+  border-block: 1px solid
+    color-mix(in srgb, var(--color-text-primary) 20%, var(--color-bg-primary));
 }
 .transfer-row {
   display: flex;
@@ -104,13 +150,24 @@
   gap: 0.75rem;
 }
 .transfer-button {
+  min-height: 2.75rem;
   padding: 0.6rem 0.9rem;
-  border: 1px solid currentColor;
+  border: 1px solid
+    color-mix(in srgb, var(--color-text-primary) 30%, var(--color-bg-primary));
   border-radius: 6px;
   color: var(--color-text-primary);
   background: var(--color-bg-primary);
   cursor: pointer;
   font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: center;
+}
+.transfer-footer {
+  margin-top: 0.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid
+    color-mix(in srgb, var(--color-text-primary) 15%, var(--color-bg-primary));
 }
 .transfer-button:hover:not(:disabled) {
   background: var(--color-bg-secondary);
@@ -129,6 +186,7 @@
   cursor: not-allowed;
 }
 .transfer-button:focus-visible,
+.transfer-link:focus-visible,
 .transfer-input:focus-visible,
 .transfer-item-editor:focus-visible {
   outline: 2px solid var(--color-text-once);
@@ -139,6 +197,11 @@
   list-style: disc;
   max-height: 10rem;
   overflow: auto;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+.transfer-errors > li + li {
+  margin-top: 0.5rem;
 }
 .transfer-summary {
   font-weight: 600;

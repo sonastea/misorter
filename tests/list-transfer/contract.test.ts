@@ -349,7 +349,7 @@ test("published JSON Schema agrees on independent shape and field corpus; sample
   const sample: unknown = JSON.parse(
     await Bun.file(
       new URL(
-        "../../public/examples/favorite-games.misorter.json",
+        "../../public/examples/twice-this-is-for.misorter.json",
         import.meta.url
       )
     ).text()

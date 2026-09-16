@@ -86,14 +86,18 @@ Media type: `application/json;charset=utf-8`
 {
   "format": "misorter-list",
   "version": 1,
-  "title": "Favorite games",
+  "title": "Favorite TWICE songs: THIS IS FOR + member solos",
   "items": [
-    { "value": "Hades" },
-    { "value": "Outer Wilds" },
-    { "value": "Disco Elysium" }
+    { "value": "THIS IS FOR" },
+    { "value": "MARS" },
+    { "value": "MEEEEEE (NAYEON)" }
   ]
 }
 ```
+
+The [complete native sample](../public/examples/twice-this-is-for.misorter.json)
+includes all 14 THIS IS FOR album tracks and the nine member solo songs released
+on TEN: The Story Goes On.
 
 ### Contract
 

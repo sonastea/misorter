@@ -19,8 +19,8 @@ and zero-based array indexes. Duplicate notices count occurrences after the firs
 
 Published assets:
 
-- [Native sample](../../../public/examples/favorite-games.misorter.json)
-  served at `/examples/favorite-games.misorter.json`
+- [Native sample](../../../public/examples/twice-this-is-for.misorter.json)
+  served at `/examples/twice-this-is-for.misorter.json`
 - [JSON Schema](../../../public/schemas/misorter-list-v1.schema.json)
   served at `/schemas/misorter-list-v1.schema.json`
 

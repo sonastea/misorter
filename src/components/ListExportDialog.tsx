@@ -1,4 +1,10 @@
-import { Button, Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
+import {
+  Button,
+  Description,
+  Dialog,
+  DialogPanel,
+  DialogTitle,
+} from "@headlessui/react";
 import { useState } from "react";
 import { type ListDraft } from "@/utils/list-transfer/schema";
 import { serializeNativeJson } from "@/utils/list-transfer/serialize";
@@ -18,11 +24,15 @@ export default function ListExportDialog({
       <div className="transfer-backdrop" aria-hidden="true" />
       <div className="transfer-position">
         <DialogPanel className="transfer-panel transfer-panel-small">
-          <DialogTitle className="transfer-heading">
-            Export input list
-          </DialogTitle>
-          <p>Misorter JSON · Exact backup</p>
-          <p>
+          <header className="transfer-header">
+            <DialogTitle className="transfer-heading">
+              Export input list
+            </DialogTitle>
+            <Description className="transfer-description">
+              Save an exact backup as Misorter JSON.
+            </Description>
+          </header>
+          <p className="transfer-description">
             Includes the title and {draft.items.length} items in their original
             input order, with duplicates and whitespace preserved. Rankings are
             not included.
@@ -30,7 +40,7 @@ export default function ListExportDialog({
           {!result.success && (
             <div role="alert">
               <p>Return to editing to fix these fields:</p>
-              <ul>
+              <ul className="transfer-errors">
                 {result.issues.map((issue, index) => (
                   <li key={index}>
                     {issue.path?.join(".") || "List"}: {issue.message}
@@ -40,7 +50,7 @@ export default function ListExportDialog({
             </div>
           )}
           {error && <p role="alert">{error}</p>}
-          <div className="transfer-actions">
+          <div className="transfer-actions transfer-footer">
             <Button className="transfer-button" onClick={onClose}>
               Close
             </Button>

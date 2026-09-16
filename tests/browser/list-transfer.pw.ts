@@ -69,6 +69,31 @@ async function exportList(page: Page, sorting = false) {
   };
 }
 
+test("visible file picker opens and previews a selected JSON file", async ({
+  page,
+}) => {
+  await sourceRoutes(page);
+  await page.goto("/");
+  await page.getByRole("button", { name: "Import list", exact: true }).click();
+  const picker = page.getByRole("button", { name: "Choose JSON file" });
+  await expect(picker).toBeVisible();
+  await picker.focus();
+  const chooserPromise = page.waitForEvent("filechooser");
+  await page.keyboard.press("Enter");
+  const chooser = await chooserPromise;
+  await chooser.setFiles({
+    name: "my-list.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(native("Selected file", ["First", "Second"])),
+  });
+  await expect(page.getByRole("status")).toHaveText("my-list.json");
+  await page.getByRole("button", { name: "Preview JSON", exact: true }).click();
+  await expect(page.getByLabel("Preview title")).toHaveValue("Selected file");
+  await expect(
+    page.getByRole("button", { name: /^Use imported list/ })
+  ).toBeEnabled();
+});
+
 test("anonymous offline import, repair, keyboard focus and latest typed/pasted download", async ({
   page,
   context,
@@ -365,7 +390,7 @@ test("file import checks size before reading and preserves source row references
     .getByRole("link", { name: "Download native JSON example" })
     .click();
   expect((await sampleDownload).suggestedFilename()).toBe(
-    "favorite-games.misorter.json"
+    "twice-this-is-for.misorter.json"
   );
   await page.getByLabel("JSON file").setInputFiles({
     name: "large.json",
