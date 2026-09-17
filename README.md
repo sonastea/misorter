@@ -2,6 +2,16 @@
 
 A ranking and sorting application built with React, Vite, TanStack Router, and tRPC.
 
+## List import/export
+
+Import JSON, CSV, or plain-text files and pasted lists, review an editable preview,
+and replace or append to your draft. Export exact JSON backups, spreadsheet CSV,
+or items-only TXT locally without an account. Exports contain the original input
+list, including duplicates and order, rather than the final ranking.
+
+See the [import/export guide](docs/list-import-export.md) for supported formats,
+limits, and examples, and the [v3.1.0 release notes](CHANGELOG.md).
+
 ## Tech Stack
 
 - **Frontend**: React 19, Vite, TanStack Router
@@ -59,9 +69,11 @@ prove the behavior:
   cancellation and URL behavior, and targeted asynchronous UI regressions. Check
   that validation errors block UI actions without repeating every validation case.
 
-The current Playwright suite runs the real frontend with mocked tRPC responses.
-It verifies UI integration and outgoing requests; real persistence verification
-is still pending in the [import/export checklist](specs/list-import-export-todo.md).
+The current Playwright suite runs the real frontend with intercepted tRPC responses.
+It verifies UI integration, outgoing requests, and reload wiring. API unit tests
+exercise real router handlers with mocked database/cache boundaries. Real database
+and cache guarantees are assumed under the agreed milestone 4 scope; live integration
+is deferred. See the [import/export checklist](specs/list-import-export-todo.md).
 
 Install dependencies with `bun install`, then use:
 

@@ -14,22 +14,29 @@ async function sourceRoutes(page: Page) {
   await page.route("**/trpc/**", async (route) => {
     const url = new URL(route.request().url());
     const names = url.pathname.split("/trpc/")[1].split(",");
-    const results = names.map((name) => ({
+    const inputs = JSON.parse(url.searchParams.get("input") ?? "{}") as Record<
+      string,
+      { json?: { label?: string } }
+    >;
+    const fresh = {
+      label: "fresh",
+      title: "Local title",
+      items: [{ value: "Beta" }, { value: "Gamma" }],
+    };
+    const results = names.map((name, index) => ({
       result: {
         data: {
           json:
             name === "listing.get"
-              ? {
-                  label: "source",
-                  title: "Original",
-                  items: [{ value: "Zulu" }, { value: "Alpha" }],
-                }
-              : name === "listing.create"
-                ? {
-                    label: "fresh",
-                    title: "Local title",
-                    items: [{ value: "Beta" }, { value: "Gamma" }],
+              ? inputs[String(index)]?.json?.label === "fresh"
+                ? fresh
+                : {
+                    label: "source",
+                    title: "Original",
+                    items: [{ value: "Zulu" }, { value: "Alpha" }],
                   }
+              : name === "listing.create"
+                ? fresh
                 : name.includes("featured") || name.includes("Featured")
                   ? []
                   : null,
@@ -493,6 +500,30 @@ test("loaded route cancels safely, rejects malformed input and detaches same-len
   expect(mutations.some((url) => url.includes("listing.updateTitle"))).toBe(
     false
   );
+  // Reload exercises retrieval by the new URL label, outside the seeded cache.
+  // The intercepted response proves frontend wiring, not database persistence.
+  const retrieval = page.waitForRequest((request) => {
+    const url = new URL(request.url());
+    return (
+      url.pathname.includes("listing.get") &&
+      (url.searchParams.get("input") ?? "").includes('"label":"fresh"')
+    );
+  });
+  await page.reload();
+  await retrieval;
+  await expect(page).toHaveURL(/list=fresh/);
+  await expect(page.getByLabel("Edit item 1", { exact: true })).toHaveValue(
+    "Beta"
+  );
+  await expect(page.getByLabel("Edit item 2", { exact: true })).toHaveValue(
+    "Gamma"
+  );
+  expect((await exportList(page)).document).toEqual({
+    format: "misorter-list",
+    version: 1,
+    title: "Local title",
+    items: [{ value: "Beta" }, { value: "Gamma" }],
+  });
 });
 
 test("append preserves current title/order and duplicates while detaching the source", async ({
@@ -660,8 +691,19 @@ test("file import checks size before reading and preserves source row references
   await page
     .getByRole("link", { name: "Download native JSON example" })
     .click();
-  expect((await sampleDownload).suggestedFilename()).toBe(
-    "twice-this-is-for.misorter.json"
+  const sample = await sampleDownload;
+  expect(sample.suggestedFilename()).toBe("twice-this-is-for.misorter.json");
+  expect(await readFile((await sample.path())!, "utf8")).toBe(
+    await readFile("public/examples/twice-this-is-for.misorter.json", "utf8")
+  );
+  const schema = await page.request.get(
+    "/schemas/misorter-list-v1.schema.json"
+  );
+  expect(schema.ok()).toBe(true);
+  expect(await schema.json()).toEqual(
+    JSON.parse(
+      await readFile("public/schemas/misorter-list-v1.schema.json", "utf8")
+    )
   );
   await page.getByLabel("List file").setInputFiles({
     name: "large.json",

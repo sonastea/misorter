@@ -4,12 +4,12 @@ Last updated: 2026-09-16
 
 Specification: [List import/export](list-import-export.md)
 
-**Current state:** milestones 1–4 are complete. Native JSON, CSV, and plain-text
-import/export, editable previews, and local draft detachment are implemented and
-verified. Persistence alignment is covered by storage-boundary unit tests and
-browser workflows; real-database guarantees are assumed under the agreed revised
-verification scope. Documentation and release verification are next. The `3.1.0` package
-version identifies the target release, not release readiness.
+**Current state:** milestones 1–5 are complete. **v3.1.0 is release-ready under the
+agreed verification scope** as of 2026-09-16. Native JSON, CSV, and plain-text
+import/export, editable previews, local draft detachment, documentation, and release
+checks are complete. Persistence alignment is covered by storage-boundary unit
+tests and browser workflows; real-database/cache guarantees remain assumed under
+the revised milestone 4 scope. This records readiness, not a production deployment.
 
 ## Release scope and tracking
 
@@ -18,7 +18,7 @@ version identifies the target release, not release readiness.
 - [x] Complete milestone 2: core JSON UI and draft handling.
 - [x] Complete milestone 3: CSV and plain-text adapters.
 - [x] Complete milestone 4: persistence alignment.
-- [ ] Complete milestone 5: documentation and release verification.
+- [x] Complete milestone 5: documentation and release verification.
 
 Milestones 1–5 deliver deterministic V1 import/export for v3.1.0. AI extraction is
 the spec's V1.1 follow-up; its app release version is still to be decided. The
@@ -172,17 +172,23 @@ PostgreSQL rollback, actual persisted ordering/reload, and source-record immutab
 are assumed rather than live-tested. Real-database/cache integration is deferred
 and does not block this milestone.
 
-## 5. Documentation and v3.1.0 release verification — pending
+## 5. Documentation and v3.1.0 release verification — complete
 
-- [ ] Document supported formats, limits, exact JSON preservation, CSV escaping,
+### Implementation
+
+- [x] Document supported formats, limits, exact JSON preservation, CSV escaping,
       TXT title/multiline limitations, and input-list versus ranked-result meaning.
-- [ ] Make samples accessible from the import dialog and verify published links.
-- [ ] Add release notes for v3.1.0 and describe the new creation limits.
-- [ ] Run the complete applicable automated suites and required checks below;
+- [x] Make samples accessible from the import dialog.
+- [x] Add release notes for v3.1.0 and describe the new creation limits.
+
+### Verification
+
+- [x] Verify published sample/schema links and documentation links.
+- [x] Run the complete applicable automated suites and required checks below;
       resolve or explicitly track any release blockers.
-- [ ] Complete browser verification of anonymous import/edit/export/Start/reload
+- [x] Complete browser verification of anonymous import/edit/export/Start/reload
       and sorting exports, including keyboard/mobile/light-dark checks.
-- [ ] Record verification results and confirm milestones 1–5 are complete before
+- [x] Record verification results and confirm milestones 1–5 are complete before
       marking v3.1.0 release-ready.
 
 ## Verification record and commands
@@ -356,8 +362,62 @@ Contract cases and verification decision are included in the
 Milestone 4 is complete under the user-approved unit/browser verification scope.
 Mocked storage does not establish PostgreSQL rollback, persisted ordering/reload,
 Redis consistency, or source database immutability; those remain assumptions.
-Historical TypeScript blockers above no longer reproduce. Milestone 5 remains the
-release blocker.
+Historical TypeScript blockers above no longer reproduce. At this checkpoint,
+milestone 5 remained the release blocker; it is completed below.
+
+### Milestone 5 release verification (2026-09-16)
+
+Contract design: [release case map](list-transfer-release-cases.md), written before
+implementation inspection. Existing cases continue to own format semantics,
+sorting exports, keyboard/focus, error announcements, and mobile/theme behavior.
+
+Implementation:
+
+- Added the [user guide](../docs/list-import-export.md), linked from the README,
+  covering all formats/limits, exact JSON preservation, CSV escaping, TXT
+  restrictions, draft identity, local/offline behavior, and input-list meaning.
+- Added [v3.1.0 release notes](../CHANGELOG.md), including user-facing creation
+  limits and legacy compatibility. Confirmed package version `3.1.0`.
+  The changelog is maintained as average-user release notes: features, behavior
+  changes, and practical limitations. Technical contracts and verification details
+  stay in this specification and its verification record, with full usage details
+  in the user guide.
+- Retained the existing import-dialog native sample link. Strengthened its browser
+  check to compare downloaded bytes to the published example, and checked the
+  schema resource against its source file. The existing contract suite independently
+  verifies schema agreement and sample validity.
+- Extended the anonymous loaded-list → import → local title edit → export → Start
+  workflow through page reload. It checks retrieval using the fresh label and exact
+  reloaded title/item order outside the seeded query cache. This catches wrong-label
+  navigation/retrieval and stale frontend content; the API response is intercepted.
+
+| Check                                                    | Result                                                                                                                                                        |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `bun run test`                                           | Passed: all Bun contract/API tests and Playwright workflows, including fresh-label reload and sample/schema resources                                         |
+| `bunx tsc --noEmit --ignoreDeprecations 6.0`             | Passed                                                                                                                                                        |
+| `bunx tsc --project tests/list-transfer/tsconfig.json`   | Passed                                                                                                                                                        |
+| `bunx tsc --project tests/browser/tsconfig.json`         | Passed                                                                                                                                                        |
+| `bunx tsc --project tests/api/tsconfig.json`             | Passed                                                                                                                                                        |
+| `bun run lint`                                           | Passed                                                                                                                                                        |
+| Prettier check of milestone files; `git diff --check`    | Passed                                                                                                                                                        |
+| Documentation relative links/anchors and package version | Passed local link/metadata check                                                                                                                              |
+| `bun run build`                                          | Passed                                                                                                                                                        |
+| `bun run build:worker`                                   | Passed (dry run)                                                                                                                                              |
+| Production-build resources                               | Served with `bun run preview --host 127.0.0.1 --port 4173`; example/schema returned successful HTTP responses with exact source bytes                         |
+| Browser accessibility/layout                             | Existing keyboard/focus, announced-error, 1,000-item pagination, mobile/light-dark, and sorting-export workflows passed                                       |
+| Visual review                                            | Inspected production-build Playwright screenshots of CSV import at 375px/1280px in light/dark themes and mobile dark export; controls wrap and remain legible |
+| Real database/cache integration                          | Deferred by agreement; mocked reload verifies frontend wiring only                                                                                            |
+
+Builds emitted nonblocking tooling warnings about Vite's future native config
+loader and Wrangler's unspecified target environment for the dry run. No failing
+release checks remain. The desktop browser connection was unavailable; visual
+review used local Playwright Chromium against the production preview instead.
+
+**Release decision:** milestones 1–5 have both implementation and verification
+complete. v3.1.0 is release-ready within the agreed scope; it has not been deployed
+by this task. Real PostgreSQL rollback, persisted ordering/reload, Redis consistency,
+and source-record immutability remain explicit assumptions, not live-tested
+guarantees. V1.1 AI extraction remains follow-up scope.
 
 ## 6. V1.1 AI adapter — follow-up
 
