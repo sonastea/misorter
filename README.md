@@ -2,6 +2,16 @@
 
 A ranking and sorting application built with React, Vite, TanStack Router, and tRPC.
 
+## List import/export
+
+Import JSON, CSV, or plain-text files and pasted lists, review an editable preview,
+and replace or append to your draft. Export exact JSON backups, spreadsheet CSV,
+or items-only TXT locally without an account. Exports contain the original input
+list, including duplicates and order, rather than the final ranking.
+
+See the [import/export guide](docs/list-import-export.md) for supported formats,
+limits, and examples, and the [v3.1.0 release notes](CHANGELOG.md).
+
 ## Tech Stack
 
 - **Frontend**: React 19, Vite, TanStack Router
@@ -44,6 +54,49 @@ npm run dev:worker
 **Note:** The development setup uses Wrangler to run your Worker locally in the edge runtime, matching production exactly. The Vite dev server proxies `/trpc` requests to the Worker.
 
 You can start editing the page by modifying `src/routes/index.tsx`. The page auto-updates as you edit the file.
+
+## Testing
+
+Keep most functional coverage in fast Bun unit/contract tests, with a small
+Playwright suite for critical browser workflows. Use the narrowest layer that can
+prove the behavior:
+
+- **Unit/contract tests:** parsing, validation boundaries, content preservation,
+  and replace/append logic.
+- **API/database integration tests:** server-side enforcement, persistence, and
+  transaction rollback. Database guarantees require an isolated real database.
+- **Playwright:** file uploads/downloads, latest edits reaching exported content,
+  cancellation and URL behavior, and targeted asynchronous UI regressions. Check
+  that validation errors block UI actions without repeating every validation case.
+
+The current Playwright suite runs the real frontend with intercepted tRPC responses.
+It verifies UI integration, outgoing requests, and reload wiring. API unit tests
+exercise real router handlers with mocked database/cache boundaries. Real database
+and cache guarantees are assumed under the agreed milestone 4 scope; live integration
+is deferred. See the [import/export checklist](specs/list-import-export-todo.md).
+
+Install dependencies with `bun install`, then use:
+
+```bash
+# Fast feedback during development
+bun test
+
+# Focused list-transfer unit/contract tests
+bun run test:list-transfer
+
+# Install Chromium before the first browser run
+bunx playwright install chromium
+
+# Browser workflows; Playwright starts Vite automatically when needed
+bun run test:browser
+
+# Complete current suite: Bun tests followed by Playwright
+bun run test
+```
+
+Use the fast suite during development, run browser tests for relevant UI changes,
+and run both in CI. See the [test-writing guide](specs/test-writing-prompt.md) for
+contract-first case design and coverage ownership.
 
 ## Build
 

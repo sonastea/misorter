@@ -1,0 +1,7 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "types": ["bun", "node", "@playwright/test"]
+  },
+  "include": ["./**/*.ts", "../../src/utils/list-transfer/**/*.ts"]
+}

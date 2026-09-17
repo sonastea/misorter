@@ -38,6 +38,7 @@ const FeaturedLists = ({
     refetchInterval: false,
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
+    retry: false,
   });
 
   return (
@@ -122,6 +123,11 @@ const FeaturedLists = ({
                 </button>
               </div>
             </div>
+            {data?.length === 0 && (
+              <p role="status">
+                No trending lists yet. Refresh to check again.
+              </p>
+            )}
             <RadioGroup
               className="featuredLists-listContainer"
               value={selectedList}

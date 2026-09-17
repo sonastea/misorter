@@ -1,5 +1,5 @@
 import { List } from "@router/listing";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useIsMutating, useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import ListItemsSkeletonLoader from "@/components/ListItemsSkeletonLoader";
@@ -14,6 +14,12 @@ import NoticeBanner from "@/components/NoticeBanner";
 import SupportForm from "@/components/SupportForm";
 import { trpc, queryClient } from "@utils/trpc";
 import ThemeToggle from "@/components/ThemeToggle";
+import {
+  combineDrafts,
+  importedItems,
+  type ImportMode,
+} from "@/utils/list-transfer/draft";
+import { type ListDraft } from "@/utils/list-transfer/schema";
 
 const tip =
   "Tap the title to name your list something.<br/>hitting <b>no opinion</b>  or  <b>I like both</b> frequently will negatively affect your results.";
@@ -51,6 +57,11 @@ function Home() {
   const [getListOnce, setGetListOnce] = useState<boolean>(false);
   const [initialListSize, setInititalListSize] = useState<number>(-1);
   const [currentListData, setCurrentListData] = useState<Partial<List>>({});
+  const detachedLabel = useRef<string | undefined>(undefined);
+  const titleSaving =
+    useIsMutating({
+      mutationKey: trpc.listing.updateTitle.mutationOptions().mutationKey,
+    }) > 0;
 
   const focusTitleRef = useRef(false);
   // Tracks which server label we've already applied to local state.
@@ -62,6 +73,15 @@ function Home() {
   // Featured Lists
   const [selectedList, setSelectedList] = useState<string>("");
   const [open, setOpen] = useState(false);
+  const [featuredRequested, setFeaturedRequested] = useState(false);
+  const featured = useQuery({
+    ...trpc.listing.getFeatured.queryOptions(),
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
+    retry: false,
+  });
+  const featuredReady = featured.data !== undefined;
 
   const { data, isFetching } = useQuery({
     ...trpc.listing.get.queryOptions({ label: listLabel ?? "" }),
@@ -76,8 +96,25 @@ function Home() {
   const createVisit = useMutation(trpc.listing.createVisit.mutationOptions());
 
   const toggleFeaturedLists = () => {
-    setOpen((prev) => !prev);
+    if (open) {
+      setOpen(false);
+      setFeaturedRequested(false);
+    } else if (featuredReady) {
+      setOpen(true);
+    } else {
+      setFeaturedRequested(true);
+      if (!featured.isFetching) void featured.refetch();
+    }
   };
+
+  useEffect(() => {
+    if (featuredRequested && featuredReady) {
+      // Complete the user's pending open request once the query resolves.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setOpen(true);
+      setFeaturedRequested(false);
+    }
+  }, [featuredRequested, featuredReady]);
 
   // Single batched state update for a server-loaded list.
   // Replaces the old setList([]) + N× setList(prev => [...prev]) loop.
@@ -114,10 +151,38 @@ function Home() {
 
   const updateList = useCallback(
     (data: List, featured: boolean) => {
+      detachedLabel.current = undefined;
       applyServerList(data, featured ? "FEATURED" : "URL");
     },
     [applyServerList]
   );
+
+  const applyImportedList = (imported: ListDraft, mode: ImportMode) => {
+    const result = combineDrafts(
+      { title, items: list.map(({ value }) => ({ value })) },
+      imported,
+      mode
+    );
+    if (!result.success) return;
+    // Block the old response immediately, before the router commits its search update.
+    detachedLabel.current = listLabel;
+    setList(importedItems(list, imported, mode));
+    setTitle(result.draft.title);
+    setOldTitle(result.draft.title);
+    setNewItem("");
+    setEditTitle(false);
+    setStartSort(false);
+    setGetListOnce(false);
+    setInititalListSize(-1);
+    setCurrentListData({});
+    setAppliedLabel(null);
+    setSelectedList("");
+    void navigate({
+      to: "/",
+      search: (previous) => ({ ...previous, list: undefined }),
+      replace: true,
+    });
+  };
 
   useEffect(() => {
     const backUrl = sessionStorage.getItem("back-url");
@@ -134,12 +199,22 @@ function Home() {
   }, [code, state, navigate]);
 
   useEffect(() => {
-    if (!data?.label || !data.items) return;
+    if (!listLabel) {
+      detachedLabel.current = undefined;
+      return;
+    }
+    if (
+      !data?.label ||
+      !data.items ||
+      data.label !== listLabel ||
+      detachedLabel.current === data.label
+    )
+      return;
     if (appliedLabel === data.label) return;
     // Intentional editable-copy sync: server data -> local list state, once per label.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     applyServerList(data as List, "URL");
-  }, [data, appliedLabel, applyServerList]);
+  }, [data, listLabel, appliedLabel, applyServerList]);
 
   return (
     <>
@@ -153,7 +228,7 @@ function Home() {
               title={title}
               setTitle={setTitle}
               data={currentListData}
-              listLabel={listLabel ?? ""}
+              listLabel={currentListData.label ?? ""}
               oldTitle={oldTitle}
               setOldTitle={setOldTitle}
               setEditTitle={setEditTitle}
@@ -176,8 +251,10 @@ function Home() {
 
           {!isFetching && !startSort && (
             <Setup
+              onImport={applyImportedList}
+              importDisabled={titleSaving}
               {...{
-                label: data?.label,
+                label: currentListData.label,
                 title,
                 initialListSize,
                 list,
@@ -192,17 +269,34 @@ function Home() {
             />
           )}
 
-          {startSort && <Sort ogList={list} setStartSort={setStartSort} />}
+          {startSort && (
+            <Sort title={title} ogList={list} setStartSort={setStartSort} />
+          )}
         </main>
 
-        <FeaturedListsToggle toggleFeaturedLists={toggleFeaturedLists} />
+        <FeaturedListsToggle
+          toggleFeaturedLists={toggleFeaturedLists}
+          open={open}
+          loading={featuredRequested && featured.isFetching && !featuredReady}
+          failed={featuredRequested && featured.isError && !featuredReady}
+          showDiscovery={
+            !!featured.data?.length &&
+            !listLabel &&
+            !code &&
+            !startSort &&
+            !isFetching &&
+            !editTitle &&
+            list.length === 0 &&
+            !newItem
+          }
+        />
 
         <FeaturedLists
           open={open}
           toggleOpen={toggleFeaturedLists}
           selectedList={selectedList}
           setSelectedList={setSelectedList}
-          title="Featured Lists"
+          title="Trending Lists"
           updateList={updateList}
         />
 
