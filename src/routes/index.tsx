@@ -248,14 +248,26 @@ function Home() {
           )}
         </main>
 
-        <FeaturedListsToggle toggleFeaturedLists={toggleFeaturedLists} />
+        <FeaturedListsToggle
+          toggleFeaturedLists={toggleFeaturedLists}
+          open={open}
+          showDiscovery={
+            !listLabel &&
+            !code &&
+            !startSort &&
+            !isFetching &&
+            !editTitle &&
+            list.length === 0 &&
+            !newItem
+          }
+        />
 
         <FeaturedLists
           open={open}
           toggleOpen={toggleFeaturedLists}
           selectedList={selectedList}
           setSelectedList={setSelectedList}
-          title="Featured Lists"
+          title="Trending Lists"
           updateList={updateList}
         />
 
