@@ -16,6 +16,10 @@ import {
 } from "drizzle-orm";
 import { customAlphabet } from "nanoid";
 import * as v from "valibot";
+import {
+  CreateListSchema,
+  ListTitleSchema,
+} from "@/utils/list-transfer/schema";
 
 const nanoid = customAlphabet(
   "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
@@ -133,7 +137,7 @@ export const listingRouter = router({
           with: {
             items: {
               columns: { value: true },
-              orderBy: (items, { asc }) => [asc(items.id)],
+              orderBy: { id: "asc" },
             },
           },
         });
@@ -250,16 +254,7 @@ export const listingRouter = router({
     return await getFeatured(kDaysAgo);
   }),
   create: publicProcedure
-    .input(
-      v.object({
-        title: v.string(),
-        items: v.array(
-          v.object({
-            value: v.string(),
-          })
-        ),
-      })
-    )
+    .input(CreateListSchema)
     .mutation(async ({ input }) => {
       const newLabel = nanoid();
 
@@ -288,7 +283,7 @@ export const listingRouter = router({
               listingLabel: newLabel,
             }))
           )
-          .returning({ value: items.value });
+          .returning({ id: items.id, value: items.value });
 
         if (insertedItems.length !== input.items.length) {
           throw new TRPCError({
@@ -299,7 +294,9 @@ export const listingRouter = router({
 
         return {
           ...listing,
-          items: insertedItems,
+          items: insertedItems
+            .sort((a, b) => a.id - b.id)
+            .map(({ value }) => ({ value })),
         };
       });
 
@@ -336,7 +333,7 @@ export const listingRouter = router({
     .input(
       v.object({
         label: v.string(),
-        title: v.string(),
+        title: ListTitleSchema,
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -349,6 +346,13 @@ export const listingRouter = router({
         .returning({ label: listings.label });
 
       if (!updated) {
+        ctx.waitUntil(
+          getRedis()
+            .del(input.label)
+            .catch((error) => {
+              console.error("Redis cleanup error on updateTitle:", error);
+            })
+        );
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Listing not found",
@@ -367,16 +371,25 @@ export const listingRouter = router({
         with: {
           items: {
             columns: { value: true },
-            orderBy: (items, { asc }) => [asc(items.id)],
+            orderBy: { id: "asc" },
           },
         },
       });
 
-      const updatedList = {
-        label: updated.label,
-        title: input.title,
-        items: listing?.items ?? [],
-      };
+      if (!listing) {
+        ctx.waitUntil(
+          getRedis()
+            .del(input.label)
+            .catch((error) => {
+              console.error("Redis cleanup error on updateTitle:", error);
+            })
+        );
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Listing not found",
+        });
+      }
+      const updatedList = listing;
 
       // Only the cache refresh stays in the background.
       ctx.waitUntil(
@@ -591,7 +604,7 @@ export const listingRouter = router({
         .delete(listings)
         .where(inArray(listings.label, Array.from(existingLabels)));
 
-      ctx.waitUntil(deleteCachedListings(Array.from(existingLabels)));
+      ctx.waitUntil(deleteCachedListings(input.labels));
 
       ctx.waitUntil(
         db

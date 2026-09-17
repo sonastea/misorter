@@ -589,6 +589,30 @@ create one test per bullet or repeat every scenario at every layer. Round trips
 must be anchored by independent known fixtures; testing a parser against its own
 serializer alone is insufficient. Do not add tests solely to increase coverage.
 
+### Milestone 4 verification decision and cases
+
+Decision (2026-09-16): accept milestone 4 using unit tests at the database/Redis
+boundaries plus existing browser workflows with intercepted tRPC responses. Real
+PostgreSQL rollback, persisted ordering/reload, and source-record immutability are
+implementation assumptions, not verified guarantees or release blockers. Live
+database/cache integration may be added later. This replaces the original mandatory
+real-database verification requirement for this milestone only.
+
+Cases below derive from sections 6–8. Detailed validation boundaries remain in the
+pure contract suite; unit tests exercise real router validation and handlers while
+mocking external storage. They do not simulate PostgreSQL transaction correctness.
+
+| Rule                  | Scenario and expected result                                                                                                                                | Plausible defect                                                    | Owner                         |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- | ----------------------------- |
+| Creation validation   | One item, blank item, or oversized canonical output returns BAD_REQUEST before database access                                                              | Server only checks types                                            | Router unit                   |
+| Creation preservation | Whitespace/Unicode title and nonalphabetical duplicate items reach insertion unchanged under a new label; unordered returned rows become input order        | Trimming, deduplication, or assuming RETURNING order                | Router unit                   |
+| Persistence failures  | Rejected item insertion or incomplete returned rows produces an internal failure rather than successful creation                                            | Swallowed error or partial success                                  | Router unit                   |
+| Identity              | Loaded A → same-length import → local title edit → Start submits imported content for creation and uses new label B without a source-title mutation         | Reused source identity                                              | Browser, intercepted API      |
+| Manual preflight      | Invalid manual draft stays in setup with an error and sends no create; correction permits Start                                                             | Import-only validation                                              | Browser                       |
+| Title validation      | Blank/overlong/NUL title fails before storage; valid whitespace/Unicode reaches storage unchanged                                                           | Trimming or divergent rules                                         | Router unit + browser         |
+| Cache boundaries      | Rename schedules exact refreshed content; missing record before/after update schedules deletion; pending/failed refresh does not fail a successful mutation | Stale data, blocking cache work, or uncaught background rejection   | Router unit                   |
+| Legacy compatibility  | Oversized stored values remain readable; export reports the affected field without truncation                                                               | Applying creation validation to reads or silently shortening values | Router unit + export contract |
+
 ### Observable acceptance criteria
 
 Meaningful automated coverage for the applicable milestone:
@@ -612,8 +636,10 @@ Meaningful automated coverage for the applicable milestone:
 - Export includes the latest typed/pasted edit, works without a share label, and
   makes no network request. JSON and deterministic imports work offline once the
   app is loaded.
-- A persisted imported list reloads with the same title and item sequence. Invalid
-  create requests are rejected server-side, and insertion failures roll back.
+- A persisted imported list is intended to reload with the same title and item
+  sequence. Invalid create requests are rejected server-side, and insertion
+  failures are intended to roll back. Milestone 4's verification decision above
+  defines the tested scope and the real-database assumptions.
 - Completed sorting does not change the meaning of “Export input list.”
 
 Additional V1.1 coverage:

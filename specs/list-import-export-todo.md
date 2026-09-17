@@ -4,9 +4,11 @@ Last updated: 2026-09-16
 
 Specification: [List import/export](list-import-export.md)
 
-**Current state:** milestones 1–3 are complete. Native JSON, CSV, and plain-text
+**Current state:** milestones 1–4 are complete. Native JSON, CSV, and plain-text
 import/export, editable previews, and local draft detachment are implemented and
-verified. Persistence alignment is next. The `3.1.0` package
+verified. Persistence alignment is covered by storage-boundary unit tests and
+browser workflows; real-database guarantees are assumed under the agreed revised
+verification scope. Documentation and release verification are next. The `3.1.0` package
 version identifies the target release, not release readiness.
 
 ## Release scope and tracking
@@ -15,7 +17,7 @@ version identifies the target release, not release readiness.
 - [x] Complete milestone 1: portable contract.
 - [x] Complete milestone 2: core JSON UI and draft handling.
 - [x] Complete milestone 3: CSV and plain-text adapters.
-- [ ] Complete milestone 4: persistence alignment.
+- [x] Complete milestone 4: persistence alignment.
 - [ ] Complete milestone 5: documentation and release verification.
 
 Milestones 1–5 deliver deterministic V1 import/export for v3.1.0. AI extraction is
@@ -138,30 +140,37 @@ commands, results, and remaining blockers as work proceeds.
 - [x] Exercise mapping/options and actual CSV/TXT downloads in browser workflows;
       keep detailed data semantics in the pure-contract suite.
 
-## 4. Persistence alignment — pending
+## 4. Persistence alignment — complete under revised verification scope
 
 ### Implementation
 
-- [ ] Reuse shared draft/create/title schemas in manual-entry preflight,
+- [x] Reuse shared draft/create/title schemas in manual-entry preflight,
       `listing.create`, `listing.updateTitle`, and title editing.
-- [ ] Enforce two-item creation and canonical size server-side with actionable
+- [x] Enforce two-item creation and canonical size server-side with actionable
       `BAD_REQUEST` errors. Review the impact of new limits on legacy inputs.
-- [ ] Preserve transaction atomicity and request-scoped `getDb()`; persist input
+- [x] Preserve transaction atomicity and request-scoped `getDb()`; persist input
       order and explicitly order the creation response by inserted item ID.
-- [ ] Ensure imported drafts always create a fresh label on Start; seed only the
+- [x] Ensure imported drafts always create a fresh label on Start; seed only the
       new label's query cache. Keep legacy lists readable and explain export
       incompatibilities without truncation.
-- [ ] Invalidate/refresh related caches for touched mutations, including not-found
+- [x] Invalidate/refresh related caches for touched mutations, including not-found
       cleanup paths; keep nonblocking effects in `ctx.waitUntil()` with logged,
       swallowed background failures.
 
 ### Verification
 
-- [ ] Test against an isolated real database: invalid direct create requests write
-      nothing, insertion failures roll back, and reload preserves title/item order.
-- [ ] Verify the complete loaded-share-link → same-length import → title edit →
-      Start workflow creates a new label and leaves the source list unchanged.
-- [ ] Verify touched cache invalidation boundaries and legacy-list handling.
+- [x] Unit-test direct invalid requests rejecting before database access, exact
+      insertion values, ordering of creation responses, and insertion error handling.
+- [x] Verify loaded-share-link → same-length import → title edit → Start through
+      browser workflows with intercepted API responses: fresh label, correct input
+      content, and no source-title mutation.
+- [x] Unit-test title cache refresh/cleanup, nonblocking background failures, and
+      legacy readability/export incompatibilities.
+
+Per the [revised verification decision](list-import-export.md#milestone-4-verification-decision-and-cases),
+PostgreSQL rollback, actual persisted ordering/reload, and source-record immutability
+are assumed rather than live-tested. Real-database/cache integration is deferred
+and does not block this milestone.
 
 ## 5. Documentation and v3.1.0 release verification — pending
 
@@ -302,6 +311,53 @@ escaping and reran the complete suite successfully.
 
 Remaining release blockers: application TypeScript errors and milestones 4–5.
 Database persistence guarantees remain assigned to milestone 4.
+
+### Milestone 4 implementation verification (2026-09-16)
+
+Contract cases and verification decision are included in the
+[feature specification](list-import-export.md#milestone-4-verification-decision-and-cases).
+
+- Shared creation validation now runs before manual draft creation and on direct
+  API requests. Start displays actionable inline errors; server BAD_REQUEST does
+  not advance into sorting. Unmodified legacy lists can still start without
+  recreating them; edited/new lists must meet the new creation limits.
+- Title editing and updateTitle share exact, nontrimming validation. Successful
+  title saves update the cancellation baseline and relevant client caches.
+- Creation retains its transaction, orders returned items by inserted ID, and
+  seeds only the fresh label's client cache. Missing-title-update paths clean up
+  stale server/client cache entries; mixed bulk deletion cleans all requested keys.
+- Corrected the database client generic/configuration and ordered relation queries
+  for the installed Drizzle version. Application TypeScript now passes.
+- New direct API tests verify BAD_REQUEST for invalid creation and title inputs.
+  A browser case verifies manual preflight, visible errors, exact whitespace in
+  title export/submission, and successful creation after correction. Its initial
+  failure exposed invisible toast-only validation; inline errors fixed the issue.
+- Expanded router unit tests mock only the database/Redis boundaries and verify
+  zero database access on invalid requests, exact insertion values, fresh labels,
+  ordered creation output, insertion failures, title refresh/cleanup, and readable
+  legacy values with actionable export errors. A deferred cache response verifies
+  that refresh neither blocks the mutation nor leaks a background rejection.
+- Targeted fault check: temporarily removed creation-response sorting. The exact
+  item-sequence assertion failed; restored sorting before the final suite run.
+
+| Check                                                  | Result                                                               |
+| ------------------------------------------------------ | -------------------------------------------------------------------- |
+| `bun run test`                                         | Passed: pure contracts, direct API validation, and browser workflows |
+| `bunx tsc --project tests/list-transfer/tsconfig.json` | Passed                                                               |
+| `bunx tsc --project tests/browser/tsconfig.json`       | Passed                                                               |
+| `bunx tsc --project tests/api/tsconfig.json`           | Passed                                                               |
+| `bunx tsc --noEmit --ignoreDeprecations 6.0`           | Passed                                                               |
+| `bun run lint`                                         | Passed                                                               |
+| Prettier of changed files                              | Passed                                                               |
+| `bun run build`                                        | Passed                                                               |
+| `bun run build:worker`                                 | Passed (dry run)                                                     |
+| Real database/cache integration                        | Deferred by agreement; external guarantees assumed, not live-tested  |
+
+Milestone 4 is complete under the user-approved unit/browser verification scope.
+Mocked storage does not establish PostgreSQL rollback, persisted ordering/reload,
+Redis consistency, or source database immutability; those remain assumptions.
+Historical TypeScript blockers above no longer reproduce. Milestone 5 remains the
+release blocker.
 
 ## 6. V1.1 AI adapter — follow-up
 

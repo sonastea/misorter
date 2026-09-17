@@ -2,7 +2,9 @@ import { List } from "@router/listing";
 import { useMutation } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { trpc } from "src/utils/trpc";
+import { trpc, queryClient } from "@/utils/trpc";
+import { ListTitleSchema } from "@/utils/list-transfer/schema";
+import * as v from "valibot";
 
 const ListTitleEdit = ({
   title,
@@ -26,12 +28,34 @@ const ListTitleEdit = ({
 
   const updateTitle = useMutation({
     ...trpc.listing.updateTitle.mutationOptions(),
-    onSuccess: () => {
+    onSuccess: (updated) => {
+      queryClient.setQueryData(
+        trpc.listing.get.queryOptions({ label: updated.label }).queryKey,
+        updated
+      );
+      void queryClient.invalidateQueries(
+        trpc.listing.getFeatured.queryFilter()
+      );
+      void queryClient.invalidateQueries(
+        trpc.listing.getAllPaginated.pathFilter()
+      );
+      setOldTitle(updated.title);
       toast.success("Successfully updated link to list.");
       setEditTitle(false);
     },
-    onError: () => {
-      toast.error("Unable to update the list.");
+    onError: (error) => {
+      if (error.data?.code === "NOT_FOUND") {
+        queryClient.removeQueries(
+          trpc.listing.get.queryFilter({ label: data.label ?? listLabel })
+        );
+        void queryClient.invalidateQueries(
+          trpc.listing.getFeatured.queryFilter()
+        );
+        void queryClient.invalidateQueries(
+          trpc.listing.getAllPaginated.pathFilter()
+        );
+      }
+      setError(error.message);
     },
   });
 
@@ -42,22 +66,22 @@ const ListTitleEdit = ({
   }, []);
 
   const handleSave = () => {
-    const trimmedTitle = title.trim();
-    if (trimmedTitle === "") {
-      setError("Title cannot be empty");
+    const result = v.safeParse(ListTitleSchema, title);
+    if (!result.success) {
+      setError(result.issues[0].message);
       return;
     }
 
-    if (trimmedTitle === oldTitle) {
+    if (title === oldTitle) {
       setEditTitle(false);
       return;
     }
 
     const labelToUse = data && data.label ? data.label : listLabel;
     if (labelToUse) {
-      updateTitle.mutate({ label: labelToUse, title: trimmedTitle });
-      setOldTitle(trimmedTitle);
+      updateTitle.mutate({ label: labelToUse, title });
     } else {
+      setOldTitle(title);
       setEditTitle(false);
     }
   };

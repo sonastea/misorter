@@ -2,10 +2,7 @@ import { drizzle, PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as schema from "./schema";
 
-export type PostgresDbClient = PostgresJsDatabase<
-  typeof schema,
-  typeof schema.relations
->;
+export type PostgresDbClient = PostgresJsDatabase<typeof schema.relations>;
 
 const createDb = (): PostgresDbClient => {
   const connectionString = process.env.DATABASE_URL;
@@ -20,7 +17,6 @@ const createDb = (): PostgresDbClient => {
 
   return drizzle({
     client,
-    schema,
     relations: schema.relations,
   });
 };

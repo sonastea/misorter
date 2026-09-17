@@ -69,6 +69,44 @@ async function exportList(page: Page, sorting = false) {
   };
 }
 
+test("manual edits use creation preflight and title saves preserve whitespace", async ({
+  page,
+}) => {
+  await sourceRoutes(page);
+  const creates: string[] = [];
+  page.on("request", (request) => {
+    if (
+      request.url().includes("listing.create") &&
+      !request.url().includes("listing.createVisit")
+    )
+      creates.push(request.postData() ?? "");
+  });
+  await page.goto("/");
+  await preview(page, "Draft", ["Zulu", "Alpha"]);
+  await page.getByRole("button", { name: "Use imported list" }).click();
+  await page.getByLabel("Edit item 1", { exact: true }).fill(" ");
+  await page.getByRole("button", { name: "Start", exact: true }).click();
+  await expect(
+    page.getByText("Enter a nonblank value.", { exact: true })
+  ).toBeVisible();
+  expect(creates).toEqual([]);
+  await page.getByLabel("Edit item 1", { exact: true }).fill("Zulu");
+  await page.getByText("Draft", { exact: true }).click();
+  await page.getByLabel("Edit list title").fill("x".repeat(256));
+  await page.getByRole("button", { name: "Save title" }).click();
+  await expect(
+    page.getByText("Title must contain at most 255 Unicode code points.")
+  ).toBeVisible();
+  await page.getByLabel("Edit list title").fill("  Exact 🎵  ");
+  await page.getByRole("button", { name: "Save title" }).click();
+  const exported = await exportList(page);
+  expect(exported.document.title).toBe("  Exact 🎵  ");
+  await page.getByRole("button", { name: "Start", exact: true }).click();
+  await expect(page).toHaveURL(/list=fresh/);
+  expect(creates).toHaveLength(1);
+  expect(creates[0]).toContain("  Exact 🎵  ");
+});
+
 test("clipboard copies the selected export format and recovers from a denied write", async ({
   page,
   context,
@@ -447,6 +485,14 @@ test("loaded route cancels safely, rejects malformed input and detaches same-len
     title: "Local title",
     items: [{ value: "Beta" }, { value: "Gamma" }],
   });
+  await expect(page).toHaveURL(/list=fresh/);
+  expect((await exportList(page, true)).document).toMatchObject({
+    title: "Local title",
+    items: [{ value: "Beta" }, { value: "Gamma" }],
+  });
+  expect(mutations.some((url) => url.includes("listing.updateTitle"))).toBe(
+    false
+  );
 });
 
 test("append preserves current title/order and duplicates while detaching the source", async ({
