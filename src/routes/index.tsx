@@ -73,6 +73,15 @@ function Home() {
   // Featured Lists
   const [selectedList, setSelectedList] = useState<string>("");
   const [open, setOpen] = useState(false);
+  const [featuredRequested, setFeaturedRequested] = useState(false);
+  const featured = useQuery({
+    ...trpc.listing.getFeatured.queryOptions(),
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
+    retry: false,
+  });
+  const featuredReady = featured.data !== undefined;
 
   const { data, isFetching } = useQuery({
     ...trpc.listing.get.queryOptions({ label: listLabel ?? "" }),
@@ -87,8 +96,25 @@ function Home() {
   const createVisit = useMutation(trpc.listing.createVisit.mutationOptions());
 
   const toggleFeaturedLists = () => {
-    setOpen((prev) => !prev);
+    if (open) {
+      setOpen(false);
+      setFeaturedRequested(false);
+    } else if (featuredReady) {
+      setOpen(true);
+    } else {
+      setFeaturedRequested(true);
+      if (!featured.isFetching) void featured.refetch();
+    }
   };
+
+  useEffect(() => {
+    if (featuredRequested && featuredReady) {
+      // Complete the user's pending open request once the query resolves.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setOpen(true);
+      setFeaturedRequested(false);
+    }
+  }, [featuredRequested, featuredReady]);
 
   // Single batched state update for a server-loaded list.
   // Replaces the old setList([]) + N× setList(prev => [...prev]) loop.
@@ -251,7 +277,10 @@ function Home() {
         <FeaturedListsToggle
           toggleFeaturedLists={toggleFeaturedLists}
           open={open}
+          loading={featuredRequested && featured.isFetching && !featuredReady}
+          failed={featuredRequested && featured.isError && !featuredReady}
           showDiscovery={
+            !!featured.data?.length &&
             !listLabel &&
             !code &&
             !startSort &&

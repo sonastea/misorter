@@ -7,10 +7,14 @@ const FeaturedListsToggle = ({
   toggleFeaturedLists,
   open,
   showDiscovery,
+  loading,
+  failed,
 }: {
   toggleFeaturedLists: () => void;
   open: boolean;
   showDiscovery: boolean;
+  loading: boolean;
+  failed: boolean;
 }) => {
   const [visible, setVisible] = useState(false);
   const [dismissed, setDismissed] = useState(false);
@@ -54,11 +58,26 @@ const FeaturedListsToggle = ({
         aria-label="Explore trending lists"
         aria-haspopup="dialog"
         aria-expanded={open}
+        aria-busy={loading}
+        disabled={loading}
       >
         <span className="toggleIcon" aria-hidden="true">
-          🔥
+          {loading ? "…" : "🔥"}
         </span>
       </Button>
+      {loading && (
+        <span className="sr-only" role="status">
+          Loading trending lists
+        </span>
+      )}
+      {failed && (
+        <div className="featuredLists-callout" role="alert">
+          <p>Couldn’t load trending lists.</p>
+          <Button className="home-start" onClick={explore}>
+            Retry loading lists
+          </Button>
+        </div>
+      )}
       <Transition show={visible && showDiscovery && !open && !dismissed}>
         {/* Visibility is controlled by first-visit state, not a toggle click. */}
         <PopoverPanel
