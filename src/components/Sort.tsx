@@ -393,24 +393,37 @@ const SortSession = ({
           <br />
           {battle.percent}% sorted.
         </div>
-        <TwitchPollButton
-          isLoggedIn={isLoggedIn}
-          option1={option1}
-          option2={option2}
-        />
-        <ShareLinkButton />
-        <Button
-          className="transfer-button transfer-sort-export"
-          onClick={() => setExportOpen(true)}
-        >
-          Export input list
-        </Button>
-        {exportOpen && (
-          <ListExportDialog
-            draft={{ title, items: ogList.map(({ value }) => ({ value })) }}
-            onClose={() => setExportOpen(false)}
+        <div className="sort-utilities" role="group" aria-label="List actions">
+          <TwitchPollButton
+            isLoggedIn={isLoggedIn}
+            option1={option1}
+            option2={option2}
           />
-        )}
+          <ShareLinkButton />
+          <Button
+            className="sort-utility"
+            type="button"
+            aria-label="Export input list"
+            title="Export input list"
+            onClick={() => setExportOpen(true)}
+          >
+            <svg
+              className="sort-utility-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.75"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 3v12m-5-5 5 5 5-5M5 16v4a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-4"
+              />
+            </svg>
+          </Button>
+        </div>
         <div
           className="sort-leftField"
           onClick={() => {
@@ -456,6 +469,13 @@ const SortSession = ({
           no opinion
         </div>
       </div>
+
+      {exportOpen && (
+        <ListExportDialog
+          draft={{ title, items: ogList.map(({ value }) => ({ value })) }}
+          onClose={() => setExportOpen(false)}
+        />
+      )}
 
       {finishedSort && results && (
         <Results

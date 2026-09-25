@@ -323,11 +323,6 @@ html[data-theme="dark"] .transfer-primary:hover:not(:disabled) {
 .transfer-summary {
   font-weight: 600;
 }
-.transfer-sort-export {
-  grid-column: 1 / -1;
-  grid-row: 4;
-  justify-self: end;
-}
 .transfer-item-editor {
   flex: 1;
   min-width: 0;
@@ -1984,75 +1979,73 @@ html[data-theme="dark"] .home-tip {
   transition: color 0.1s;
 }
 
-.sort-shareContainer {
-  color: #2253a3;
-  border: transparent;
-  background: transparent;
-  grid-area: share;
-  font-size: 0.5rem;
-}
-
-.sort-share {
-  color: #2253a3;
-  height: 1.35rem;
-  width: 100%;
-  cursor: pointer;
-  transition: font-size 0.1s;
-}
-
-.sort-share:hover {
-  color: #3864ac;
-  font-weight: 700;
-  transition: color 0.1s;
-}
-
-.sort-pollContainer {
-  color: #2253a3;
-  border: transparent;
-  background: transparent;
-  grid-area: poll;
-  font-size: 0.5rem;
-}
-
-.sort-poll {
-  color: #2253a3;
-  height: 1.35rem;
-  width: 100%;
-  cursor: pointer;
-  transition: font-size 0.1s;
-}
-
-.sort-poll:hover {
-  color: #3864ac;
-  font-weight: 700;
-  transition: color 0.1s;
-}
-
-.sort-pollUnauthorized {
-  color: #9146ff;
-  height: 1.35rem;
-  width: 100%;
-  cursor: pointer;
-  transition: font-size 0.1s;
-}
-
-.sort-pollUnauthorized:hover {
-  color: #7438cc;
-  font-weight: 700;
-  transition: color 0.1s;
-}
-
-.sort-pollPopover {
+.sort-utilities {
+  grid-area: utilities;
   display: flex;
-  justify-items: center;
   justify-content: center;
   align-items: center;
+  gap: 0.25rem;
+}
+
+.sort-utility {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: none;
+  border-radius: 0.55rem;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition:
+    color 0.15s ease-out,
+    background 0.15s ease-out;
+}
+
+.sort-utility-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex: none;
+}
+
+.sort-utility:hover:not(:disabled) {
+  color: var(--color-text-once-light);
+  background: var(--color-bg-secondary);
+}
+
+html[data-theme="dark"] .sort-utility:hover:not(:disabled) {
+  color: var(--color-text-once-dark);
+}
+
+.sort-utility:active:not(:disabled) {
+  background: var(--color-bg-tertiary);
+}
+
+.sort-utility:focus-visible {
+  outline: 2px solid var(--color-text-once);
+  outline-offset: 2px;
+}
+
+.sort-utility-twitch {
+  color: #9146ff;
+}
+
+.sort-utility-twitch:hover:not(:disabled),
+html[data-theme="dark"] .sort-utility-twitch:hover:not(:disabled) {
+  color: #7438cc;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sort-utility {
+    transition: none;
+  }
 }
 
 .sort-pollPanel {
-  position: absolute;
-  left: 50%;
-  transform: translate(-50%, 0%);
+  width: min(24rem, calc(100vw - 1.5rem));
+  z-index: 40;
 }
 
 .sort-pollForm {
@@ -2219,7 +2212,7 @@ html[data-theme="dark"] .home-tip {
   grid-template-columns: 120px 120px 80px 80px 120px 120px;
   grid-template-rows: auto;
   grid-template-areas:
-    "back back header header poll share"
+    "back back header header utilities utilities"
     "leftField leftField both both rightField rightField"
     "leftField leftField noOpinion noOpinion rightField rightField";
 }
@@ -2373,36 +2366,6 @@ html[data-theme="dark"] .sort-back {
 
 html[data-theme="dark"] .sort-back:hover {
   color: #56a0ff;
-  font-weight: 700;
-}
-
-html[data-theme="dark"] .sort-share {
-  color: #80b7ff;
-  transition: color 0.15s ease-in-out;
-}
-
-html[data-theme="dark"] .sort-share:hover {
-  color: #56a0ff;
-  font-weight: 700;
-}
-
-html[data-theme="dark"] .sort-poll {
-  color: #80b7ff;
-  transition: color 0.15s ease-in-out;
-}
-
-html[data-theme="dark"] .sort-poll:hover {
-  color: #56a0ff;
-  font-weight: 700;
-}
-
-html[data-theme="dark"] .sort-pollUnauthorized {
-  color: #9146ff;
-  transition: color 0.15s ease-in-out;
-}
-
-html[data-theme="dark"] .sort-pollUnauthorized:hover {
-  color: #7438cc;
   font-weight: 700;
 }
 
@@ -4818,9 +4781,10 @@ html[data-theme="dark"] .adminDashboard-shell {
   .sort-container {
     margin: 0.5rem;
     grid-gap: 0.5rem;
-    grid-template-columns: 1fr 1fr 40px 40px 1fr 1fr;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     grid-template-areas:
-      "back back header header poll share"
+      "back back header header . ."
+      "utilities utilities utilities utilities utilities utilities"
       "leftField leftField both both rightField rightField"
       "leftField leftField noOpinion noOpinion rightField rightField";
   }

@@ -641,6 +641,113 @@ test("exports during and after sorting retain input order rather than ranking", 
   ]);
 });
 
+test("sort utilities stay reachable on mobile in both themes", async ({
+  page,
+  context,
+}) => {
+  await sourceRoutes(page);
+  await page.route("https://id.twitch.tv/oauth2/validate", (route) =>
+    route.fulfill({ json: { user_id: "broadcaster" } })
+  );
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await page.setViewportSize({ width: 320, height: 720 });
+  await page.goto("/?list=source");
+  await expect(page.getByLabel("Edit item 1", { exact: true })).toHaveValue(
+    "Zulu"
+  );
+  await page.getByRole("button", { name: "Start", exact: true }).click();
+  const actions = page.getByRole("group", { name: "List actions" });
+  const poll = actions.getByRole("button", { name: "Create a twitch poll" });
+  const share = actions.getByRole("button", {
+    name: "Share a direct link to this list",
+  });
+  const exportButton = actions.getByRole("button", {
+    name: "Export input list",
+  });
+  await expect(poll).toBeVisible();
+
+  for (const theme of ["light", "dark"]) {
+    await page.evaluate(
+      (value) => document.documentElement.setAttribute("data-theme", value),
+      theme
+    );
+    for (const control of [poll, share, exportButton]) {
+      const bounds = await control.boundingBox();
+      expect(bounds).not.toBeNull();
+      expect(bounds!.width).toBeGreaterThanOrEqual(44);
+      expect(bounds!.height).toBeGreaterThanOrEqual(44);
+      expect(bounds!.x).toBeGreaterThanOrEqual(0);
+      expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(320);
+    }
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= window.innerWidth
+      )
+    ).toBe(true);
+    const mobileGrid = await page.locator(".sort-container").boundingBox();
+    const first = await poll.boundingBox();
+    const last = await exportButton.boundingBox();
+    expect(mobileGrid).not.toBeNull();
+    expect(first).not.toBeNull();
+    expect(last).not.toBeNull();
+    expect(
+      Math.abs(
+        (first!.x + last!.x + last!.width) / 2 -
+          (mobileGrid!.x + mobileGrid!.width / 2)
+      )
+    ).toBeLessThan(1);
+    await poll.click();
+    const panel = page.locator(".sort-pollPanel");
+    await expect(panel).toBeVisible();
+    const bounds = await panel.boundingBox();
+    expect(bounds).not.toBeNull();
+    expect(bounds!.x).toBeGreaterThanOrEqual(0);
+    expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(320);
+    await page.keyboard.press("Escape");
+  }
+
+  await page.setViewportSize({ width: 1280, height: 800 });
+  const header = await page.locator(".sort-gridHeader").boundingBox();
+  const toolbar = await actions.boundingBox();
+  const choice = await page.locator(".sort-leftField").boundingBox();
+  const desktopGrid = await page.locator(".sort-container").boundingBox();
+  const first = await poll.boundingBox();
+  const last = await exportButton.boundingBox();
+  const back = await page.locator(".sort-back").boundingBox();
+  expect(header).not.toBeNull();
+  expect(toolbar).not.toBeNull();
+  expect(choice).not.toBeNull();
+  expect(desktopGrid).not.toBeNull();
+  expect(first).not.toBeNull();
+  expect(last).not.toBeNull();
+  expect(back).not.toBeNull();
+  expect(toolbar!.y).toBeLessThan(choice!.y);
+  expect(toolbar!.y).toBeLessThan(header!.y + header!.height);
+  expect(
+    Math.abs(toolbar!.y + toolbar!.height / 2 - (back!.y + back!.height / 2))
+  ).toBeLessThan(1);
+  expect(
+    Math.abs(
+      (first!.x + last!.x + last!.width) / 2 -
+        (desktopGrid!.x + desktopGrid!.width - toolbar!.width / 2)
+    )
+  ).toBeLessThan(1);
+
+  await share.focus();
+  await page.keyboard.press("Enter");
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
+    page.url()
+  );
+  await exportButton.focus();
+  await page.keyboard.press("Space");
+  await expect(
+    page.getByRole("dialog", { name: "Export input list" })
+  ).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(exportButton).toBeFocused();
+  await expect(page.getByText("Battle #1")).toBeVisible();
+});
+
 test("large mobile previews are paginated and remain usable in both themes", async ({
   page,
 }) => {
