@@ -3,17 +3,7 @@ import { getDb } from "@/db/client";
 import { activityLogs, items, listings, visits } from "@/db/schema";
 import { getRedis } from "@/utils/redis";
 import { TRPCError } from "@trpc/server";
-import {
-  and,
-  desc,
-  eq,
-  exists,
-  gte,
-  inArray,
-  notInArray,
-  or,
-  sql,
-} from "drizzle-orm";
+import { and, desc, eq, exists, gte, inArray, or, sql } from "drizzle-orm";
 import { customAlphabet } from "nanoid";
 import * as v from "valibot";
 import {
@@ -165,6 +155,17 @@ export const listingRouter = router({
 
     const getFeatured = async (kDaysAgo: Date) => {
       const db = getDb();
+      const recentVisits = db
+        .select({
+          listingLabel: visits.listingLabel,
+          visitCount: sql<number>`count(*)::int`.as("visitCount"),
+        })
+        .from(visits)
+        .where(gte(visits.createdAt, kDaysAgo))
+        .groupBy(visits.listingLabel)
+        .as("recentVisits");
+
+      const visitCount = sql<number>`coalesce(${recentVisits.visitCount}, 0)`;
       const popularCandidates = await db
         .select({
           id: listings.id,
@@ -172,18 +173,11 @@ export const listingRouter = router({
           title: listings.title,
           createdAt: listings.createdAt,
           updatedAt: listings.updatedAt,
-          visitCount: sql<number>`count(${visits.id})::int`,
+          visitCount,
         })
         .from(listings)
-        .leftJoin(
-          visits,
-          and(
-            eq(visits.listingLabel, listings.label),
-            gte(visits.createdAt, kDaysAgo)
-          )
-        )
-        .groupBy(listings.id)
-        .orderBy(desc(sql`count(${visits.id})`))
+        .leftJoin(recentVisits, eq(recentVisits.listingLabel, listings.label))
+        .orderBy(desc(visitCount))
         .limit(CANDIDATE_POOL_SIZE);
 
       // always show top list at position 1, and shuffle from candidates for next 4
@@ -200,26 +194,7 @@ export const listingRouter = router({
         }
       }
 
-      const excluded = popularList.map((list) => list.label);
-      const needed = TOP_K_LISTS - popularList.length;
-
-      // Only query random listings if we actually need more
-      const randomListings =
-        needed > 0
-          ? await db
-              .select()
-              .from(listings)
-              .where(
-                excluded.length > 0
-                  ? notInArray(listings.label, excluded)
-                  : undefined
-              )
-              .orderBy(sql`RANDOM()`)
-              .limit(needed)
-          : [];
-
-      const selectedListings = [...popularList, ...randomListings];
-      const selectedLabels = selectedListings.map((l) => l.label);
+      const selectedLabels = popularList.map((list) => list.label);
 
       if (selectedLabels.length === 0) {
         return [];
@@ -244,7 +219,7 @@ export const listingRouter = router({
         {} as Record<string, { id: number; value: string }[]>
       );
 
-      return selectedListings.map((listing) => ({
+      return popularList.map((listing) => ({
         ...listing,
         items: itemsByLabel[listing.label] || [],
         visits: [],

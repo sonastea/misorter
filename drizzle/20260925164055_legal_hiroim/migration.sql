@@ -1,0 +1,1 @@
+CREATE INDEX "Visit_createdAt_listingLabel_idx" ON "Visit" ("createdAt","listingLabel");

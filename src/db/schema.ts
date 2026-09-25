@@ -48,7 +48,13 @@ export const visits = pgTable(
     listingLabel: varchar("listingLabel", { length: 255 }).notNull(),
     source: varchar("source", { length: 255 }),
   },
-  (table) => [index("Visit_listingLabel_idx").on(table.listingLabel)]
+  (table) => [
+    index("Visit_listingLabel_idx").on(table.listingLabel),
+    index("Visit_createdAt_listingLabel_idx").on(
+      table.createdAt,
+      table.listingLabel
+    ),
+  ]
 );
 
 export const notices = pgTable("Notice", {
