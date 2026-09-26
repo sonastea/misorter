@@ -1,6 +1,6 @@
 {
   "name": "misorter",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "private": true,
   "scripts": {
     "test": "bun test && bun run test:browser",
@@ -31,7 +31,7 @@
     "@headlessui/tailwindcss": "^0.2.2",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.117.2",
-    "@tanstack/react-query": "^5.103.2",
+    "@tanstack/react-query": "^5.104.0",
     "@tanstack/react-router": "^1.170.39",
     "@tanstack/router-devtools": "^1.167.2",
     "@trpc/client": "^11.19.0",
@@ -57,7 +57,7 @@
     "@trpc/server": "^11.19.0",
     "@types/bun": "^1.4.2",
     "@types/cors": "^2.8.19",
-    "@types/node": "^22.20.4",
+    "@types/node": "^24",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.1",
@@ -80,6 +80,6 @@
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.70.1",
     "vite": "^8.3.1",
-    "wrangler": "^4.140.0"
+    "wrangler": "^4.141.0"
   }
 }
