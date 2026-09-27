@@ -250,11 +250,14 @@ html[data-theme="dark"] .transfer-status-error {
 }
 @media (max-width: 480px) {
   .transfer-export-actions {
-    display: grid;
-    grid-template-columns: auto auto minmax(0, 1fr);
+    display: flex;
+    flex-wrap: wrap;
     gap: 0.5rem;
   }
   .transfer-export-actions .transfer-button {
+    flex: 1 0 auto;
+    min-width: max-content;
+    white-space: nowrap;
     padding-inline: 0.5rem;
   }
   .transfer-export-actions .transfer-icon-button {
@@ -1024,6 +1027,8 @@ html[data-theme="dark"] {
 
 .confirmModal-buttonContainer {
   display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
   justify-content: center;
   align-items: center;
   margin-top: 2.5rem;
@@ -1051,6 +1056,8 @@ html[data-theme="dark"] {
   border-radius: 0.65rem;
   width: 100%;
   max-width: 30rem;
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
   padding: 2rem;
   box-shadow: var(--md-shadow-dp1);
 }
@@ -1072,7 +1079,7 @@ html[data-theme="dark"] {
   position: relative;
   overflow: hidden;
   transition: background 0.15s ease-in;
-  flex: 0 0 25%;
+  flex: 1 0 auto;
 }
 
 .confirmModal-cancel:hover {
@@ -1100,7 +1107,7 @@ html[data-theme="dark"] {
   transition:
     color 0.15s ease-in,
     background 0.15s ease-in;
-  flex: 0 0 25%;
+  flex: 1 0 auto;
 }
 
 .confirmModal-confirm:hover {
@@ -1167,6 +1174,7 @@ html[data-theme="dark"] {
 }
 
 .confirmModal-title {
+  overflow-wrap: anywhere;
   color: var(--color-text-primary);
   font-size: 1.2rem;
   margin: 0;
@@ -1230,12 +1238,16 @@ html[data-theme="dark"] .confirmModal-itemList {
   border-radius: 0.5rem;
   width: 75%;
   max-width: 30rem;
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
   box-shadow: var(--md-shadow-dp1);
   z-index: 999;
 }
 
 .featuredLists-header {
   display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
   padding: 1rem;
   justify-content: space-between;
   align-items: center;
@@ -1246,6 +1258,12 @@ html[data-theme="dark"] .confirmModal-itemList {
 
 .featuredLists-title {
   color: var(--color-text-primary);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.featuredLists-header > div {
+  flex-shrink: 0;
 }
 
 .featuredLists-close {
@@ -2387,7 +2405,8 @@ html[data-theme="dark"] .sort-utility-twitch:hover:not(:disabled) {
   display: grid;
   align-items: center;
   justify-content: center;
-  word-break: normal;
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 
 .sort-both {
@@ -2399,11 +2418,14 @@ html[data-theme="dark"] .sort-utility-twitch:hover:not(:disabled) {
 }
 
 .sort-container {
+  width: min(42.5rem, calc(100% - 1rem));
   margin: 0.5rem;
   text-align: center;
   display: grid;
   grid-gap: 0.25rem;
-  grid-template-columns: 120px 120px 80px 80px 120px 120px;
+  grid-template-columns:
+    minmax(0, 3fr) minmax(0, 3fr) minmax(0, 2fr) minmax(0, 2fr)
+    minmax(0, 3fr) minmax(0, 3fr);
   grid-template-rows: auto;
   grid-template-areas:
     "back back header header utilities utilities"
@@ -2412,6 +2434,9 @@ html[data-theme="dark"] .sort-utility-twitch:hover:not(:disabled) {
 }
 
 .sort-resultsContainer {
+  width: 100%;
+  max-width: 48rem;
+  min-width: 0;
   display: grid;
   gap: 1rem;
   justify-items: center;
@@ -2420,10 +2445,22 @@ html[data-theme="dark"] .sort-utility-twitch:hover:not(:disabled) {
   border: none;
 }
 
+.sort-resultsContainer .sort-resultsContainer {
+  padding: 0;
+}
+
+.sort-resultsContainer > button {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
 .sort-resultsTable {
   color: var(--color-text-primary);
   background: var(--color-bg-primary);
-  min-width: 20rem;
+  min-width: 0;
+  width: 100%;
+  table-layout: fixed;
+  overflow-wrap: anywhere;
   max-width: 45rem;
   font-size: 1.1rem;
   line-height: 120%;
@@ -2828,6 +2865,8 @@ html[data-theme="dark"] .notice-banner-success .notice-banner-dismiss:hover {
 
 .supportForm-panel {
   width: min(22rem, calc(100vw - 2.5rem));
+  max-height: calc(100dvh - 8rem);
+  overflow-y: auto;
   background: var(--color-bg-primary);
   border: 1px solid var(--color-bg-tertiary);
   border-radius: 0.75rem;
@@ -2837,6 +2876,8 @@ html[data-theme="dark"] .notice-banner-success .notice-banner-dismiss:hover {
 
 .supportForm-headerRow {
   display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 0.75rem;
@@ -2863,7 +2904,7 @@ html[data-theme="dark"] .notice-banner-success .notice-banner-dismiss:hover {
 
 .supportForm-typeToggle {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
   gap: 0.5rem;
   margin-bottom: 0.75rem;
 }
