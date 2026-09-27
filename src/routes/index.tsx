@@ -5,6 +5,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import ListItemsSkeletonLoader from "@/components/ListItemsSkeletonLoader";
 import ListTitle from "@/components/ListTitle";
 import ListTitleEdit from "@/components/ListTitleEdit";
+import {
+  rememberUsageTipsDismissal,
+  usageTipsWereDismissed,
+} from "@/components/UsageTips";
 import Setup from "@/components/Setup";
 import Sort from "@/components/Sort";
 import FeaturedLists from "@/components/FeaturedLists";
@@ -20,9 +24,6 @@ import {
   type ImportMode,
 } from "@/utils/list-transfer/draft";
 import { type ListDraft } from "@/utils/list-transfer/schema";
-
-const tip =
-  "Tap the title to name your list something.<br/>hitting <b>no opinion</b>  or  <b>I like both</b> frequently will negatively affect your results.";
 
 export type ListItem = {
   id: string;
@@ -64,6 +65,16 @@ function Home() {
     }) > 0;
 
   const focusTitleRef = useRef(false);
+  const titleRegionRef = useRef<HTMLDivElement>(null);
+  const [tipsDismissed, setTipsDismissed] = useState(usageTipsWereDismissed);
+  const [tipsReady, setTipsReady] = useState(false);
+  // Only one automatic introduction per visit. Trending discovery can wait
+  // until the next visit after the general tips have been dismissed.
+  const [allowFeaturedDiscovery] = useState(tipsDismissed);
+  const dismissUsageTips = useCallback(() => {
+    rememberUsageTipsDismissal();
+    setTipsDismissed(true);
+  }, []);
   // Tracks which server label we've already applied to local state.
   // State (not a ref) so `enabled` below re-evaluates reactively.
   // Prevents refetch + re-apply when the data is already in hand
@@ -95,7 +106,40 @@ function Home() {
 
   const createVisit = useMutation(trpc.listing.createVisit.mutationOptions());
 
+  const canShowUsageTips =
+    !tipsDismissed &&
+    !listLabel &&
+    !currentListData.label &&
+    !code &&
+    !startSort &&
+    !isFetching &&
+    !editTitle &&
+    !open &&
+    list.length === 0 &&
+    !newItem;
+
+  useEffect(() => {
+    if (!canShowUsageTips) return;
+    const handleOutsideInteraction = (event: Event) => {
+      if (
+        event.target instanceof Node &&
+        !titleRegionRef.current?.contains(event.target)
+      ) {
+        dismissUsageTips();
+      }
+    };
+    const timer = window.setTimeout(() => setTipsReady(true), 1000);
+    document.addEventListener("pointerdown", handleOutsideInteraction);
+    document.addEventListener("focusin", handleOutsideInteraction);
+    return () => {
+      window.clearTimeout(timer);
+      document.removeEventListener("pointerdown", handleOutsideInteraction);
+      document.removeEventListener("focusin", handleOutsideInteraction);
+    };
+  }, [canShowUsageTips, dismissUsageTips]);
+
   const toggleFeaturedLists = () => {
+    dismissUsageTips();
     if (open) {
       setOpen(false);
       setFeaturedRequested(false);
@@ -237,15 +281,18 @@ function Home() {
             <ListTitle
               title={title}
               setEditTitle={(val) => {
-                if (val) focusTitleRef.current = true;
+                if (val) {
+                  setOldTitle(title);
+                  focusTitleRef.current = true;
+                }
                 setEditTitle(val);
               }}
               focusRef={focusTitleRef}
+              containerRef={titleRegionRef}
+              showTips={canShowUsageTips && tipsReady}
+              onDismissTips={dismissUsageTips}
             />
           )}
-          <div className="home-tipContainer">
-            <p className="home-tip" dangerouslySetInnerHTML={{ __html: tip }} />
-          </div>
 
           {isFetching && <ListItemsSkeletonLoader />}
 
@@ -280,6 +327,7 @@ function Home() {
           loading={featuredRequested && featured.isFetching && !featuredReady}
           failed={featuredRequested && featured.isError && !featuredReady}
           showDiscovery={
+            allowFeaturedDiscovery &&
             !!featured.data?.length &&
             !listLabel &&
             !code &&

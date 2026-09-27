@@ -98,7 +98,7 @@ test("manual edits use creation preflight and title saves preserve whitespace", 
   ).toBeVisible();
   expect(creates).toEqual([]);
   await page.getByLabel("Edit item 1", { exact: true }).fill("Zulu");
-  await page.getByText("Draft", { exact: true }).click();
+  await page.getByText("Draft", { exact: true }).dblclick();
   await page.getByLabel("Edit list title").fill("x".repeat(256));
   await page.getByRole("button", { name: "Save title" }).click();
   await expect(
@@ -471,10 +471,10 @@ test("loaded route cancels safely, rejects malformed input and detaches same-len
   page.on("request", (request) => {
     if (request.method() === "POST") mutations.push(request.url());
   });
-  await page.getByText("Replacement", { exact: true }).click();
+  await page.getByText("Replacement", { exact: true }).dblclick();
   await page.getByLabel("Edit list title").fill("Canceled title");
   await page.getByRole("button", { name: "Cancel edit" }).click();
-  await page.getByText("Replacement", { exact: true }).click();
+  await page.getByText("Replacement", { exact: true }).dblclick();
   await page.getByLabel("Edit list title").fill("Local title");
   await page.getByRole("button", { name: "Save title" }).click();
   expect((await exportList(page)).document.title).toBe("Local title");
@@ -892,7 +892,7 @@ test("import stays disabled during title/list saves and keyboard focus remains i
   );
   await page
     .getByRole("button", { name: "Edit list title: Original", exact: true })
-    .click();
+    .dblclick();
   await page
     .getByLabel("Edit list title", { exact: true })
     .fill("Saving title");

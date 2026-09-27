@@ -1,3 +1,4 @@
+import { Button, Description, Field, Input, Label } from "@headlessui/react";
 import { List } from "@router/listing";
 import { useMutation } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
@@ -40,7 +41,7 @@ const ListTitleEdit = ({
         trpc.listing.getAllPaginated.pathFilter()
       );
       setOldTitle(updated.title);
-      toast.success("Successfully updated link to list.");
+      toast.success("List title updated.");
       setEditTitle(false);
     },
     onError: (error) => {
@@ -56,21 +57,25 @@ const ListTitleEdit = ({
         );
       }
       setError(error.message);
+      inputRef.current?.focus();
     },
   });
 
   useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
+    inputRef.current?.focus();
+    inputRef.current?.select();
   }, []);
 
   const handleSave = () => {
+    if (updateTitle.isPending) return;
+
     const result = v.safeParse(ListTitleSchema, title);
     if (!result.success) {
       setError(result.issues[0].message);
+      inputRef.current?.focus();
       return;
     }
+    setError(null);
 
     if (title === oldTitle) {
       setEditTitle(false);
@@ -82,20 +87,36 @@ const ListTitleEdit = ({
       updateTitle.mutate({ label: labelToUse, title });
     } else {
       setOldTitle(title);
+      toast.success("List title updated.");
       setEditTitle(false);
     }
   };
 
   const handleCancel = () => {
-    if (oldTitle) setTitle(oldTitle);
-    else setTitle("misorter");
+    if (updateTitle.isPending) return;
+    setTitle(oldTitle ?? "misorter");
     setEditTitle(false);
   };
 
   return (
-    <div className="home-editTitleForm">
-      <div className="home-inputWrapper">
-        <input
+    <form
+      className="home-editTitleForm"
+      aria-label="Change list title"
+      onSubmit={(event) => {
+        event.preventDefault();
+        handleSave();
+      }}
+      onKeyDown={(event) => {
+        if (event.nativeEvent.isComposing || event.keyCode === 229) return;
+        if (event.key === "Escape") {
+          event.preventDefault();
+          handleCancel();
+        }
+      }}
+    >
+      <Field className="home-inputWrapper">
+        <Label className="home-editTitleLabel">Edit list title</Label>
+        <Input
           ref={inputRef}
           className={`home-editTitleInput ${error ? "home-inputError" : ""}`}
           value={title}
@@ -104,45 +125,54 @@ const ListTitleEdit = ({
             if (error) setError(null);
           }}
           onKeyDown={(e) => {
-            if (e.key === "Enter") {
+            // Confirming an IME candidate must not submit the title.
+            if (
+              e.key === "Enter" &&
+              (e.nativeEvent.isComposing || e.keyCode === 229)
+            ) {
               e.preventDefault();
-              handleSave();
-            } else if (e.key === "Escape") {
-              e.preventDefault();
-              handleCancel();
             }
           }}
-          disabled={updateTitle.isPending}
-          aria-label="Edit list title"
-          aria-invalid={!!error}
-          aria-describedby={error ? "title-error" : undefined}
+          readOnly={updateTitle.isPending}
+          aria-busy={updateTitle.isPending}
+          invalid={!!error}
+          enterKeyHint="done"
         />
         {error && (
-          <span id="title-error" className="home-inputErrorMessage">
+          <Description
+            as="span"
+            className="home-inputErrorMessage"
+            role="alert"
+          >
             {error}
-          </span>
+          </Description>
         )}
-      </div>
+        <Description className="home-editHelper">
+          Enter to save, Esc to cancel
+        </Description>
+      </Field>
       <div className="home-editActions">
-        <button
+        <Button
+          type="submit"
           className="home-editAction home-editSave"
-          onClick={handleSave}
           disabled={updateTitle.isPending}
-          aria-label="Save title"
         >
-          Save
-        </button>
-        <button
+          {updateTitle.isPending ? "Saving…" : "Save title"}
+        </Button>
+        <Button
+          type="button"
           className="home-editAction home-editCancel"
           onClick={handleCancel}
           disabled={updateTitle.isPending}
           aria-label="Cancel edit"
         >
           Cancel
-        </button>
+        </Button>
       </div>
-      <p className="home-editHelper">Enter to save, Esc to cancel</p>
-    </div>
+      <span className="sr-only" role="status">
+        {updateTitle.isPending ? "Saving list title…" : ""}
+      </span>
+    </form>
   );
 };
 
