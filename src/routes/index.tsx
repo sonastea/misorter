@@ -10,7 +10,7 @@ import {
   usageTipsWereDismissed,
 } from "@/components/UsageTips";
 import Setup from "@/components/Setup";
-import Sort from "@/components/Sort";
+import type { loadSort } from "@/utils/feature-loaders";
 import FeaturedLists from "@/components/FeaturedLists";
 import FeaturedListsToggle from "@/components/FeaturedListsToggle";
 import Footer from "@/components/Footer";
@@ -55,6 +55,9 @@ function Home() {
   const [list, setList] = useState<ListItem[]>([]);
   const [newItem, setNewItem] = useState<string>("");
   const [startSort, setStartSort] = useState<boolean>(false);
+  const [sortModule, setSortModule] =
+    useState<Awaited<ReturnType<typeof loadSort>>>();
+  const Sort = sortModule?.default;
   const [getListOnce, setGetListOnce] = useState<boolean>(false);
   const [initialListSize, setInititalListSize] = useState<number>(-1);
   const [currentListData, setCurrentListData] = useState<Partial<List>>({});
@@ -88,6 +91,7 @@ function Home() {
   const featured = useQuery({
     ...trpc.listing.getFeatured.queryOptions(),
     refetchOnMount: false,
+    refetchInterval: false,
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
     retry: false,
@@ -298,6 +302,7 @@ function Home() {
 
           {!isFetching && !startSort && (
             <Setup
+              onSortLoaded={setSortModule}
               onImport={applyImportedList}
               importDisabled={titleSaving}
               {...{
@@ -316,7 +321,7 @@ function Home() {
             />
           )}
 
-          {startSort && (
+          {startSort && Sort && (
             <Sort title={title} ogList={list} setStartSort={setStartSort} />
           )}
         </main>
@@ -340,6 +345,12 @@ function Home() {
         />
 
         <FeaturedLists
+          data={featured.data}
+          isLoading={featured.isLoading}
+          isFetching={featured.isFetching}
+          onRefresh={() => {
+            void featured.refetch({ cancelRefetch: false });
+          }}
           open={open}
           toggleOpen={toggleFeaturedLists}
           selectedList={selectedList}

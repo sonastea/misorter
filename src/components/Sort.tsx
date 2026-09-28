@@ -5,6 +5,7 @@ import {
   lazy,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -17,7 +18,9 @@ import ConfirmModal from "./ConfirmModal";
 import TwitchPollButton from "@/components/CreatePollButtonContainer";
 import ShareLinkButton from "@/components/ShareLinkButton";
 import { Button } from "@headlessui/react";
-import ListExportDialog from "@/components/ListExportDialog";
+import { loadExport } from "@/utils/feature-loaders";
+import { useFeatureRequest } from "@/hooks/useFeatureRequest";
+import FeatureLoadStatus from "@/components/FeatureLoadStatus";
 
 const DownloadAsPng = lazy(() => import("../components/DownloadAsPngButton"));
 
@@ -166,6 +169,15 @@ const SortSession = ({
   isLoggedIn: boolean;
 }) => {
   const [exportOpen, setExportOpen] = useState(false);
+  const exporter = useFeatureRequest(loadExport);
+  const ListExportDialog = exporter.module?.default;
+  const exportDraft = useMemo(
+    () => ({ title, items: ogList.map(({ value }) => ({ value })) }),
+    [title, ogList]
+  );
+  const openExport = () => {
+    void exporter.request(() => setExportOpen(true));
+  };
   // Thanks to biasorter.tumblr.com for the code
   // https://biasorter.tumblr.com/
   function initList(eng: SortEngine, ogList: ListItem[]) {
@@ -405,7 +417,8 @@ const SortSession = ({
             type="button"
             aria-label="Export input list"
             title="Export input list"
-            onClick={() => setExportOpen(true)}
+            aria-disabled={exporter.loading}
+            onClick={openExport}
           >
             <svg
               className="sort-utility-icon"
@@ -470,9 +483,15 @@ const SortSession = ({
         </div>
       </div>
 
-      {exportOpen && (
+      <FeatureLoadStatus
+        name="export"
+        {...exporter}
+        onCancel={exporter.cancel}
+        onRetry={openExport}
+      />
+      {exportOpen && ListExportDialog && (
         <ListExportDialog
-          draft={{ title, items: ogList.map(({ value }) => ({ value })) }}
+          draft={exportDraft}
           onClose={() => setExportOpen(false)}
         />
       )}

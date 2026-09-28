@@ -10,7 +10,7 @@ import {
   Select,
   Textarea,
 } from "@headlessui/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import ListTransferStatus from "@/components/ListTransferStatus";
 import {
   parseList,
@@ -154,8 +154,13 @@ export default function ListImportDialog({
       issue.severity === "error" &&
       !(mode === "append" && issue.code === "csv_titles")
   );
-  const imported = preview && validateDraft(preview);
-  const combined = preview && combineDrafts(current, preview, mode);
+  const imported = useMemo(() => preview && validateDraft(preview), [preview]);
+  const combined = useMemo(() => {
+    if (!preview) return undefined;
+    // Successful strict validation guarantees the same canonical title/value shape.
+    if (mode === "replace" && imported?.success) return imported;
+    return combineDrafts(current, preview, mode);
+  }, [current, preview, mode, imported]);
   const errors = [...structuralIssues, ...(combined?.issues || [])];
   const canApply =
     preview &&
@@ -163,10 +168,15 @@ export default function ListImportDialog({
     !structuralIssues.length &&
     !pending &&
     !sourceChanged;
-  const duplicateCount = preview
-    ? preview.items.length -
-      new Set(preview.items.map((item) => item.value)).size
-    : 0;
+  const previewItems = preview?.items;
+  const duplicateCount = useMemo(
+    () =>
+      previewItems
+        ? previewItems.length -
+          new Set(previewItems.map((item) => item.value)).size
+        : 0,
+    [previewItems]
+  );
   const editPreview = (next: ListDraft) => {
     invalidate();
     setPreview(next);

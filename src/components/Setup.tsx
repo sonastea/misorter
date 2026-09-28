@@ -1,17 +1,26 @@
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { ChangeEvent, KeyboardEvent, useRef, useState } from "react";
+import {
+  ChangeEvent,
+  KeyboardEvent,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Button, Textarea } from "@headlessui/react";
-import ListImportDialog from "@/components/ListImportDialog";
-import ListExportDialog from "@/components/ListExportDialog";
+import { loadImport, loadExport, loadSort } from "@/utils/feature-loaders";
+import { useFeatureRequest } from "@/hooks/useFeatureRequest";
+import FeatureLoadStatus from "@/components/FeatureLoadStatus";
 import { CreateListSchema, type ListDraft } from "@/utils/list-transfer/schema";
 import * as v from "valibot";
 import { type ImportMode } from "@/utils/list-transfer/draft";
 import { toast } from "sonner";
-import { ListItem } from "src/routes/index";
+import type { ListItem } from "@/routes/index";
 import { trpc, queryClient } from "@/utils/trpc";
 
 interface SetupProps {
+  onSortLoaded: (module: Awaited<ReturnType<typeof loadSort>>) => void;
   onImport: (draft: ListDraft, mode: ImportMode) => void;
   importDisabled: boolean;
   title: string;
@@ -28,6 +37,7 @@ interface SetupProps {
 }
 
 const Setup = ({
+  onSortLoaded,
   onImport,
   importDisabled,
   title,
@@ -46,6 +56,23 @@ const Setup = ({
   const [exportDraft, setExportDraft] = useState<ListDraft>();
   const [validationError, setValidationError] = useState<string>();
   const setupRef = useRef<HTMLInputElement>(null);
+  const importer = useFeatureRequest(loadImport);
+  const exporter = useFeatureRequest(loadExport);
+  const sorter = useFeatureRequest(loadSort);
+  const ListImportDialog = importer.module?.default;
+  const ListExportDialog = exporter.module?.default;
+  const currentDraft = useMemo(
+    () => ({ title, items: list.map(({ value }) => ({ value })) }),
+    [title, list]
+  );
+  const exportSnapshot = useRef<ListDraft>(undefined);
+  const latestStart = useRef<() => void>(() => {});
+  const openImport = () => {
+    void importer.request(() => setImportOpen(true));
+  };
+  const openExport = () => {
+    void exporter.request(() => setExportDraft(exportSnapshot.current));
+  };
 
   const createVisit = useMutation(trpc.listing.createVisit.mutationOptions());
 
@@ -73,11 +100,11 @@ const Setup = ({
     },
   });
 
-  const checkList = async () => {
+  const checkList = (persist = true) => {
     setValidationError(undefined);
     if (list.length < 2) {
       setValidationError("Include at least two items to start sorting.");
-      return;
+      return false;
     }
 
     const sanitizedList = list.map((item) => {
@@ -86,7 +113,7 @@ const Setup = ({
 
     // fetched a list and it's the same list
     if (getListOnce && initialListSize === list.length) {
-      setStartSort(true);
+      if (persist) setStartSort(true);
     } else {
       const result = v.safeParse(CreateListSchema, {
         title,
@@ -96,12 +123,26 @@ const Setup = ({
         setValidationError(
           result.issues.map((issue) => issue.message).join(" ")
         );
-        return;
+        return false;
       }
-      createList.mutate(result.output);
+      if (persist) createList.mutate(result.output);
     }
 
-    window.scrollTo({ top: 0 });
+    if (persist) window.scrollTo({ top: 0 });
+    return true;
+  };
+  // Read the latest editor state after a delayed download, then repeat preflight.
+  useLayoutEffect(() => {
+    latestStart.current = () => {
+      checkList();
+    };
+  });
+  const start = () => {
+    if (createList.isPending || !checkList(false)) return;
+    void sorter.request((module) => {
+      onSortLoaded(module);
+      latestStart.current();
+    });
   };
 
   const resetList = () => {
@@ -165,25 +206,47 @@ const Setup = ({
         <Button
           className="home-listUtility"
           disabled={importDisabled || creatingList}
-          onClick={() => setImportOpen(true)}
+          aria-disabled={importer.loading}
+          onClick={openImport}
         >
           Import list
         </Button>
         <Button
           className="home-listUtility"
+          aria-disabled={exporter.loading}
           onClick={() => {
+            if (exporter.loading) return;
             // Controlled editors commit on every input, including paste and IME.
-            if (document.activeElement instanceof HTMLElement)
+            if (
+              document.activeElement instanceof HTMLElement &&
+              document.activeElement.matches("input, textarea")
+            )
               document.activeElement.blur();
-            setExportDraft({
-              title,
-              items: list.map(({ value }) => ({ value })),
-            });
+            exportSnapshot.current = currentDraft;
+            openExport();
           }}
         >
           Export list
         </Button>
       </div>
+      <FeatureLoadStatus
+        name="import"
+        {...importer}
+        onCancel={importer.cancel}
+        onRetry={openImport}
+      />
+      <FeatureLoadStatus
+        name="export"
+        {...exporter}
+        onCancel={exporter.cancel}
+        onRetry={openExport}
+      />
+      <FeatureLoadStatus
+        name="sorting"
+        {...sorter}
+        onCancel={sorter.cancel}
+        onRetry={start}
+      />
       <ul className="home-listTable">
         {list &&
           list.map((item: ListItem, index) => {
@@ -244,7 +307,9 @@ const Setup = ({
         </button>
         <button
           className="home-start"
-          onClick={checkList}
+          onClick={start}
+          aria-disabled={sorter.loading}
+          aria-busy={sorter.loading || creatingList}
           disabled={creatingList}
         >
           {creatingList ? (
@@ -277,9 +342,9 @@ const Setup = ({
           )}
         </button>
       </div>
-      {importOpen && (
+      {importOpen && ListImportDialog && (
         <ListImportDialog
-          current={{ title, items: list.map(({ value }) => ({ value })) }}
+          current={currentDraft}
           onClose={() => setImportOpen(false)}
           onApply={(draft, mode) => {
             onImport(draft, mode);
@@ -288,7 +353,7 @@ const Setup = ({
           }}
         />
       )}
-      {exportDraft && (
+      {exportDraft && ListExportDialog && (
         <ListExportDialog
           draft={exportDraft}
           onClose={() => setExportDraft(undefined)}

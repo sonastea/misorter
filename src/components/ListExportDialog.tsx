@@ -8,7 +8,7 @@ import {
   Label,
   Select,
 } from "@headlessui/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { type ListDraft } from "@/utils/list-transfer/schema";
 import { serializeList } from "@/utils/list-transfer/serialize";
 import type { TransferFormat } from "@/utils/list-transfer/adapters";
@@ -35,7 +35,7 @@ export default function ListExportDialog({
     },
     []
   );
-  const result = serializeList(draft, format);
+  const result = useMemo(() => serializeList(draft, format), [draft, format]);
   const copy = async () => {
     if (!result.success || copyState === "copying") return;
     const request = ++copyRevision.current;

@@ -1,4 +1,5 @@
 import ThemeToggle from "@/components/ThemeToggle";
+import "@/styles/admin.css";
 
 const AdminThemeToggle = () => {
   return (

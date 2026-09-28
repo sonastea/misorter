@@ -633,9 +633,14 @@ Meaningful automated coverage for the applicable milestone:
 - Importing into a loaded share link, including a same-length replacement, clears
   its identity; a subsequent title edit cannot update the source and Start creates
   a new label. A late source query cannot restore the original list.
-- Export includes the latest typed/pasted edit, works without a share label, and
-  makes no network request. JSON and deterministic imports work offline once the
-  app is loaded.
+- Export includes the latest typed/pasted edit and works without a share label.
+  Import/export require a connection to load their code on first use in the current
+  document. Once each feature has loaded, parsing, preview, copying, and downloading
+  run locally and work offline, without list create/get/visit requests. A failed
+  first-use download preserves the draft and URL and offers retry after reconnecting.
+  Reloading the document does not guarantee offline readiness. This narrowing of the
+  original eager-loading guarantee was approved on 2026-09-28; see
+  [frontend efficiency](frontend-efficiency.md#3-review-decision-offline-first-use).
 - A persisted imported list is intended to reload with the same title and item
   sequence. Invalid create requests are rejected server-side, and insertion
   failures are intended to roll back. Milestone 4's verification decision above

@@ -10,12 +10,14 @@ import {
   TransitionChild,
 } from "@headlessui/react";
 import { List } from "@router/listing";
-import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { Dispatch, Fragment, SetStateAction } from "react";
-import { trpc } from "@utils/trpc";
 
 const FeaturedLists = ({
+  data,
+  isLoading,
+  isFetching,
+  onRefresh,
   open,
   toggleOpen,
   selectedList,
@@ -23,6 +25,10 @@ const FeaturedLists = ({
   title,
   updateList,
 }: {
+  data: List[] | undefined;
+  isLoading: boolean;
+  isFetching: boolean;
+  onRefresh: () => void;
   open: boolean;
   toggleOpen: () => void;
   selectedList: string;
@@ -31,15 +37,6 @@ const FeaturedLists = ({
   updateList: (data: List, featured: boolean, fromUrl: boolean) => void;
 }) => {
   const navigate = useNavigate();
-
-  const { data, isLoading, refetch, isFetching } = useQuery({
-    ...trpc.listing.getFeatured.queryOptions(),
-    refetchOnMount: false,
-    refetchInterval: false,
-    refetchOnReconnect: false,
-    refetchOnWindowFocus: false,
-    retry: false,
-  });
 
   return (
     <Transition
@@ -76,7 +73,7 @@ const FeaturedLists = ({
               <div className="flex gap-2">
                 <button
                   onClick={() => {
-                    refetch({ cancelRefetch: false });
+                    onRefresh();
                   }}
                   type="button"
                   className="featuredLists-close ui-focus-visible:ring-once-hover dark:ui-focus-visible:ring-once ui-focus-visible:ring-2 focus:outline-hidden disabled:opacity-50 disabled:cursor-not-allowed"

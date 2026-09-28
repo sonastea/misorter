@@ -1,63 +1,18 @@
-import { useState, useEffect, useRef } from "react";
+import { useDelayedDisclosure } from "@/hooks/useDelayedDisclosure";
 
 const Label = ({ label }: { label: string }) => {
-  const [showTooltip, setShowTooltip] = useState(false);
-  const [isLongPress, setIsLongPress] = useState(false);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const labelRef = useRef<HTMLSpanElement>(null);
-
-  const handleMouseEnter = () => {
-    timeoutRef.current = setTimeout(() => {
-      setShowTooltip(true);
-    }, 300);
-  };
-
-  const handleMouseLeave = () => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-    setShowTooltip(false);
-  };
-
-  const handleTouchStart = () => {
-    setIsLongPress(false);
-    timeoutRef.current = setTimeout(() => {
-      setIsLongPress(true);
-      setShowTooltip(true);
-    }, 500);
-  };
-
-  const handleTouchEnd = () => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-    if (!isLongPress) {
-      setShowTooltip(false);
-    }
-  };
-
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, []);
+  const { open: showTooltip, close, handlers } = useDelayedDisclosure(300);
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(label);
-    setShowTooltip(false);
+    close();
   };
 
   return (
     <span
-      ref={labelRef}
       className="adminDashboard-labelTrigger"
       data-row-interactive="true"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
+      {...handlers}
     >
       <span className="adminDashboard-labelText">{label}</span>
       {showTooltip && (

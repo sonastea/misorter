@@ -221,6 +221,14 @@ implementation inspection. Detailed native semantics remain in milestone 1's
 contract suite. New pure cases own combined count/byte limits, replace/append
 content and UUID relationships, retained-title validation, and portable filenames.
 
+2026-09-28 verification update: the approved deferred-loading contract now requires
+connectivity for each feature's first use in a document. The anonymous offline
+workflow explicitly opens import/export online before disconnecting. Production
+asset tests additionally verify unavailable first-use chunks, preserved content,
+online retry, and later offline use. Earlier verification below describes the
+eager implementation at that milestone; current evidence is recorded in
+[frontend efficiency](frontend-efficiency.md#10-implementation-checklist-and-result-record).
+
 Implementation notes:
 
 - Item editors are controlled multiline textareas, with immutable updates on every

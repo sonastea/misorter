@@ -1,62 +1,19 @@
-import { useState, useRef, useEffect } from "react";
+import { useDelayedDisclosure } from "@/hooks/useDelayedDisclosure";
 
 type Item = { id: number; value: string };
 
 const Items = ({ items, count }: { items: Item[]; count: number }) => {
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [isLongPress, setIsLongPress] = useState(false);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, [isLongPress]);
+  const { open: showDropdown, handlers } = useDelayedDisclosure(200);
 
   if (items.length === 0) {
     return <span>{count}</span>;
   }
 
-  const handleMouseEnter = () => {
-    timeoutRef.current = setTimeout(() => {
-      setShowDropdown(true);
-    }, 200);
-  };
-
-  const handleMouseLeave = () => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-    setShowDropdown(false);
-  };
-
-  const handleTouchStart = () => {
-    setIsLongPress(false);
-    timeoutRef.current = setTimeout(() => {
-      setIsLongPress(true);
-      setShowDropdown(true);
-    }, 500);
-  };
-
-  const handleTouchEnd = () => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-    if (!isLongPress) {
-      setShowDropdown(false);
-    }
-  };
-
   return (
     <span
       className="adminDashboard-itemsTrigger"
       data-row-interactive="true"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
+      {...handlers}
     >
       <span className="adminDashboard-itemsCount">{count}</span>
       {showDropdown && (

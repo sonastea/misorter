@@ -364,7 +364,7 @@ test("visible file picker opens and previews a selected JSON file", async ({
   ).toBeEnabled();
 });
 
-test("anonymous offline import, repair, keyboard focus and latest typed/pasted download", async ({
+test("anonymous loaded-feature offline import, repair, keyboard focus and latest typed/pasted download", async ({
   page,
   context,
 }) => {
@@ -379,8 +379,13 @@ test("anonymous offline import, repair, keyboard focus and latest typed/pasted d
     if (/listing\.(create|get|createVisit)(?=,|\?)/.test(request.url()))
       requests.push(request.url());
   });
-  await context.setOffline(true);
+  // First use needs connectivity; loaded modules remain local in this document.
+  await page.getByRole("button", { name: "Import list", exact: true }).click();
+  await expect(page.getByLabel("Paste list")).toBeVisible();
+  await page.keyboard.press("Escape");
   await page.getByRole("button", { name: "Export list", exact: true }).click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await context.setOffline(true);
   await expect(page.getByRole("alert")).toContainText(
     "Include at least one item"
   );
@@ -542,7 +547,7 @@ test("append preserves current title/order and duplicates while detaching the so
   await page
     .getByRole("button", { name: "Use imported list · Append · 4 items" })
     .click();
-  await expect(page).toHaveURL("http://127.0.0.1:3000/");
+  await expect(page).toHaveURL(/http:\/\/127\.0\.0\.1:\d+\/$/);
   // Existing rows keep their identity while imported duplicate rows are added.
   expect(await sourceEditor?.evaluate((element) => element.isConnected)).toBe(
     true
@@ -1070,5 +1075,5 @@ test("a late source response after navigation cannot overwrite an accepted local
     title: "Accepted",
     items: [{ value: "Local" }],
   });
-  await expect(page).toHaveURL("http://127.0.0.1:3000/");
+  await expect(page).toHaveURL(/http:\/\/127\.0\.0\.1:\d+\/$/);
 });
