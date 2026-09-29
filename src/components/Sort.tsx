@@ -77,11 +77,14 @@ const Sort = ({
   let code: string | null = "";
 
   const validate = useCallback(async () => {
+    const authorization = getCookie("Authorization");
+    if (!authorization) return false;
+
     try {
       const data = await fetch("https://id.twitch.tv/oauth2/validate", {
         method: "GET",
         headers: {
-          Authorization: `${getCookie("Authorization")}`,
+          Authorization: authorization,
         },
       }).then((res) => res.json());
       if (data && data.user_id) {
