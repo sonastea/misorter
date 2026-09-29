@@ -1,7 +1,14 @@
 import { List } from "@router/listing";
 import { useIsMutating, useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+import { toast } from "sonner";
 import ListItemsSkeletonLoader from "@/components/ListItemsSkeletonLoader";
 import ListTitle from "@/components/ListTitle";
 import ListTitleEdit from "@/components/ListTitleEdit";
@@ -28,6 +35,12 @@ import { type ListDraft } from "@/utils/list-transfer/schema";
 export type ListItem = {
   id: string;
   value: string;
+};
+
+type ShareRequest = {
+  list: ListItem[];
+  title: string;
+  sourceLabel?: string;
 };
 
 type IndexSearch = {
@@ -117,6 +130,68 @@ function Home() {
   });
 
   const createVisit = useMutation(trpc.listing.createVisit.mutationOptions());
+  // Persistence outlives Setup, but only the unchanged draft may adopt its link.
+  const createList = useMutation(trpc.listing.create.mutationOptions());
+  const activeShareRequest = useRef<ShareRequest | null>(null);
+  const [shareRequest, setShareRequest] = useState<ShareRequest | null>(null);
+  useLayoutEffect(
+    () => () => {
+      activeShareRequest.current = null;
+    },
+    [list, title, listLabel]
+  );
+  const shareLabel =
+    getListOnce && initialListSize === list.length
+      ? currentListData.label
+      : undefined;
+  const sharePending =
+    createList.isPending &&
+    shareRequest?.list === list &&
+    shareRequest.title === title &&
+    shareRequest.sourceLabel === listLabel;
+
+  const startSorting = (
+    module: Awaited<ReturnType<typeof loadSort>>,
+    draft: ListDraft
+  ) => {
+    setSortModule(module);
+    setStartSort(true);
+    if (shareLabel || activeShareRequest.current) return;
+
+    const request = { list, title, sourceLabel: listLabel };
+    activeShareRequest.current = request;
+    setShareRequest(request);
+    createList.mutate(draft, {
+      onSuccess: (created) => {
+        if (activeShareRequest.current !== request) return;
+        activeShareRequest.current = null;
+        setShareRequest(null);
+        queryClient.setQueryData(
+          trpc.listing.get.queryOptions({ label: created.label }).queryKey,
+          created
+        );
+        // Adopt metadata without replacing list identity or restarting Sort.
+        // Block the previous URL's data until navigation commits the new label.
+        detachedLabel.current = listLabel;
+        setAppliedLabel(created.label);
+        setCurrentListData(created);
+        setInititalListSize(list.length);
+        setGetListOnce(true);
+        void navigate({
+          to: "/",
+          search: (previous) => ({ ...previous, list: created.label }),
+        });
+        createVisit.mutate({ label: created.label, source: "NEW" });
+        toast.success("Successfully created link to list.");
+      },
+      onError: () => {
+        if (activeShareRequest.current !== request) return;
+        activeShareRequest.current = null;
+        setShareRequest(null);
+        toast.error("Unable to create link to list. You can keep sorting.");
+      },
+    });
+  };
 
   const canShowUsageTips =
     !tipsDismissed &&
@@ -310,11 +385,10 @@ function Home() {
 
           {!isFetching && !startSort && (
             <Setup
-              onSortLoaded={setSortModule}
+              onStartSort={startSorting}
               onImport={applyImportedList}
               importDisabled={titleSaving}
               {...{
-                label: currentListData.label,
                 title,
                 initialListSize,
                 list,
@@ -324,13 +398,18 @@ function Home() {
                 getItemDraft,
                 onItemDraftChange,
                 setEditTitle,
-                setStartSort,
               }}
             />
           )}
 
           {startSort && Sort && (
-            <Sort title={title} ogList={list} setStartSort={setStartSort} />
+            <Sort
+              title={title}
+              ogList={list}
+              setStartSort={setStartSort}
+              shareLabel={shareLabel}
+              sharePending={sharePending}
+            />
           )}
         </main>
 

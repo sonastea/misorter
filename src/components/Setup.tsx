@@ -1,5 +1,3 @@
-import { useMutation } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
 import {
   KeyboardEvent,
   memo,
@@ -17,12 +15,13 @@ import FeatureLoadStatus from "@/components/FeatureLoadStatus";
 import { CreateListSchema, type ListDraft } from "@/utils/list-transfer/schema";
 import * as v from "valibot";
 import { type ImportMode } from "@/utils/list-transfer/draft";
-import { toast } from "sonner";
 import type { ListItem } from "@/routes/index";
-import { trpc, queryClient } from "@/utils/trpc";
 
 interface SetupProps {
-  onSortLoaded: (module: Awaited<ReturnType<typeof loadSort>>) => void;
+  onStartSort: (
+    module: Awaited<ReturnType<typeof loadSort>>,
+    draft: ListDraft
+  ) => void;
   onImport: (draft: ListDraft, mode: ImportMode) => void;
   importDisabled: boolean;
   title: string;
@@ -34,8 +33,6 @@ interface SetupProps {
   getItemDraft: () => string;
   onItemDraftChange: (value: string) => void;
   setEditTitle: (x: boolean) => void;
-  setStartSort: (x: boolean) => void;
-  label?: string;
 }
 
 const AddItemInput = memo(function AddItemInput({
@@ -140,7 +137,7 @@ const ItemRow = memo(function ItemRow({
 });
 
 const Setup = ({
-  onSortLoaded,
+  onStartSort,
   onImport,
   importDisabled,
   title,
@@ -152,9 +149,7 @@ const Setup = ({
   getItemDraft,
   onItemDraftChange,
   setEditTitle,
-  setStartSort,
 }: SetupProps) => {
-  const navigate = useNavigate();
   const [importOpen, setImportOpen] = useState(false);
   const [exportDraft, setExportDraft] = useState<ListDraft>();
   const [validationError, setValidationError] = useState<string>();
@@ -170,7 +165,9 @@ const Setup = ({
     [title, list]
   );
   const exportSnapshot = useRef<ListDraft>(undefined);
-  const latestStart = useRef<() => void>(() => {});
+  const latestStart = useRef<
+    (module: Awaited<ReturnType<typeof loadSort>>) => void
+  >(() => {});
   const openImport = () => {
     void importer.request(() => setImportOpen(true));
   };
@@ -178,74 +175,37 @@ const Setup = ({
     void exporter.request(() => setExportDraft(exportSnapshot.current));
   };
 
-  const createVisit = useMutation(trpc.listing.createVisit.mutationOptions());
-
-  const createList = useMutation({
-    ...trpc.listing.create.mutationOptions(),
-    onSuccess: (data) => {
-      queryClient.setQueryData(
-        trpc.listing.get.queryOptions({ label: data.label }).queryKey,
-        data
-      );
-      navigate({ to: "/", search: { list: data.label } });
-      setGetListOnce(true);
-      setStartSort(true);
-      // Create a visit for the newly created list
-      createVisit.mutate({ label: data.label, source: "NEW" });
-      toast.success("Successfully created link to list.");
-    },
-    onError: (error) => {
-      if (error.data?.code === "BAD_REQUEST") {
-        setValidationError(error.message);
-        return;
-      }
-      setStartSort(true);
-      toast.error("Unable to create link to list.");
-    },
-  });
-
-  const checkList = (persist = true) => {
+  const checkList = () => {
     setValidationError(undefined);
     if (list.length < 2) {
       setValidationError("Include at least two items to start sorting.");
       return false;
     }
 
-    const sanitizedList = list.map((item) => {
-      return { value: item.value };
-    });
-
     // fetched a list and it's the same list
-    if (getListOnce && initialListSize === list.length) {
-      if (persist) setStartSort(true);
-    } else {
-      const result = v.safeParse(CreateListSchema, {
-        title,
-        items: sanitizedList,
-      });
+    if (!getListOnce || initialListSize !== list.length) {
+      const result = v.safeParse(CreateListSchema, currentDraft);
       if (!result.success) {
         setValidationError(
           result.issues.map((issue) => issue.message).join(" ")
         );
         return false;
       }
-      if (persist) createList.mutate(result.output);
     }
-
-    if (persist) window.scrollTo({ top: 0 });
     return true;
   };
   // Read the latest editor state after a delayed download, then repeat preflight.
   useLayoutEffect(() => {
-    latestStart.current = () => {
-      checkList();
+    latestStart.current = (module) => {
+      if (!checkList()) return;
+      onStartSort(module, currentDraft);
+      window.scrollTo({ top: 0 });
     };
   });
   const start = () => {
-    if (createList.isPending || !checkList(false)) return;
+    if (!checkList()) return;
     void sorter.request((module) => {
-      onSortLoaded(module);
-      latestStart.current();
+      latestStart.current(module);
     });
   };
 
@@ -284,8 +244,6 @@ const Setup = ({
     [setList, setGetListOnce]
   );
 
-  const creatingList = createList.isPending;
-
   return (
     <>
       <AddItemInput
@@ -302,7 +260,7 @@ const Setup = ({
       >
         <Button
           className="home-listUtility"
-          disabled={importDisabled || creatingList}
+          disabled={importDisabled}
           aria-disabled={importer.loading}
           onClick={openImport}
         >
@@ -368,37 +326,9 @@ const Setup = ({
           className="home-start"
           onClick={start}
           aria-disabled={sorter.loading}
-          aria-busy={sorter.loading || creatingList}
-          disabled={creatingList}
+          aria-busy={sorter.loading}
         >
-          {creatingList ? (
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 38 38"
-              xmlns="http://www.w3.org/2000/svg"
-              stroke="currentColor"
-              aria-label="Loading"
-            >
-              <g fill="none" fillRule="evenodd">
-                <g transform="translate(1 1)" strokeWidth="2">
-                  <circle strokeOpacity=".5" cx="18" cy="18" r="18" />
-                  <path d="M36 18c0-9.94-8.06-18-18-18">
-                    <animateTransform
-                      attributeName="transform"
-                      type="rotate"
-                      from="0 18 18"
-                      to="360 18 18"
-                      dur="1s"
-                      repeatCount="indefinite"
-                    />
-                  </path>
-                </g>
-              </g>
-            </svg>
-          ) : (
-            "Start"
-          )}
+          Start
         </button>
       </div>
       {importOpen && ListImportDialog && (

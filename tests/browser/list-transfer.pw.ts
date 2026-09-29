@@ -14,10 +14,10 @@ async function sourceRoutes(page: Page) {
   await page.route("**/trpc/**", async (route) => {
     const url = new URL(route.request().url());
     const names = url.pathname.split("/trpc/")[1].split(",");
-    const inputs = JSON.parse(url.searchParams.get("input") ?? "{}") as Record<
-      string,
-      { json?: { label?: string } }
-    >;
+    const input: unknown = JSON.parse(url.searchParams.get("input") ?? "{}");
+    const inputs = (
+      url.searchParams.has("batch") ? input : { "0": input }
+    ) as Record<string, { json?: { label?: string } }>;
     const fresh = {
       label: "fresh",
       title: "Local title",
@@ -657,6 +657,13 @@ test("sort utilities stay reachable on mobile in both themes", async ({
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await page.setViewportSize({ width: 320, height: 720 });
   await page.goto("/?list=source");
+  await context.addCookies([
+    {
+      name: "Authorization",
+      value: "Bearer test-token",
+      url: new URL("/", page.url()).href,
+    },
+  ]);
   await expect(page.getByLabel("Edit item 1", { exact: true })).toHaveValue(
     "Zulu"
   );
@@ -876,7 +883,7 @@ test("source-only validation errors remain visible and block application", async
   await expect(page.getByLabel("Paste list")).toHaveValue(unknownField);
 });
 
-test("import stays disabled during title/list saves and keyboard focus remains inside the dialog", async ({
+test("title saves block import, list saves allow sorting, and dialog focus stays contained", async ({
   page,
 }) => {
   await sourceRoutes(page);
@@ -953,10 +960,19 @@ test("import stays disabled during title/list saves and keyboard focus remains i
   );
   await page.getByRole("button", { name: "Start", exact: true }).click();
   await creating;
+  await expect(page.locator(".sort-gridHeader")).toContainText("Battle #1");
   await expect(
-    page.getByRole("button", { name: "Import list", exact: true })
+    page.getByRole("button", { name: "Share a direct link to this list" })
   ).toBeDisabled();
+  await page.locator(".sort-leftField").click();
+  await expect(
+    page.getByRole("button", { name: "Show results" })
+  ).toBeVisible();
   release();
+  await expect(page).toHaveURL(/list=fresh/);
+  await expect(
+    page.getByRole("button", { name: "Show results" })
+  ).toBeVisible();
 });
 
 test("failed download is retryable, releases object URLs and leaves the draft intact", async ({

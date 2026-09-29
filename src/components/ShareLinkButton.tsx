@@ -1,9 +1,23 @@
 import { toast } from "sonner";
 import { Button } from "@headlessui/react";
 
-const ShareLinkButton = () => {
+const ShareLinkButton = ({
+  label,
+  pending,
+}: {
+  label?: string;
+  pending: boolean;
+}) => {
+  const description = label
+    ? "Share a direct link to this list"
+    : pending
+      ? "Creating share link…"
+      : "Share link unavailable";
   const copyLinkToClipboard = async () => {
-    await navigator.clipboard.writeText(window.location.href).then(
+    if (!label) return;
+    const url = new URL("/", window.location.origin);
+    url.searchParams.set("list", label);
+    await navigator.clipboard.writeText(url.href).then(
       () => {
         toast.success("Successfully copied link.");
       },
@@ -16,9 +30,12 @@ const ShareLinkButton = () => {
   return (
     <Button
       aria-label="Share a direct link to this list"
+      aria-description={description}
+      aria-busy={pending}
+      disabled={!label}
       className="sort-utility"
       type="button"
-      title="Share a direct link to this list"
+      title={description}
       onClick={() => void copyLinkToClipboard()}
     >
       <svg

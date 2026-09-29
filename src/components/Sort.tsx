@@ -62,10 +62,14 @@ const Sort = ({
   title,
   ogList,
   setStartSort,
+  shareLabel,
+  sharePending,
 }: {
   title: string;
   ogList: ListItem[];
   setStartSort: (value: boolean) => void;
+  shareLabel?: string;
+  sharePending: boolean;
 }) => {
   const [isLoggedIn, setLoggedIn] = useState<boolean>(false);
   // Reset sort state on list replacement without remounting authentication.
@@ -156,6 +160,8 @@ const Sort = ({
       ogList={ogList}
       setStartSort={setStartSort}
       isLoggedIn={isLoggedIn}
+      shareLabel={shareLabel}
+      sharePending={sharePending}
     />
   );
 };
@@ -165,11 +171,15 @@ const SortSession = ({
   ogList,
   setStartSort,
   isLoggedIn,
+  shareLabel,
+  sharePending,
 }: {
   title: string;
   ogList: ListItem[];
   setStartSort: (value: boolean) => void;
   isLoggedIn: boolean;
+  shareLabel?: string;
+  sharePending: boolean;
 }) => {
   const [exportOpen, setExportOpen] = useState(false);
   const exporter = useFeatureRequest(loadExport);
@@ -414,7 +424,7 @@ const SortSession = ({
             option1={option1}
             option2={option2}
           />
-          <ShareLinkButton />
+          <ShareLinkButton label={shareLabel} pending={sharePending} />
           <Button
             className="sort-utility"
             type="button"

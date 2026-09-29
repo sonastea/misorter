@@ -2192,6 +2192,11 @@ html[data-theme="dark"] .sort-utility:hover:not(:disabled) {
   outline-offset: 2px;
 }
 
+.sort-utility:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .sort-utility-twitch {
   color: #9146ff;
 }
