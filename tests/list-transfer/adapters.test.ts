@@ -2,8 +2,8 @@ import { expect, test } from "bun:test";
 import { parseList } from "@/utils/list-transfer/adapters";
 import { serializeList } from "@/utils/list-transfer/serialize";
 
-test("CSV preserves quoted cells, duplicates and logical source records", () => {
-  const result = parseList(
+test("CSV preserves quoted cells, duplicates and logical source records", async () => {
+  const result = await parseList(
     '\uFEFFtitle,value,ignored\r\nGames," Zulu, ""hi"" ",x\r\n,,\r\nGames,"first\r\nsecond",y\r\nGames," Zulu, ""hi"" ",z\r\n',
     { format: "csv" }
   );
@@ -23,12 +23,12 @@ test("CSV preserves quoted cells, duplicates and logical source records", () => 
   ]);
 });
 
-test("CSV mapping requires an unambiguous item column and resolves title conflicts explicitly", () => {
+test("CSV mapping requires an unambiguous item column and resolves title conflicts explicitly", async () => {
   const source = "title,name,item\nOne,A,B\nTwo,C,D";
-  const ambiguous = parseList(source, { format: "csv" });
+  const ambiguous = await parseList(source, { format: "csv" });
   expect(ambiguous.issues.map((issue) => issue.code)).toContain("csv_mapping");
   expect(ambiguous.draft).toBeUndefined();
-  const mapped = parseList(source, { format: "csv", itemColumn: 2 });
+  const mapped = await parseList(source, { format: "csv", itemColumn: 2 });
   expect(mapped.success).toBe(false);
   expect(mapped.titles).toEqual(["One", "Two"]);
   expect(mapped.draft).toEqual({
@@ -36,44 +36,59 @@ test("CSV mapping requires an unambiguous item column and resolves title conflic
     items: [{ value: "B" }, { value: "D" }],
   });
   expect(mapped.issues.map((issue) => issue.code)).toContain("csv_titles");
-  expect(parseList("NAME\nAlpha\nAlpha", { format: "csv" }).draft).toEqual({
+  expect(
+    (await parseList("NAME\nAlpha\nAlpha", { format: "csv" })).draft
+  ).toEqual({
     title: "misorter",
     items: [{ value: "Alpha" }, { value: "Alpha" }],
   });
   expect(
-    parseList("First\nSecond", {
-      format: "csv",
-      header: false,
-      filename: "Songs.csv",
-    }).draft
+    (
+      await parseList("First\nSecond", {
+        format: "csv",
+        header: false,
+        filename: "Songs.csv",
+      })
+    ).draft
   ).toEqual({
     title: "Songs",
     items: [{ value: "First" }, { value: "Second" }],
   });
   expect(
-    parseList("A,B\nC,D", { format: "csv", header: false, itemColumn: 1 }).draft
-      ?.items
+    (
+      await parseList("A,B\nC,D", {
+        format: "csv",
+        header: false,
+        itemColumn: 1,
+      })
+    ).draft?.items
   ).toEqual([{ value: "B" }, { value: "D" }]);
   expect(
-    parseList("title,value\nOne,A\nTwo,B", { format: "csv", titleColumn: null })
-      .success
+    (
+      await parseList("title,value\nOne,A\nTwo,B", {
+        format: "csv",
+        titleColumn: null,
+      })
+    ).success
   ).toBe(true);
 });
 
-test("CSV malformed records block; blank selected cells remain repairable", () => {
+test("CSV malformed records block; blank selected cells remain repairable", async () => {
   for (const [source, code, record] of [
     ['value,other\n"unclosed,x', "csv_syntax", 2],
     ["value,other\nA,x,extra", "csv_width", 2],
     ['value\nbad"quote', "csv_syntax", 2],
   ] as const) {
-    const result = parseList(source, { format: "csv" });
+    const result = await parseList(source, { format: "csv" });
     expect(result.success).toBe(false);
     expect(result.draft).toBeUndefined();
     expect(result.issues).toContainEqual(
       expect.objectContaining({ code, sourceRecord: record })
     );
   }
-  const result = parseList("value,other\n   ,kept\n,x\n,,", { format: "csv" });
+  const result = await parseList("value,other\n   ,kept\n,x\n,,", {
+    format: "csv",
+  });
   expect(
     result.issues
       .filter((issue) => issue.code === "blank")
@@ -82,10 +97,10 @@ test("CSV malformed records block; blank selected cells remain repairable", () =
   expect(result.draft?.items).toEqual([{ value: "   " }, { value: "" }]);
 });
 
-test("text preserves literal punctuation, skips blank lines and removes only one opted-in marker", () => {
+test("text preserves literal punctuation, skips blank lines and removes only one opted-in marker", async () => {
   const source =
     "  - Alpha, beta;\tvalue\r\n\r\n2) Second\r• * Nested\nNo. 4\n-Not a marker\n";
-  const literal = parseList(source);
+  const literal = await parseList(source);
   expect(literal.format).toBe("text");
   expect(literal.draft).toEqual({
     title: "misorter",
@@ -104,7 +119,7 @@ test("text preserves literal punctuation, skips blank lines and removes only one
       message: "1 blank line(s) omitted.",
     })
   );
-  const cleaned = parseList(source, { removeMarkers: true });
+  const cleaned = await parseList(source, { removeMarkers: true });
   expect(cleaned.draft?.items).toEqual([
     { value: "Alpha, beta;\tvalue" },
     { value: "Second" },
@@ -113,48 +128,60 @@ test("text preserves literal punctuation, skips blank lines and removes only one
     { value: "-Not a marker" },
   ]);
   expect(
-    parseList("1. One\n* Two\n- Three\n", { removeMarkers: true }).draft?.items
+    (await parseList("1. One\n* Two\n- Three\n", { removeMarkers: true })).draft
+      ?.items
   ).toEqual([{ value: "One" }, { value: "Two" }, { value: "Three" }]);
 });
 
-test("detection honors extensions and explicit selection without error fallback", () => {
-  expect(parseList("value\nA", { filename: "List.CSV" }).format).toBe("csv");
-  expect(parseList("[literal]", { filename: "List.txt" }).draft?.items).toEqual(
-    [{ value: "[literal]" }]
+test("detection honors extensions and explicit selection without error fallback", async () => {
+  expect((await parseList("value\nA", { filename: "List.CSV" })).format).toBe(
+    "csv"
   );
-  expect(parseList("title,value\nList,A").draft?.items).toEqual([
+  expect(
+    (await parseList("[literal]", { filename: "List.txt" })).draft?.items
+  ).toEqual([{ value: "[literal]" }]);
+  expect((await parseList("title,value\nList,A")).draft?.items).toEqual([
     { value: "title,value" },
     { value: "List,A" },
   ]);
-  expect(parseList("title,value\nList,A", { format: "csv" }).draft?.title).toBe(
-    "List"
-  );
+  expect(
+    (await parseList("title,value\nList,A", { format: "csv" })).draft?.title
+  ).toBe("List");
   for (const source of ["{", "[]", '{"format":"misorter-list","version":2}']) {
-    const result = parseList(source, { filename: "unknown.data" });
+    const result = await parseList(source, { filename: "unknown.data" });
     expect(result.format).toBe("json");
     expect(result.success).toBe(false);
     expect(result.draft).toBeUndefined();
   }
-  const invalidTitle = parseList("A", { filename: `${"x".repeat(256)}.txt` });
+  const invalidTitle = await parseList("A", {
+    filename: `${"x".repeat(256)}.txt`,
+  });
   expect(invalidTitle.draft?.title).toBe("x".repeat(256));
   expect(invalidTitle.issues.map((issue) => issue.code)).toContain(
     "title_length"
   );
 });
 
-test("all adapters reject binary, invalid encoding, oversized sources and excessive items", () => {
+test("all adapters reject binary, invalid encoding, oversized sources and excessive items", async () => {
   expect(
-    parseList(new Uint8Array([0xc3, 0x28]), { format: "csv" }).issues[0].code
+    (await parseList(new Uint8Array([0xc3, 0x28]), { format: "csv" })).issues[0]
+      .code
   ).toBe("invalid_utf8");
-  expect(parseList("A\0B").issues[0].code).toBe("nul");
-  expect(parseList("A\u0001B").issues[0].code).toBe("binary");
-  expect(parseList("x".repeat(1_048_577)).issues[0].code).toBe("input_size");
+  expect((await parseList("A\0B")).issues[0].code).toBe("nul");
+  expect((await parseList("A\u0001B")).issues[0].code).toBe("binary");
+  expect((await parseList("x".repeat(1_048_577))).issues[0].code).toBe(
+    "input_size"
+  );
   for (const format of ["csv", "text"] as const) {
     expect(
-      parseList(Array(1000).fill("A").join("\n"), { format, header: false })
-        .success
+      (
+        await parseList(Array(1000).fill("A").join("\n"), {
+          format,
+          header: false,
+        })
+      ).success
     ).toBe(true);
-    const tooMany = parseList(Array(1001).fill("A").join("\n"), {
+    const tooMany = await parseList(Array(1001).fill("A").join("\n"), {
       format,
       header: false,
     });
@@ -163,7 +190,7 @@ test("all adapters reject binary, invalid encoding, oversized sources and excess
   }
 });
 
-test("CSV golden output quotes standard cells and escapes formula prefixes, never stripping apostrophes", () => {
+test("CSV golden output quotes standard cells and escapes formula prefixes, never stripping apostrophes", async () => {
   const result = serializeList(
     {
       title: "  =Title",
@@ -190,7 +217,8 @@ test("CSV golden output quotes standard cells and escapes formula prefixes, neve
   );
   expect(result.notices?.[0]).toContain("apostrophe");
   expect(
-    parseList("title,value\n'Original,'literal", { format: "csv" }).draft
+    (await parseList("title,value\n'Original,'literal", { format: "csv" }))
+      .draft
   ).toEqual({ title: "'Original", items: [{ value: "'literal" }] });
 });
 

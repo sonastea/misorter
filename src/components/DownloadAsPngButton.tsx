@@ -1,5 +1,4 @@
 import { Button } from "@headlessui/react";
-import { toPng } from "html-to-image";
 import { toast } from "sonner";
 
 export const DownloadAsPngButton = () => {
@@ -10,6 +9,7 @@ export const DownloadAsPngButton = () => {
       return;
     }
     try {
+      const { toPng } = await import("html-to-image");
       const dataUrl = await toPng(node, { cacheBust: true, pixelRatio: 2 });
       const link = document.createElement("a");
       link.download = `misorter-results-${new Date().toLocaleString("default", {

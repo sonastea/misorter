@@ -106,7 +106,7 @@ export default function ListImportDialog({
       }
       const input = file ? new Uint8Array(await file.arrayBuffer()) : source;
       if (request !== revision.current) return;
-      const result = parseList(input, {
+      const result = await parseList(input, {
         format,
         filename: file?.name,
         header,
@@ -114,6 +114,7 @@ export default function ListImportDialog({
         titleColumn,
         removeMarkers,
       });
+      if (request !== revision.current) return;
       setMapping(result);
       setIssues(
         result.issues.filter(

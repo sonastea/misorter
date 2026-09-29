@@ -1,4 +1,3 @@
-import { parse as parseCsvRecords, CsvError } from "csv-parse/browser/esm/sync";
 import { parseNativeJson } from "@/utils/list-transfer/parse";
 import {
   type DraftResult,
@@ -49,10 +48,10 @@ const error = (
   ...(sourceRecord === undefined ? {} : { sourceRecord }),
 });
 
-export function parseList(
+export async function parseList(
   source: string | Uint8Array,
   options: AdapterOptions = {}
-): AdapterResult {
+): Promise<AdapterResult> {
   let format = detectFormat("", options);
   const fail = (issue: ImportIssue): AdapterResult => ({
     success: false,
@@ -143,6 +142,8 @@ export function parseList(
     };
   }
 
+  const { parse: parseCsvRecords, CsvError } =
+    await import("csv-parse/browser/esm/sync");
   const rows: string[][] = [];
   let record = 0;
   let blank = 0;
