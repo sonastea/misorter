@@ -53,7 +53,15 @@ function Home() {
   const [title, setTitle] = useState<string>("misorter");
   const [oldTitle, setOldTitle] = useState<string>();
   const [list, setList] = useState<ListItem[]>([]);
-  const [newItem, setNewItem] = useState<string>("");
+  // Keep the draft across Setup remounts without rendering Home on each key.
+  const itemDraft = useRef("");
+  const [hasItemDraft, setHasItemDraft] = useState(false);
+  const getItemDraft = useCallback(() => itemDraft.current, []);
+  const onItemDraftChange = useCallback((value: string) => {
+    const wasEmpty = itemDraft.current.length === 0;
+    itemDraft.current = value;
+    if (wasEmpty !== (value.length === 0)) setHasItemDraft(value.length > 0);
+  }, []);
   const [startSort, setStartSort] = useState<boolean>(false);
   const [sortModule, setSortModule] =
     useState<Awaited<ReturnType<typeof loadSort>>>();
@@ -120,7 +128,7 @@ function Home() {
     !editTitle &&
     !open &&
     list.length === 0 &&
-    !newItem;
+    !hasItemDraft;
 
   useEffect(() => {
     if (!canShowUsageTips) return;
@@ -217,7 +225,7 @@ function Home() {
     setList(importedItems(list, imported, mode));
     setTitle(result.draft.title);
     setOldTitle(result.draft.title);
-    setNewItem("");
+    onItemDraftChange("");
     setEditTitle(false);
     setStartSort(false);
     setGetListOnce(false);
@@ -313,9 +321,9 @@ function Home() {
                 setList,
                 getListOnce,
                 setGetListOnce,
-                newItem,
+                getItemDraft,
+                onItemDraftChange,
                 setEditTitle,
-                setNewItem,
                 setStartSort,
               }}
             />
@@ -340,7 +348,7 @@ function Home() {
             !isFetching &&
             !editTitle &&
             list.length === 0 &&
-            !newItem
+            !hasItemDraft
           }
         />
 
