@@ -13,9 +13,10 @@ const ThemeToggle = () => {
       return THEME_MODE.LIGHT;
     }
 
-    const storedTheme = localStorage.getItem("theme");
-    if (storedTheme === THEME_MODE.LIGHT || storedTheme === THEME_MODE.DARK) {
-      return storedTheme;
+    // The document bootstrap resolves saved/system preferences before paint.
+    const initialTheme = document.documentElement.dataset.theme;
+    if (initialTheme === THEME_MODE.LIGHT || initialTheme === THEME_MODE.DARK) {
+      return initialTheme;
     }
 
     return window.matchMedia("(prefers-color-scheme: dark)").matches
@@ -31,7 +32,11 @@ const ThemeToggle = () => {
     const targetTheme =
       theme === THEME_MODE.LIGHT ? THEME_MODE.DARK : THEME_MODE.LIGHT;
 
-    localStorage.setItem("theme", targetTheme);
+    try {
+      localStorage.setItem("theme", targetTheme);
+    } catch {
+      // Theme switching still works when storage is unavailable.
+    }
     setTheme(targetTheme);
   };
 

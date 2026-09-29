@@ -2,6 +2,7 @@ import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import { featureUrls } from "./scripts/feature-urls-plugin";
+import { homepagePreload } from "./scripts/homepage-preload-plugin";
 
 export default defineConfig({
   build: {
@@ -23,6 +24,7 @@ export default defineConfig({
   },
   plugins: [
     featureUrls(),
+    homepagePreload(),
     ...(process.env.BUNDLE_ANALYSIS === "1"
       ? [
           {

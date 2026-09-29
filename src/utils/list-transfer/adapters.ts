@@ -104,7 +104,7 @@ export function parseList(
   if (format === "text") {
     const lines = text.replace(/\r\n?/g, "\n").split("\n");
     // A final line terminator does not create another source line.
-    if (lines.at(-1) === "") lines.pop();
+    if (lines[lines.length - 1] === "") lines.pop();
     let blank = 0;
     const items: { value: string }[] = [];
     for (const [index, line] of lines.entries()) {

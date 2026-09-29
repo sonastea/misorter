@@ -56,6 +56,84 @@ function latch() {
   return { promise, release };
 }
 
+test("homepage and font are discovered without executing entry JavaScript", async ({
+  page,
+}) => {
+  const home = fileFor("/src/routes/index.tsx?tsr-split=component");
+  const requests: string[] = [];
+  page.on("request", (request) =>
+    requests.push(new URL(request.url()).pathname.slice(1))
+  );
+  await page.route(`**/${manifest["index.html"].file}`, (route) =>
+    route.abort()
+  );
+  await page.goto("/?list=shared");
+  await expect.poll(() => requests).toContain(home);
+  await expect.poll(() => requests).toContain("fonts/Merriweather-Sans.woff2");
+  await expect(page.locator("#root")).toBeEmpty();
+  for (const file of Object.values(feature))
+    expect(requests).not.toContain(file);
+
+  requests.length = 0;
+  await page.goto("/login");
+  expect(requests).not.toContain(home);
+  await expect(
+    page.locator(`link[rel="modulepreload"][href="/${home}"]`)
+  ).toHaveCount(0);
+});
+
+for (const { stored, system, expected } of [
+  { stored: "dark", system: "light", expected: "dark" },
+  { stored: "light", system: "dark", expected: "light" },
+  { stored: null, system: "dark", expected: "dark" },
+  { stored: "invalid", system: "light", expected: "light" },
+] as const) {
+  test(`theme before React: saved ${stored}, system ${system}`, async ({
+    page,
+  }) => {
+    await page.emulateMedia({ colorScheme: system });
+    await page.addInitScript((value) => {
+      if (value === null) localStorage.removeItem("theme");
+      else localStorage.setItem("theme", value);
+    }, stored);
+    await page.route(`**/${manifest["index.html"].file}`, (route) =>
+      route.abort()
+    );
+    await page.goto("/");
+    await expect(page.locator("html")).toHaveAttribute("data-theme", expected);
+    await expect(page.locator("#root")).toBeEmpty();
+    await page.unroute(`**/${manifest["index.html"].file}`);
+    await api(page);
+    await page.reload();
+    await expect(
+      page.getByTitle(
+        `Switch between light and dark mode (currently ${expected} mode)`
+      )
+    ).toBeVisible();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", expected);
+  });
+}
+
+test("theme bootstrap and toggle tolerate unavailable storage", async ({
+  page,
+}) => {
+  await page.emulateMedia({ colorScheme: "dark" });
+  await page.addInitScript(() => {
+    Object.defineProperty(window, "localStorage", {
+      get() {
+        throw new DOMException("Blocked", "SecurityError");
+      },
+    });
+  });
+  await api(page);
+  await page.goto("/");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await page
+    .getByTitle("Switch between light and dark mode (currently dark mode)")
+    .click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+});
+
 test("cold public graph and requests exclude optional JS and admin CSS", async ({
   page,
 }) => {
