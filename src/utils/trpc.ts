@@ -1,5 +1,11 @@
 import { QueryClient } from "@tanstack/react-query";
-import { createTRPCClient, httpBatchLink, loggerLink } from "@trpc/client";
+import {
+  createTRPCClient,
+  httpBatchLink,
+  httpLink,
+  loggerLink,
+  splitLink,
+} from "@trpc/client";
 import { createTRPCOptionsProxy } from "@trpc/tanstack-react-query";
 import type { AppRouter } from "@router/_app";
 import superjson from "superjson";
@@ -33,9 +39,16 @@ const trpcClient = createTRPCClient<AppRouter>({
         import.meta.env.MODE === "development" ||
         (opts.direction === "down" && opts.result instanceof Error),
     }),
-    httpBatchLink({
-      transformer: superjson,
-      url: getUrl(),
+    splitLink({
+      condition: (op) => op.path === "listing.get",
+      true: httpLink({
+        transformer: superjson,
+        url: getUrl(),
+      }),
+      false: httpBatchLink({
+        transformer: superjson,
+        url: getUrl(),
+      }),
     }),
   ],
 });
