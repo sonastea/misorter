@@ -1,52 +1,47 @@
-import { useMutation } from "@tanstack/react-query";
-import { type SubmitEvent, useState, useEffect, Fragment } from "react";
 import {
+  Button,
   Dialog,
   DialogPanel,
   DialogTitle,
-  Tab,
-  TabGroup,
-  TabList,
   Transition,
   TransitionChild,
 } from "@headlessui/react";
-import { toast } from "sonner";
-import { trpc } from "src/utils/trpc";
+import { Fragment, lazy, Suspense, useState, useEffect, useRef } from "react";
 
-type SupportType = "help" | "feedback";
+const SupportFormContent = lazy(
+  () => import("@/components/SupportFormContent")
+);
 
-const topicOptions: Record<SupportType, string[]> = {
-  help: ["General", "Other"],
-  feedback: ["Feature request", "Bug report", "Other"],
-};
-
-const messagePlaceholders: Record<SupportType, string> = {
-  help: "Describe what you need help with.",
-  feedback: "Share any feedback or features you would like to see.",
-};
-
-const submitLabels: Record<SupportType, string> = {
-  help: "Send for Help",
-  feedback: "Send for Feedback",
-};
-
-const tabIndexMap: Record<SupportType, number> = {
-  help: 0,
-  feedback: 1,
-};
-
-const indexToTabMap: Record<number, SupportType> = {
-  0: "help",
-  1: "feedback",
-};
+function SupportFormSkeleton() {
+  return (
+    <div className="supportForm-loading" role="status">
+      <span className="supportForm-loadingLabel">Loading support form</span>
+      <div aria-hidden="true">
+        <div className="supportForm-typeToggle">
+          <div className="supportForm-skeleton supportForm-skeleton-tab" />
+          <div className="supportForm-skeleton supportForm-skeleton-tab" />
+        </div>
+        <div className="supportForm-form">
+          <div className="supportForm-skeleton supportForm-skeleton-label" />
+          <div className="supportForm-skeleton supportForm-skeleton-control" />
+          <div className="supportForm-skeleton supportForm-skeleton-label" />
+          <div className="supportForm-skeleton supportForm-skeleton-message" />
+          <div className="supportForm-skeleton supportForm-skeleton-label" />
+          <div className="supportForm-skeleton supportForm-skeleton-control" />
+          <div className="supportForm-skeleton supportForm-skeleton-note" />
+          <div className="supportForm-skeleton supportForm-skeleton-control" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const SupportForm = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [type, setType] = useState<SupportType>("help");
-  const [topic, setTopic] = useState(topicOptions.help[0]);
-  const [message, setMessage] = useState("");
-  const [email, setEmail] = useState("");
+  // Only mount the lazy contents after first use, then retain unfinished drafts.
+  const [hasOpened, setHasOpened] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -60,189 +55,84 @@ const SupportForm = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const supportSubmit = useMutation({
-    ...trpc.support.submit.mutationOptions(),
-    onSuccess: () => {
-      toast.success(`Thanks! Your ${type} was submitted.`);
-      setMessage("");
-      setEmail("");
-      setTopic(topicOptions[type][0]);
-      setIsOpen(false);
-    },
-    onError: (error) => {
-      toast.error(error.message || "Could not submit your message.");
-    },
-  });
-
-  const handleTabChange = (index: number) => {
-    const nextType = indexToTabMap[index];
-    setType(nextType);
-    setTopic(topicOptions[nextType][0]);
-  };
-
-  const onSubmit = (event: SubmitEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const trimmedMessage = message.trim();
-    if (trimmedMessage.length < 10) {
-      toast.error("Message must be at least 10 characters.");
-      return;
-    }
-
-    const trimmedEmail = email.trim();
-
-    supportSubmit.mutate({
-      type,
-      topic,
-      message: trimmedMessage,
-      ...(trimmedEmail ? { email: trimmedEmail } : {}),
-    });
-  };
-
   return (
     <div className="supportForm-container">
-      <button
+      <Button
+        ref={triggerRef}
         type="button"
         className={`supportForm-trigger ${!isVisible ? "supportForm-trigger-hidden" : ""}`}
-        onClick={() => setIsOpen(true)}
+        aria-haspopup="dialog"
+        onClick={() => {
+          setHasOpened(true);
+          setIsOpen(true);
+        }}
       >
         Help & Feedback
-      </button>
+      </Button>
 
-      <Transition show={isOpen} as={Fragment}>
-        <Dialog
-          as="div"
-          className="supportForm-dialog"
-          onClose={() => setIsOpen(false)}
+      {hasOpened && (
+        <Transition
+          appear
+          show={isOpen}
+          as={Fragment}
+          unmount={false}
+          afterLeave={() => triggerRef.current?.focus({ preventScroll: true })}
         >
-          <TransitionChild
-            as={Fragment}
-            enter="supportForm-backdrop-enter"
-            enterFrom="supportForm-backdrop-enterFrom"
-            enterTo="supportForm-backdrop-enterTo"
-            leave="supportForm-backdrop-leave"
-            leaveFrom="supportForm-backdrop-leaveFrom"
-            leaveTo="supportForm-backdrop-leaveTo"
+          <Dialog
+            as="div"
+            className="supportForm-dialog"
+            onClose={() => setIsOpen(false)}
+            unmount={false}
           >
-            <div className="supportForm-backdrop" aria-hidden="true" />
-          </TransitionChild>
-
-          <div className="supportForm-panelContainer">
             <TransitionChild
               as={Fragment}
-              enter="supportForm-panel-enter"
-              enterFrom="supportForm-panel-enterFrom"
-              enterTo="supportForm-panel-enterTo"
-              leave="supportForm-panel-leave"
-              leaveFrom="supportForm-panel-leaveFrom"
-              leaveTo="supportForm-panel-leaveTo"
+              unmount={false}
+              enter="supportForm-backdrop-enter"
+              enterFrom="supportForm-backdrop-enterFrom"
+              enterTo="supportForm-backdrop-enterTo"
+              leave="supportForm-backdrop-leave"
+              leaveFrom="supportForm-backdrop-leaveFrom"
+              leaveTo="supportForm-backdrop-leaveTo"
             >
-              <DialogPanel className="supportForm-panel">
-                <div className="supportForm-headerRow">
-                  <DialogTitle as="h3" className="supportForm-title">
-                    Help & Feedback Form
-                  </DialogTitle>
-                  <button
-                    type="button"
-                    className="supportForm-close"
-                    onClick={() => setIsOpen(false)}
-                    aria-label="Close support form"
-                  >
-                    Close
-                  </button>
-                </div>
-
-                <TabGroup
-                  selectedIndex={tabIndexMap[type]}
-                  onChange={handleTabChange}
-                >
-                  <TabList className="supportForm-typeToggle">
-                    <Tab
-                      className={({ selected }) =>
-                        `supportForm-typeButton ${selected ? "supportForm-typeButton-active" : ""}`
-                      }
-                    >
-                      Help
-                    </Tab>
-                    <Tab
-                      className={({ selected }) =>
-                        `supportForm-typeButton ${selected ? "supportForm-typeButton-active" : ""}`
-                      }
-                    >
-                      Feedback
-                    </Tab>
-                  </TabList>
-                </TabGroup>
-
-                <form className="supportForm-form" onSubmit={onSubmit}>
-                  <label className="supportForm-label" htmlFor="support-topic">
-                    Topic
-                  </label>
-                  <select
-                    id="support-topic"
-                    className="supportForm-select"
-                    value={topic}
-                    onChange={(event) => setTopic(event.target.value)}
-                    disabled={supportSubmit.isPending}
-                  >
-                    {topicOptions[type].map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-
-                  <label
-                    className="supportForm-label"
-                    htmlFor="support-message"
-                  >
-                    Message
-                  </label>
-                  <textarea
-                    id="support-message"
-                    className="supportForm-textarea"
-                    value={message}
-                    onChange={(event) => setMessage(event.target.value)}
-                    placeholder={messagePlaceholders[type]}
-                    minLength={10}
-                    maxLength={2000}
-                    required
-                    disabled={supportSubmit.isPending}
-                  />
-
-                  <label className="supportForm-label" htmlFor="support-email">
-                    Email (optional)
-                  </label>
-                  <input
-                    id="support-email"
-                    type="email"
-                    className="supportForm-input"
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)}
-                    placeholder="email@example.com"
-                    maxLength={255}
-                    disabled={supportSubmit.isPending}
-                  />
-
-                  <p className="supportForm-note">
-                    Please avoid sharing passwords or sensitive data.
-                  </p>
-
-                  <button
-                    type="submit"
-                    className="supportForm-submit"
-                    disabled={supportSubmit.isPending}
-                  >
-                    {supportSubmit.isPending
-                      ? "Sending..."
-                      : submitLabels[type]}
-                  </button>
-                </form>
-              </DialogPanel>
+              <div className="supportForm-backdrop" aria-hidden="true" />
             </TransitionChild>
-          </div>
-        </Dialog>
-      </Transition>
+
+            <div className="supportForm-panelContainer">
+              <TransitionChild
+                as={Fragment}
+                unmount={false}
+                enter="supportForm-panel-enter"
+                enterFrom="supportForm-panel-enterFrom"
+                enterTo="supportForm-panel-enterTo"
+                leave="supportForm-panel-leave"
+                leaveFrom="supportForm-panel-leaveFrom"
+                leaveTo="supportForm-panel-leaveTo"
+              >
+                <DialogPanel className="supportForm-panel">
+                  <div className="supportForm-headerRow">
+                    <DialogTitle as="h3" className="supportForm-title">
+                      Help & Feedback Form
+                    </DialogTitle>
+                    <Button
+                      type="button"
+                      autoFocus
+                      className="supportForm-close"
+                      onClick={() => setIsOpen(false)}
+                      aria-label="Close support form"
+                    >
+                      Close
+                    </Button>
+                  </div>
+
+                  <Suspense fallback={<SupportFormSkeleton />}>
+                    <SupportFormContent onClose={() => setIsOpen(false)} />
+                  </Suspense>
+                </DialogPanel>
+              </TransitionChild>
+            </div>
+          </Dialog>
+        </Transition>
+      )}
     </div>
   );
 };
