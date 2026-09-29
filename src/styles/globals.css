@@ -1062,13 +1062,10 @@ html[data-theme="dark"] {
   box-shadow: var(--md-shadow-dp1);
 }
 
-.confirmModal-cancel {
+.confirmModal-cancel,
+.confirmModal-confirm {
   color: var(--color-text-primary);
-  background: transparent;
-  border: transparent;
   border-radius: 0.55rem;
-  border-style: solid;
-  display: inline-block;
   cursor: pointer;
   font-size: 1rem;
   font-weight: bold;
@@ -1078,8 +1075,14 @@ html[data-theme="dark"] {
   padding: 0.45rem;
   position: relative;
   overflow: hidden;
-  transition: background 0.15s ease-in;
   flex: 1 0 auto;
+}
+
+.confirmModal-cancel {
+  background: transparent;
+  border: solid transparent;
+  display: inline-block;
+  transition: background 0.15s ease-in;
 }
 
 .confirmModal-cancel:hover {
@@ -1088,26 +1091,13 @@ html[data-theme="dark"] {
 
 .confirmModal-confirm {
   background: var(--color-text-once);
-  color: var(--color-text-primary);
-  border: 1px var(--color-text-once);
-  border-radius: 0.55rem;
-  border-style: solid;
+  border: 1px solid var(--color-text-once);
   display: flex;
   justify-content: center;
   align-items: center;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: bold;
-  user-select: none;
-  vertical-align: bottom;
-  margin-right: 0.5rem;
-  padding: 0.45rem;
-  position: relative;
-  overflow: hidden;
   transition:
     color 0.15s ease-in,
     background 0.15s ease-in;
-  flex: 1 0 auto;
 }
 
 .confirmModal-confirm:hover {
@@ -1194,21 +1184,12 @@ html[data-theme="dark"] .confirmModal-panel {
   outline-offset: 2px;
 }
 
-html[data-theme="dark"] .confirmModal-cancel {
-  color: var(--color-text-primary);
-}
-
 html[data-theme="dark"] .confirmModal-cancel:hover {
-  color: var(--color-text-primary);
   background: var(--color-bg-tertiary);
 }
 
 html[data-theme="dark"] .confirmModal-confirm {
   color: var(--color-bg-primary);
-}
-
-html[data-theme="dark"] .confirmModal-title {
-  color: var(--color-text-primary);
 }
 
 html[data-theme="dark"] .confirmModal-description {
@@ -1333,10 +1314,6 @@ html[data-theme="dark"] .featuredLists-panel {
 
 html[data-theme="dark"] .featuredLists-close:hover {
   background: var(--color-bg-tertiary);
-}
-
-html[data-theme="dark"] .featuredLists-header {
-  border-bottom: 1px solid var(--color-bg-tertiary);
 }
 
 html[data-theme="dark"] .featuredLists-try {
@@ -1630,10 +1607,6 @@ html[data-theme="dark"] .featuredLists-try:hover {
   outline-offset: 3px;
 }
 
-.home-title {
-  text-align: center;
-}
-
 .home-editTitleForm {
   display: flex;
   flex-direction: column;
@@ -1777,8 +1750,6 @@ html[data-theme="dark"] .home-inputErrorMessage {
   }
 }
 
-/* Remove old textarea styles if no longer used, or keep for safety */
-
 .home-listTable {
   display: flex;
   flex-wrap: wrap;
@@ -1832,41 +1803,51 @@ html[data-theme="dark"] .home-inputContainer:active::after {
   padding: 0 0.75rem;
 }
 
-.home-listUtility {
-  min-height: 2.75rem;
-  padding: 0.5rem 0.625rem;
+/* Shared list utility controls on the editor and sorting screens. */
+.home-listUtility,
+.sort-utility {
   border: none;
   border-radius: 0.55rem;
   background: transparent;
   color: var(--color-text-secondary);
-  font-size: 0.8rem;
-  font-weight: 400;
-  line-height: 1.5;
   cursor: pointer;
   transition:
     color 0.15s ease-out,
     background 0.15s ease-out;
 }
 
-.home-listUtility:hover:not(:disabled) {
+.home-listUtility {
+  min-height: 2.75rem;
+  padding: 0.5rem 0.625rem;
+  font-size: 0.8rem;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.home-listUtility:hover:not(:disabled),
+.sort-utility:hover:not(:disabled) {
   color: var(--color-text-once-light);
   background: var(--color-bg-secondary);
 }
 
-html[data-theme="dark"] .home-listUtility:hover:not(:disabled) {
+html[data-theme="dark"] .home-listUtility:hover:not(:disabled),
+html[data-theme="dark"] .sort-utility:hover:not(:disabled) {
   color: var(--color-text-once-dark);
 }
 
-.home-listUtility:active:not(:disabled) {
+.home-listUtility:active:not(:disabled),
+.sort-utility:active:not(:disabled) {
   background: var(--color-bg-tertiary);
 }
 
-.home-listUtility:focus-visible {
+.home-listUtility:focus-visible,
+.sort-utility:focus-visible {
   outline: 2px solid var(--color-text-once);
   outline-offset: 2px;
 }
 
-.home-listUtility:disabled {
+.home-listUtility:disabled,
+.sort-utility:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
@@ -1878,21 +1859,26 @@ html[data-theme="dark"] .home-listUtility:hover:not(:disabled) {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .home-listUtility {
+  .home-listUtility,
+  .sort-utility {
     transition: none;
   }
 }
 
-html[data-theme="light"] .home-listInput {
+html[data-theme="light"] .home-listInput,
+html[data-theme="dark"] .home-listInput {
   border-radius: 0.65rem;
   font-size: 1rem;
   margin: 0.75rem;
   padding: 0.75rem;
   width: 100%;
-  border: none;
   border-style: none;
   border-width: thin;
   place-self: center;
+}
+
+html[data-theme="light"] .home-listInput {
+  border-color: currentColor;
   background: var(--color-bg-tertiary);
   box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px 0px;
 }
@@ -2005,14 +1991,8 @@ html[data-theme="dark"] .home-item:has(.transfer-item-editor:focus-visible) {
   gap: 1rem;
 }
 
-.home-start {
-  color: var(--color-text-once-light);
-  background: var(--color-bg-primary);
-  border: 1px solid var(--color-bg-primary);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-style: solid;
+.home-start,
+.home-reset {
   border-radius: 0.55rem;
   cursor: pointer;
   font-size: 1.4rem;
@@ -2022,10 +2002,19 @@ html[data-theme="dark"] .home-item:has(.transfer-item-editor:focus-visible) {
   position: relative;
   overflow: hidden;
   padding: 0.55rem;
-  width: 4.5rem;
   transition:
     color 0.15s ease-in,
     background 0.15s ease-in;
+}
+
+.home-start {
+  color: var(--color-text-once-light);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-bg-primary);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 4.5rem;
 }
 
 .home-start:hover {
@@ -2037,37 +2026,15 @@ html[data-theme="dark"] .home-item:has(.transfer-item-editor:focus-visible) {
   background: transparent;
   border: 1px solid transparent;
   display: inline-block;
-  border-radius: 0.55rem;
-  border-style: solid;
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 1.4rem;
-  user-select: none;
-  vertical-align: bottom;
-  position: relative;
-  overflow: hidden;
-  padding: 0.55rem;
   width: 5rem;
-  transition:
-    color 0.15s ease-in,
-    background 0.15s ease-in;
 }
 
 .home-reset:hover {
-  background: rgb(224, 224, 244);
   background: hsl(0, 0%, 88%);
 }
 
 html[data-theme="dark"] .home-listInput {
-  border-radius: 0.65rem;
-  font-size: 1rem;
-  margin: 0.75rem;
-  padding: 0.75rem;
-  width: 100%;
-  border: 1px solid transparent;
-  border-style: none;
-  border-width: thin;
-  place-self: center;
+  border-color: transparent;
   color: var(--color-text-primary);
   background: var(--color-bg-secondary);
   box-shadow: var(--md-shadow-dp1);
@@ -2158,43 +2125,12 @@ html[data-theme="dark"] .home-start:hover {
   width: 2.75rem;
   height: 2.75rem;
   padding: 0;
-  border: none;
-  border-radius: 0.55rem;
-  background: transparent;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  transition:
-    color 0.15s ease-out,
-    background 0.15s ease-out;
 }
 
 .sort-utility-icon {
   width: 1.25rem;
   height: 1.25rem;
   flex: none;
-}
-
-.sort-utility:hover:not(:disabled) {
-  color: var(--color-text-once-light);
-  background: var(--color-bg-secondary);
-}
-
-html[data-theme="dark"] .sort-utility:hover:not(:disabled) {
-  color: var(--color-text-once-dark);
-}
-
-.sort-utility:active:not(:disabled) {
-  background: var(--color-bg-tertiary);
-}
-
-.sort-utility:focus-visible {
-  outline: 2px solid var(--color-text-once);
-  outline-offset: 2px;
-}
-
-.sort-utility:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
 }
 
 .sort-utility-twitch {
@@ -2204,12 +2140,6 @@ html[data-theme="dark"] .sort-utility:hover:not(:disabled) {
 .sort-utility-twitch:hover:not(:disabled),
 html[data-theme="dark"] .sort-utility-twitch:hover:not(:disabled) {
   color: #7438cc;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .sort-utility {
-    transition: none;
-  }
 }
 
 .sort-pollPanel {
@@ -2294,7 +2224,6 @@ html[data-theme="dark"] .sort-utility-twitch:hover:not(:disabled) {
   user-select: none;
   vertical-align: bottom;
   position: relative;
-  border-style: solid;
   overflow: hidden;
   transition:
     color 0.15s ease-in,
@@ -2313,12 +2242,14 @@ html[data-theme="dark"] .sort-utility-twitch:hover:not(:disabled) {
   color: var(--color-text-primary);
   background: var(--color-bg-primary);
   cursor: pointer;
-  border: hsl(0, 0%, 29%);
-  border-style: solid;
-  border-width: 1px;
+  border: 1px solid hsl(0, 0%, 29%);
   padding: 1.2rem 0;
   font-size: 1.25rem;
   box-shadow: var(--md-shadow-dp1);
+  overflow: hidden;
+  display: grid;
+  align-items: center;
+  justify-content: center;
 }
 
 .sort-leftField:hover,
@@ -2334,30 +2265,21 @@ html[data-theme="dark"] .sort-utility-twitch:hover:not(:disabled) {
   padding: 1.1rem 1.33rem;
 }
 
+.sort-leftField,
+.sort-rightField {
+  word-break: break-word;
+}
+
 .sort-leftField {
   grid-area: leftField;
-  overflow: hidden;
-  display: grid;
-  align-items: center;
-  justify-content: center;
-  word-break: break-word;
 }
 
 .sort-rightField {
   grid-area: rightField;
-  overflow: hidden;
-  display: grid;
-  align-items: center;
-  justify-content: center;
-  word-break: break-word;
 }
 
 .sort-both,
 .sort-noOpinion {
-  overflow: hidden;
-  display: grid;
-  align-items: center;
-  justify-content: center;
   overflow-wrap: anywhere;
   min-width: 0;
 }
@@ -2432,10 +2354,7 @@ html[data-theme="dark"] .sort-utility-twitch:hover:not(:disabled) {
   text-align: center;
 }
 
-.sort-itemRow {
-  text-align: center;
-}
-
+.sort-itemRow,
 .sort-leftItemRow {
   text-align: center;
 }
@@ -2472,7 +2391,6 @@ html[data-theme="dark"] .sort-utility-twitch:hover:not(:disabled) {
   user-select: none;
   vertical-align: bottom;
   position: relative;
-  border-style: solid;
   overflow: hidden;
   padding: 0.55rem;
   transition:
@@ -2545,16 +2463,8 @@ html[data-theme="dark"] .sort-pollInput {
   background: var(--color-bg-tertiary);
 }
 
-html[data-theme="dark"] .sort-pollInput:focus {
-  outline: 1px solid var(--color-text-once);
-}
-
 html[data-theme="dark"] .sort-pollInput:disabled {
   color: #bbbbbb;
-}
-
-html[data-theme="dark"] .sort-pollLabels {
-  color: var(--color-text-primary);
 }
 
 html[data-theme="dark"] .sort-pollCancel {
@@ -2670,6 +2580,7 @@ html[data-theme="dark"] .sort-resultsTable td {
 }
 
 .notice-banner-dismiss:hover {
+  background: rgba(0, 0, 0, 0.1);
   opacity: 1;
 }
 
@@ -2678,80 +2589,31 @@ html[data-theme="dark"] .sort-resultsTable td {
   height: 1.1rem;
 }
 
-.notice-banner-info {
-  background: #7ea3dc;
+.notice-banner-info,
+.notice-banner-warning,
+.notice-banner-error,
+.notice-banner-success {
   color: #1a1a1a;
 }
 
-.notice-banner-info .notice-banner-dismiss:hover {
-  background: rgba(0, 0, 0, 0.1);
+.notice-banner-info {
+  background: #7ea3dc;
 }
 
 .notice-banner-warning {
   background: #c8996b;
-  color: #1a1a1a;
-}
-
-.notice-banner-warning .notice-banner-dismiss:hover {
-  background: rgba(0, 0, 0, 0.1);
 }
 
 .notice-banner-error {
   background: #cd7e81;
-  color: #1a1a1a;
-}
-
-.notice-banner-error .notice-banner-dismiss:hover {
-  background: rgba(0, 0, 0, 0.1);
 }
 
 .notice-banner-success {
   background: #6bac95;
-  color: #1a1a1a;
-}
-
-.notice-banner-success .notice-banner-dismiss:hover {
-  background: rgba(0, 0, 0, 0.1);
 }
 
 html[data-theme="dark"] .notice-banner {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-html[data-theme="dark"] .notice-banner-info {
-  background: #7ea3dc;
-  color: #1a1a1a;
-}
-
-html[data-theme="dark"] .notice-banner-info .notice-banner-dismiss:hover {
-  background: rgba(0, 0, 0, 0.1);
-}
-
-html[data-theme="dark"] .notice-banner-warning {
-  background: #c8996b;
-  color: #1a1a1a;
-}
-
-html[data-theme="dark"] .notice-banner-warning .notice-banner-dismiss:hover {
-  background: rgba(0, 0, 0, 0.1);
-}
-
-html[data-theme="dark"] .notice-banner-error {
-  background: #cd7e81;
-  color: #1a1a1a;
-}
-
-html[data-theme="dark"] .notice-banner-error .notice-banner-dismiss:hover {
-  background: rgba(0, 0, 0, 0.1);
-}
-
-html[data-theme="dark"] .notice-banner-success {
-  background: #6bac95;
-  color: #1a1a1a;
-}
-
-html[data-theme="dark"] .notice-banner-success .notice-banner-dismiss:hover {
-  background: rgba(0, 0, 0, 0.1);
 }
 
 .supportForm-container {
@@ -2948,11 +2810,13 @@ html[data-theme="dark"] .notice-banner-success .notice-banner-dismiss:hover {
   transition: opacity 0.2s ease-out;
 }
 
-.supportForm-backdrop-enterFrom {
+.supportForm-backdrop-enterFrom,
+.supportForm-backdrop-leaveTo {
   opacity: 0;
 }
 
-.supportForm-backdrop-enterTo {
+.supportForm-backdrop-enterTo,
+.supportForm-backdrop-leaveFrom {
   opacity: 1;
 }
 
@@ -2960,47 +2824,24 @@ html[data-theme="dark"] .notice-banner-success .notice-banner-dismiss:hover {
   transition: opacity 0.15s ease-in;
 }
 
-.supportForm-backdrop-leaveFrom {
-  opacity: 1;
-}
-
-.supportForm-backdrop-leaveTo {
-  opacity: 0;
-}
-
 .supportForm-panel-enter {
   transition: all 0.2s ease-out;
 }
 
-.supportForm-panel-enterFrom {
+.supportForm-panel-enterFrom,
+.supportForm-panel-leaveTo {
   opacity: 0;
   transform: translateY(1rem) scale(0.95);
 }
 
-.supportForm-panel-enterTo {
+.supportForm-panel-enterTo,
+.supportForm-panel-leaveFrom {
   opacity: 1;
   transform: translateY(0) scale(1);
 }
 
 .supportForm-panel-leave {
   transition: all 0.15s ease-in;
-}
-
-.supportForm-panel-leaveFrom {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-}
-
-.supportForm-panel-leaveTo {
-  opacity: 0;
-  transform: translateY(1rem) scale(0.95);
-}
-
-/* Admin auth and dashboard styles */
-
-/* One table tree becomes cards; resizing preserves selection and disclosures. */
-@media (max-width: 600px) {
-  /* Keep column headers in the accessibility tree while showing select-all. */
 }
 
 @media (max-width: 600px) {
@@ -3041,10 +2882,6 @@ html[data-theme="dark"] .notice-banner-success .notice-banner-dismiss:hover {
   .sort-rightField,
   .sort-both,
   .sort-noOpinion {
-    cursor: pointer;
-    border: hsl(0, 0%, 29%);
-    border-style: solid;
-    border-width: 1px;
     padding: 0.5rem;
     font-size: 1rem;
   }
@@ -3093,10 +2930,6 @@ html[data-theme="dark"] .supportForm-typeButton:hover {
 
 html[data-theme="dark"] .supportForm-typeButton-active:hover {
   background: var(--color-bg-tertiary);
-}
-
-html[data-theme="dark"] .supportForm-close:hover {
-  color: var(--color-text-primary);
 }
 
 html[data-theme="dark"] .supportForm-submit:hover:not(:disabled) {

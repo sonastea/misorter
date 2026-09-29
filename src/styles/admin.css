@@ -167,7 +167,13 @@
   white-space: nowrap;
 }
 
-.adminDashboard-signOut:focus-visible {
+.adminDashboard-signOut:focus-visible,
+.adminDashboard-stateAction:focus-visible,
+.adminDashboard-expandButton:focus-visible,
+.adminDashboard-labelCopyButton:focus-visible,
+.adminDashboard-copyButton:focus-visible,
+.adminDashboard-deleteButton:focus-visible,
+.adminDashboard-paginationButton:focus-visible {
   outline: 2px solid var(--color-text-once);
   outline-offset: 2px;
 }
@@ -290,7 +296,9 @@
   color: var(--color-text-primary);
 }
 
-.adminDashboard-searchClear:focus-visible {
+.adminDashboard-searchClear:focus-visible,
+.adminDashboard-filterChip:focus-visible,
+.adminDashboard-errorBannerDismiss:focus-visible {
   outline: 2px solid var(--color-text-once);
   outline-offset: 1px;
 }
@@ -348,11 +356,6 @@
 .adminDashboard-filterChip:hover {
   border-color: var(--color-bg-icon);
   color: var(--color-text-primary);
-}
-
-.adminDashboard-filterChip:focus-visible {
-  outline: 2px solid var(--color-text-once);
-  outline-offset: 1px;
 }
 
 .adminDashboard-filterChip--active {
@@ -617,14 +620,6 @@
   font-size: 0.72rem;
 }
 
-html[data-theme="dark"] .adminDashboard-activityLog {
-  background: var(--color-bg-primary);
-}
-
-html[data-theme="dark"] .adminDashboard-activityLogHeader {
-  background: var(--color-bg-secondary);
-}
-
 html[data-theme="dark"] .adminDashboard-activityLogItem:hover {
   background: rgba(var(--color-accent-rgb, 96 165 250), 0.1);
   border-color: var(--color-bg-icon);
@@ -708,11 +703,6 @@ html[data-theme="dark"] .adminDashboard-activityLogItem:hover {
   height: 1rem;
 }
 
-.adminDashboard-errorBannerDismiss:focus-visible {
-  outline: 2px solid var(--color-text-once);
-  outline-offset: 1px;
-}
-
 .adminDashboard-state {
   display: flex;
   flex-direction: column;
@@ -792,11 +782,6 @@ html[data-theme="dark"] .adminDashboard-activityLogItem:hover {
   transform: scale(0.98);
 }
 
-.adminDashboard-stateAction:focus-visible {
-  outline: 2px solid var(--color-text-once);
-  outline-offset: 2px;
-}
-
 html[data-theme="dark"] .adminDashboard-errorBanner {
   background: rgba(205, 126, 129, 0.12);
   border-color: rgba(205, 126, 129, 0.25);
@@ -813,11 +798,9 @@ html[data-theme="dark"] .adminDashboard-errorBannerDismiss:hover {
 
 html[data-theme="dark"] .adminDashboard-state {
   background: var(--color-bg-secondary);
-  border-color: var(--color-bg-tertiary);
 }
 
 html[data-theme="dark"] .adminDashboard-stateIcon {
-  color: var(--color-text-secondary);
   opacity: 0.5;
 }
 
@@ -829,11 +812,6 @@ html[data-theme="dark"] .adminDashboard-stateAction {
 
 html[data-theme="dark"] .adminDashboard-stateAction:hover {
   background: var(--color-bg-quaternary, var(--color-bg-tertiary));
-}
-
-html[data-theme="dark"] .adminDashboard-kpiCard {
-  background: var(--color-bg-primary);
-  border-color: var(--color-bg-tertiary);
 }
 
 html[data-theme="dark"] .adminDashboard-filterChip {
@@ -931,10 +909,7 @@ html[data-theme="dark"] .adminDashboard-filterChip--active {
 
 .adminDashboard-tableRow {
   transition: background-color 0.15s ease;
-}
-
-.adminDashboard-tableRow:hover {
-  background-color: var(--color-bg-secondary);
+  cursor: pointer;
 }
 
 .adminDashboard-tableRow--selected {
@@ -964,16 +939,7 @@ html[data-theme="dark"] .adminDashboard-filterChip--active {
   cursor: pointer;
 }
 
-.adminDashboard-expandedPanel {
-  transition:
-    opacity 0.2s ease,
-    transform 0.2s ease;
-}
-
-.adminDashboard-copyButton:active:not(:disabled) {
-  transform: scale(0.95);
-}
-
+.adminDashboard-copyButton:active:not(:disabled),
 .adminDashboard-deleteButton:active:not(:disabled) {
   transform: scale(0.95);
 }
@@ -1017,12 +983,10 @@ html[data-theme="dark"] .adminDashboard-tableRow--selected:hover {
 
 html[data-theme="dark"] .adminDashboard-bulkActions {
   background: var(--color-bg-primary);
-  border-color: var(--color-bg-tertiary);
 }
 
 html[data-theme="dark"] .adminDashboard-bulkActionBtn--secondary {
   background: var(--color-bg-secondary);
-  border-color: var(--color-bg-tertiary);
 }
 
 html[data-theme="dark"]
@@ -1188,18 +1152,14 @@ html[data-theme="dark"]
     min-width: 0;
   }
 
-  .adminDashboard-responsiveTable .adminDashboard-expandedItem {
+  .adminDashboard-responsiveTable .adminDashboard-expandedItem,
+  .adminDashboard-responsiveTable .adminDashboard-itemValue {
     min-width: 0;
     overflow-wrap: anywhere;
   }
 
   .adminDashboard-responsiveTable .adminDashboard-expandedItems {
     grid-template-columns: minmax(0, 1fr);
-  }
-
-  .adminDashboard-responsiveTable .adminDashboard-itemValue {
-    min-width: 0;
-    overflow-wrap: anywhere;
   }
 
   .adminDashboard-responsiveTable .adminDashboard-skeleton {
@@ -1230,9 +1190,6 @@ html[data-theme="dark"]
 .adminDashboard-table td {
   color: var(--color-text-primary);
 }
-.adminDashboard-tableRow {
-  cursor: pointer;
-}
 .adminDashboard-tableRow:hover {
   background: var(--color-bg-secondary);
 }
@@ -1256,10 +1213,6 @@ html[data-theme="dark"]
   opacity: 0.7;
   color: var(--color-text-primary);
 }
-.adminDashboard-expandButton:focus-visible {
-  outline: 2px solid var(--color-text-once);
-  outline-offset: 2px;
-}
 .adminDashboard-expandIcon {
   transition: transform 0.2s ease;
   width: 1rem;
@@ -1268,7 +1221,8 @@ html[data-theme="dark"]
 .adminDashboard-expandIcon--open {
   transform: rotate(180deg);
 }
-.adminDashboard-labelCell {
+.adminDashboard-labelCell,
+.adminDashboard-labelText {
   font-family: monospace;
   font-size: 0.8rem;
 }
@@ -1276,10 +1230,6 @@ html[data-theme="dark"]
   position: relative;
   display: inline-block;
   cursor: pointer;
-}
-.adminDashboard-labelText {
-  font-family: monospace;
-  font-size: 0.8rem;
 }
 .adminDashboard-labelTooltip {
   position: absolute;
@@ -1302,10 +1252,6 @@ html[data-theme="dark"]
 }
 .adminDashboard-labelCopyButton:hover {
   background: var(--color-bg-tertiary);
-}
-.adminDashboard-labelCopyButton:focus-visible {
-  outline: 2px solid var(--color-text-once);
-  outline-offset: 2px;
 }
 .adminDashboard-titleCell {
   max-width: 200px;
@@ -1383,6 +1329,9 @@ html[data-theme="dark"]
   border-bottom: 1px solid var(--color-bg-tertiary);
 }
 .adminDashboard-expandedPanel {
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
   padding: 0.75rem 1rem;
   background: var(--color-bg-tertiary);
   box-shadow:
@@ -1439,12 +1388,8 @@ html[data-theme="dark"]
   cursor: not-allowed;
   opacity: 0.3;
 }
-.adminDashboard-copyButton:focus-visible,
-.adminDashboard-deleteButton:focus-visible {
-  outline: 2px solid var(--color-text-once);
-  outline-offset: 2px;
-}
-.adminDashboard-copyIcon {
+.adminDashboard-copyIcon,
+.adminDashboard-deleteIcon {
   width: 1.1rem;
   height: 1.1rem;
 }
@@ -1452,10 +1397,6 @@ html[data-theme="dark"]
   opacity: 1;
   color: #e24b59;
   background: rgba(205, 126, 129, 0.1);
-}
-.adminDashboard-deleteIcon {
-  width: 1.1rem;
-  height: 1.1rem;
 }
 .adminDashboard-pagination {
   display: flex;
@@ -1485,16 +1426,11 @@ html[data-theme="dark"]
   cursor: not-allowed;
   opacity: 0.5;
 }
-.adminDashboard-paginationButton:focus-visible {
-  outline: 2px solid var(--color-text-once);
-  outline-offset: 2px;
-}
 .adminDashboard-paginationInfo {
   color: var(--color-text-secondary);
   font-size: 0.8rem;
 }
 html[data-theme="dark"] .adminDashboard-copyButton:hover:not(:disabled) {
-  color: var(--color-text-primary);
   background: var(--color-bg-secondary);
 }
 html[data-theme="dark"] .adminDashboard-deleteButton:hover:not(:disabled) {
@@ -1503,23 +1439,13 @@ html[data-theme="dark"] .adminDashboard-deleteButton:hover:not(:disabled) {
 }
 html[data-theme="dark"] .adminDashboard-itemsDropdownContent {
   background: var(--color-bg-tertiary);
-  border-color: var(--color-bg-quaternary, var(--color-bg-tertiary));
 }
 html[data-theme="dark"] .adminDashboard-itemRow:nth-child(odd) {
   background: var(--color-bg-secondary);
 }
-html[data-theme="dark"] .adminDashboard-table th {
-  color: var(--color-text-secondary);
-}
-html[data-theme="dark"] .adminDashboard-table td {
-  color: var(--color-text-primary);
-}
 html[data-theme="dark"] .adminDashboard-tableScrollRegion {
   border-color: var(--color-bg-tertiary);
   background: var(--color-bg-primary);
-}
-html[data-theme="dark"] .adminDashboard-paginationButton:hover:not(:disabled) {
-  background: var(--color-bg-tertiary);
 }
 html[data-theme="dark"] .adminDashboard-searchInput {
   background: var(--color-bg-tertiary);
